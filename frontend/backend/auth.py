@@ -5,6 +5,7 @@ Handles user management, JWT tokens, and password security.
 
 import os
 import sys
+import sqlite3
 import json
 import time
 from pathlib import Path
@@ -26,14 +27,10 @@ if str(ROOT_DIR) not in sys.path:
 from dotenv import load_dotenv
 load_dotenv(ROOT_DIR / ".env")
 
-# Import database abstraction layer
-from . import db
-
 from pydantic import BaseModel, EmailStr, validator
 import jwt
 
 # ── Configuration ──────────────────────────────────────────────────
-# Use database module for connection (supports PostgreSQL and SQLite)
 DB_FILE = ROOT_DIR / "data" / "cyberdefence.db"
 SECRET_KEY = os.getenv("SECRET_KEY", "your-super-secret-key-change-in-production")
 ALGORITHM = "HS256"
@@ -275,109 +272,65 @@ def send_password_reset_email(email: str, reset_token: str) -> bool:
 # ── Database Management ────────────────────────────────────────────
 def init_auth_db():
     """Initialize authentication tables and add new columns for password reset."""
-    conn = db.get_connection()
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     
     # Users table with password reset support
-    if db.db.use_postgresql:
-        # PostgreSQL version
-        c.execute("""CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT NOT NULL,
-            organization TEXT,
-            password_hash TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            last_login TEXT,
-            is_active BOOLEAN DEFAULT true,
-            reset_token TEXT,
-            reset_token_expiry DOUBLE PRECISION
-        )""")
-    else:
-        # SQLite version
-        c.execute("""CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT NOT NULL,
-            organization TEXT,
-            password_hash TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            last_login TEXT,
-            is_active BOOLEAN DEFAULT 1,
-            reset_token TEXT,
-            reset_token_expiry REAL
-        )""")
+    c.execute("""CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        full_name TEXT NOT NULL,
+        organization TEXT,
+        password_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        last_login TEXT,
+        is_active BOOLEAN DEFAULT 1,
+        reset_token TEXT,
+        reset_token_expiry REAL
+    )""")
     
     # ── Migration: Add reset_token and reset_token_expiry columns if they don't exist ──
+    c.execute("PRAGMA table_info(users)")
+    columns = [col[1] for col in c.fetchall()]
+    
     try:
-        c.execute("PRAGMA table_info(users)" if not db.db.use_postgresql else "SELECT column_name FROM information_schema.columns WHERE table_name='users'")
-        if db.db.use_postgresql:
-            columns = [col[0] for col in c.fetchall()]
-        else:
-            columns = [col[1] for col in c.fetchall()]
-        
-        try:
-            if 'reset_token' not in columns:
-                c.execute("""ALTER TABLE users ADD COLUMN reset_token TEXT""")
-                print("✅ Added 'reset_token' column to users table")
-        except Exception:
-            pass  # Column already exists
-        
-        try:
-            if 'reset_token_expiry' not in columns:
-                col_type = "DOUBLE PRECISION" if db.db.use_postgresql else "REAL"
-                c.execute(f"""ALTER TABLE users ADD COLUMN reset_token_expiry {col_type}""")
-                print("✅ Added 'reset_token_expiry' column to users table")
-        except Exception:
-            pass  # Column already exists
-    except Exception:
-        pass  # Table may not exist yet (fresh DB)
+        if 'reset_token' not in columns:
+            c.execute("""ALTER TABLE users ADD COLUMN reset_token TEXT""")
+            print("✅ Added 'reset_token' column to users table")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+    
+    try:
+        if 'reset_token_expiry' not in columns:
+            c.execute("""ALTER TABLE users ADD COLUMN reset_token_expiry REAL""")
+            print("✅ Added 'reset_token_expiry' column to users table")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
     
     # Add user_id to scans table if it doesn't exist
-    try:
-        c.execute("PRAGMA table_info(scans)" if not db.db.use_postgresql else "SELECT column_name FROM information_schema.columns WHERE table_name='scans'")
-        if db.db.use_postgresql:
-            columns = [col[0] for col in c.fetchall()]
-        else:
-            columns = [col[1] for col in c.fetchall()]
-        
-        if 'user_id' not in columns:
-            c.execute("""ALTER TABLE scans ADD COLUMN user_id INTEGER""")
-    except Exception:
-        pass  # Table may not exist yet
+    c.execute("PRAGMA table_info(scans)")
+    columns = [col[1] for col in c.fetchall()]
+    if 'user_id' not in columns:
+        c.execute("""ALTER TABLE scans ADD COLUMN user_id INTEGER""")
     
     # Reports table for tracking generated reports
-    if db.db.use_postgresql:
-        # PostgreSQL version with FOREIGN KEY
-        c.execute("""CREATE TABLE IF NOT EXISTS reports (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL,
-            target TEXT,
-            org_name TEXT,
-            author TEXT,
-            pdf_path TEXT,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )""")
-    else:
-        # SQLite version
-        c.execute("""CREATE TABLE IF NOT EXISTS reports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            target TEXT,
-            org_name TEXT,
-            author TEXT,
-            pdf_path TEXT,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )""")
+    c.execute("""CREATE TABLE IF NOT EXISTS reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        target TEXT,
+        org_name TEXT,
+        author TEXT,
+        pdf_path TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )""")
     
     conn.commit()
     conn.close()
 
 def get_user_by_email(email: str) -> dict | None:
     """Get a user by email."""
-    conn = db.get_connection()
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE email = ?", (email,))
     row = c.fetchone()
@@ -398,7 +351,7 @@ def get_user_by_email(email: str) -> dict | None:
 
 def get_user_by_id(user_id: int) -> dict | None:
     """Get a user by ID."""
-    conn = db.get_connection()
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     row = c.fetchone()
@@ -426,7 +379,7 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
     password_hash = hash_password(password)
     now = datetime.utcnow().isoformat()
     
-    conn = db.get_connection()
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     try:
         c.execute(
@@ -434,7 +387,7 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
             (email, full_name, organization, password_hash, now)
         )
         conn.commit()
-        user_id = c.lastrowid if hasattr(c, 'lastrowid') else c.insertid if hasattr(c, 'insertid') else None
+        user_id = c.lastrowid
         conn.close()
         
         return {
@@ -444,15 +397,13 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
             "organization": organization,
             "created_at": now
         }
-    except Exception as e:
+    except sqlite3.IntegrityError:
         conn.close()
-        if "unique" not in str(e).lower():
-            print(f"[!] Error creating user: {e}")
         return None
 
 def update_last_login(user_id: int):
     """Update user's last login timestamp."""
-    conn = db.get_connection()
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("UPDATE users SET last_login = ? WHERE id = ?", 
               (datetime.utcnow().isoformat(), user_id))
@@ -462,7 +413,7 @@ def update_last_login(user_id: int):
 def update_password(user_id: int, new_password: str) -> bool:
     """Update user's password."""
     password_hash = hash_password(new_password)
-    conn = db.get_connection()
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("UPDATE users SET password_hash = ? WHERE id = ?", 
               (password_hash, user_id))
@@ -516,7 +467,7 @@ def create_reset_token_for_user(user_id: int) -> str | None:
         expiry_time = time.time() + 3600  # 3600 seconds = 1 hour
         
         # Store in database
-        conn = db.get_connection()
+        conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
         c.execute(
             "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?",
@@ -547,7 +498,7 @@ def verify_reset_token(token: str) -> dict | None:
         hashed_token = hash_reset_token(token)
         
         # Query database
-        conn = db.get_connection()
+        conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
         c.execute(
             "SELECT id, email, full_name, reset_token_expiry FROM users WHERE reset_token = ?",
@@ -589,7 +540,7 @@ def invalidate_reset_token(user_id: int) -> bool:
         True if successful
     """
     try:
-        conn = db.get_connection()
+        conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
         c.execute(
             "UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = ?",

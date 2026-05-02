@@ -12,5 +12,4 @@ bcrypt
 email-validator
 argon2-cffi
 python-dotenv
-psycopg2-binary
 
