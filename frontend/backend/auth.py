@@ -26,8 +26,30 @@ if str(ROOT_DIR) not in sys.path:
 from dotenv import load_dotenv
 load_dotenv(ROOT_DIR / ".env")
 
-# Import database abstraction layer
-from . import db
+# ── Database abstraction layer (supports PostgreSQL and SQLite) ────
+import sqlite3
+
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+USE_POSTGRES = bool(DATABASE_URL)
+
+if USE_POSTGRES:
+    try:
+        import psycopg2
+        def get_db_connection():
+            return psycopg2.connect(DATABASE_URL)
+    except ImportError:
+        print("[!] psycopg2 not available. Install with: pip install psycopg2-binary")
+        USE_POSTGRES = False
+        DB_FILE = ROOT_DIR / "data" / "cyberdefence.db"
+        def get_db_connection():
+            return sqlite3.connect(DB_FILE)
+else:
+    DB_FILE = ROOT_DIR / "data" / "cyberdefence.db"
+    def get_db_connection():
+        return sqlite3.connect(DB_FILE)
 
 from pydantic import BaseModel, EmailStr, validator
 import jwt
@@ -331,12 +353,12 @@ def get_table_columns(cursor, table_name: str) -> list:
 
 def init_auth_db():
     """Initialize authentication tables and add new columns for password reset."""
-    conn = db.get_connection()
+    conn = get_db_connection()
     c = conn.cursor()
     
     # Users table with password reset support
     # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
-    if db.USE_POSTGRESQL:
+    if USE_POSTGRES:
         c.execute("""CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             email TEXT UNIQUE NOT NULL,
@@ -387,7 +409,7 @@ def init_auth_db():
     
     # Reports table for tracking generated reports
     # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
-    if db.USE_POSTGRESQL:
+    if USE_POSTGRES:
         c.execute("""CREATE TABLE IF NOT EXISTS reports (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -415,7 +437,7 @@ def init_auth_db():
 
 def get_user_by_email(email: str) -> dict | None:
     """Get a user by email."""
-    conn = db.get_connection()
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE email = ?", (email,))
     row = c.fetchone()
@@ -436,7 +458,7 @@ def get_user_by_email(email: str) -> dict | None:
 
 def get_user_by_id(user_id: int) -> dict | None:
     """Get a user by ID."""
-    conn = db.get_connection()
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     row = c.fetchone()
@@ -464,7 +486,7 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
     password_hash = hash_password(password)
     now = datetime.utcnow().isoformat()
     
-    conn = db.get_connection()
+    conn = get_db_connection()
     c = conn.cursor()
     try:
         c.execute(
@@ -488,7 +510,7 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
 
 def update_last_login(user_id: int):
     """Update user's last login timestamp."""
-    conn = db.get_connection()
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute("UPDATE users SET last_login = ? WHERE id = ?", 
               (datetime.utcnow().isoformat(), user_id))
@@ -498,7 +520,7 @@ def update_last_login(user_id: int):
 def update_password(user_id: int, new_password: str) -> bool:
     """Update user's password."""
     password_hash = hash_password(new_password)
-    conn = db.get_connection()
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute("UPDATE users SET password_hash = ? WHERE id = ?", 
               (password_hash, user_id))
@@ -552,7 +574,7 @@ def create_reset_token_for_user(user_id: int) -> str | None:
         expiry_time = time.time() + 3600  # 3600 seconds = 1 hour
         
         # Store in database
-        conn = db.get_connection()
+        conn = get_db_connection()
         c = conn.cursor()
         c.execute(
             "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?",
@@ -583,7 +605,7 @@ def verify_reset_token(token: str) -> dict | None:
         hashed_token = hash_reset_token(token)
         
         # Query database
-        conn = db.get_connection()
+        conn = get_db_connection()
         c = conn.cursor()
         c.execute(
             "SELECT id, email, full_name, reset_token_expiry FROM users WHERE reset_token = ?",
@@ -625,7 +647,7 @@ def invalidate_reset_token(user_id: int) -> bool:
         True if successful
     """
     try:
-        conn = db.get_connection()
+        conn = get_db_connection()
         c = conn.cursor()
         c.execute(
             "UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = ?",

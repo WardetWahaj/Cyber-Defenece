@@ -65,13 +65,29 @@ except ImportError:
     NMAP_AVAILABLE = False
 
 # ── Database abstraction layer (supports PostgreSQL and SQLite) ────
-sys.path.insert(0, str(Path(__file__).parent / "frontend" / "backend"))
-try:
-    from db import db as db_connection, USE_POSTGRESQL as DB_USE_POSTGRESQL
-    CUSTOM_DB_AVAILABLE = True
-except ImportError:
-    CUSTOM_DB_AVAILABLE = False
-    DB_USE_POSTGRESQL = False
+import sqlite3
+
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+USE_POSTGRES = bool(DATABASE_URL)
+
+if USE_POSTGRES:
+    try:
+        import psycopg2
+        def get_db_connection():
+            return psycopg2.connect(DATABASE_URL)
+    except ImportError:
+        print("[!] psycopg2 not available. Install with: pip install psycopg2-binary")
+        USE_POSTGRES = False
+        DB_FILE = Path(__file__).parent / "data" / "cyberdefence.db"
+        def get_db_connection():
+            return sqlite3.connect(DB_FILE)
+else:
+    DB_FILE = Path(__file__).parent / "data" / "cyberdefence.db"
+    def get_db_connection():
+        return sqlite3.connect(DB_FILE)
 
 console = Console()
 
@@ -137,17 +153,11 @@ TIMEOUT = CONFIG["request_timeout"]
 
 # ── Database ─────────────────────────────────────────────────────
 def init_db():
-    if CUSTOM_DB_AVAILABLE:
-        conn = db_connection.connect()
-        use_pg = DB_USE_POSTGRESQL
-    else:
-        import sqlite3
-        conn = sqlite3.connect(DB_FILE)
-        use_pg = False
+    conn = get_db_connection()
     c = conn.cursor()
     
     # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
-    if use_pg:
+    if USE_POSTGRES:
         c.execute("""CREATE TABLE IF NOT EXISTS scans (
             id SERIAL PRIMARY KEY,
             target TEXT, module TEXT,
@@ -162,22 +172,14 @@ def init_db():
     conn.commit(); conn.close()
 
 def save_db(target, module, results, user_id=None):
-    if CUSTOM_DB_AVAILABLE:
-        conn = db_connection.connect()
-    else:
-        import sqlite3
-        conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute("INSERT INTO scans (target,module,timestamp,results,user_id) VALUES (?,?,?,?,?)",
               (target, module, datetime.datetime.now().isoformat(), json.dumps(results, default=str), user_id))
     conn.commit(); conn.close()
 
 def get_history(limit=20, user_id=None):
-    if CUSTOM_DB_AVAILABLE:
-        conn = db_connection.connect()
-    else:
-        import sqlite3
-        conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     c = conn.cursor()
     if user_id:
         c.execute("SELECT * FROM scans WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?", (user_id, limit))
@@ -187,11 +189,7 @@ def get_history(limit=20, user_id=None):
     return rows
 
 def get_latest(module, user_id=None):
-    if CUSTOM_DB_AVAILABLE:
-        conn = db_connection.connect()
-    else:
-        import sqlite3
-        conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     c = conn.cursor()
     if user_id:
         c.execute("SELECT results FROM scans WHERE module=? AND user_id=? ORDER BY timestamp DESC LIMIT 1", (module, user_id))
