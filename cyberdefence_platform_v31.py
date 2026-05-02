@@ -26,7 +26,7 @@ Modules:
   0. Exit
 """
 
-import os, sys, json, re, ssl, socket, sqlite3, logging
+import os, sys, json, re, ssl, socket, logging
 import time, threading, subprocess, datetime, shutil
 from pathlib import Path
 from urllib.parse import urlparse
@@ -63,10 +63,24 @@ try:
 except ImportError:
     NMAP_AVAILABLE = False
 
+# ── Environment variables ───────────────────────────────────────
+from dotenv import load_dotenv
+BASE_DIR = Path(__file__).parent
+load_dotenv(BASE_DIR / ".env")
+
+# ── Import database abstraction layer ───────────────────────────
+sys.path.insert(0, str(BASE_DIR / "frontend" / "backend"))
+try:
+    from db import db
+    DB_AVAILABLE = True
+except ImportError:
+    print("[!] Warning: Database module not found. Using direct SQLite only.")
+    import sqlite3
+    DB_AVAILABLE = False
+
 console = Console()
 
 # ── Paths ───────────────────────────────────────────────────────
-BASE_DIR  = Path(__file__).parent
 DATA_DIR  = BASE_DIR / "data"
 CONFIG_F  = BASE_DIR / "config.json"
 DB_FILE   = DATA_DIR / "cyberdefence.db"
@@ -127,40 +141,82 @@ TIMEOUT = CONFIG["request_timeout"]
 
 # ── Database ─────────────────────────────────────────────────────
 def init_db():
-    conn = sqlite3.connect(DB_FILE)
+    """Initialize database with support for both SQLite and PostgreSQL"""
+    if DB_AVAILABLE:
+        from db import db as db_instance
+        conn = db_instance.connect()
+    else:
+        conn = sqlite3.connect(DB_FILE)
+    
     c = conn.cursor()
-    c.execute("""CREATE TABLE IF NOT EXISTS scans (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        target TEXT, module TEXT,
-        timestamp TEXT, results TEXT
-    )""")
-    conn.commit(); conn.close()
+    
+    # Create scans table
+    if DB_AVAILABLE and db_instance.use_postgresql:
+        # PostgreSQL version
+        c.execute("""CREATE TABLE IF NOT EXISTS scans (
+            id SERIAL PRIMARY KEY,
+            target TEXT, module TEXT,
+            timestamp TEXT, results TEXT,
+            user_id INTEGER
+        )""")
+    else:
+        # SQLite version
+        c.execute("""CREATE TABLE IF NOT EXISTS scans (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            target TEXT, module TEXT,
+            timestamp TEXT, results TEXT,
+            user_id INTEGER
+        )""")
+    
+    conn.commit()
+    conn.close()
 
 def save_db(target, module, results, user_id=None):
-    conn = sqlite3.connect(DB_FILE)
+    """Save scan results to database"""
+    if DB_AVAILABLE:
+        from db import db as db_instance
+        conn = db_instance.connect()
+    else:
+        conn = sqlite3.connect(DB_FILE)
+    
     c = conn.cursor()
     c.execute("INSERT INTO scans (target,module,timestamp,results,user_id) VALUES (?,?,?,?,?)",
               (target, module, datetime.datetime.now().isoformat(), json.dumps(results, default=str), user_id))
-    conn.commit(); conn.close()
+    conn.commit()
+    conn.close()
 
 def get_history(limit=20, user_id=None):
-    conn = sqlite3.connect(DB_FILE)
+    """Get scan history, optionally filtered by user_id"""
+    if DB_AVAILABLE:
+        from db import db as db_instance
+        conn = db_instance.connect()
+    else:
+        conn = sqlite3.connect(DB_FILE)
+    
     c = conn.cursor()
     if user_id:
         c.execute("SELECT * FROM scans WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?", (user_id, limit))
     else:
         c.execute("SELECT * FROM scans ORDER BY timestamp DESC LIMIT ?", (limit,))
-    rows = c.fetchall(); conn.close()
+    rows = c.fetchall()
+    conn.close()
     return rows
 
 def get_latest(module, user_id=None):
-    conn = sqlite3.connect(DB_FILE)
+    """Get latest scan result for a module, optionally filtered by user_id"""
+    if DB_AVAILABLE:
+        from db import db as db_instance
+        conn = db_instance.connect()
+    else:
+        conn = sqlite3.connect(DB_FILE)
+    
     c = conn.cursor()
     if user_id:
         c.execute("SELECT results FROM scans WHERE module=? AND user_id=? ORDER BY timestamp DESC LIMIT 1", (module, user_id))
     else:
         c.execute("SELECT results FROM scans WHERE module=? ORDER BY timestamp DESC LIMIT 1", (module,))
-    row = c.fetchone(); conn.close()
+    row = c.fetchone()
+    conn.close()
     return json.loads(row[0]) if row else {}
 
 # ── Helpers ──────────────────────────────────────────────────────
