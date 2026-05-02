@@ -278,18 +278,33 @@ def init_auth_db():
     c = conn.cursor()
     
     # Users table with password reset support
-    c.execute("""CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE NOT NULL,
-        full_name TEXT NOT NULL,
-        organization TEXT,
-        password_hash TEXT NOT NULL,
-        created_at TEXT NOT NULL,
-        last_login TEXT,
-        is_active BOOLEAN DEFAULT 1,
-        reset_token TEXT,
-        reset_token_expiry REAL
-    )""")
+    # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
+    if db.USE_POSTGRESQL:
+        c.execute("""CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            email TEXT UNIQUE NOT NULL,
+            full_name TEXT NOT NULL,
+            organization TEXT,
+            password_hash TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            last_login TEXT,
+            is_active BOOLEAN DEFAULT 1,
+            reset_token TEXT,
+            reset_token_expiry REAL
+        )""")
+    else:
+        c.execute("""CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            full_name TEXT NOT NULL,
+            organization TEXT,
+            password_hash TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            last_login TEXT,
+            is_active BOOLEAN DEFAULT 1,
+            reset_token TEXT,
+            reset_token_expiry REAL
+        )""")
     
     # ── Migration: Add reset_token and reset_token_expiry columns if they don't exist ──
     c.execute("PRAGMA table_info(users)")
@@ -316,16 +331,29 @@ def init_auth_db():
         c.execute("""ALTER TABLE scans ADD COLUMN user_id INTEGER""")
     
     # Reports table for tracking generated reports
-    c.execute("""CREATE TABLE IF NOT EXISTS reports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        target TEXT,
-        org_name TEXT,
-        author TEXT,
-        pdf_path TEXT,
-        created_at TEXT NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )""")
+    # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
+    if db.USE_POSTGRESQL:
+        c.execute("""CREATE TABLE IF NOT EXISTS reports (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            target TEXT,
+            org_name TEXT,
+            author TEXT,
+            pdf_path TEXT,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )""")
+    else:
+        c.execute("""CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            target TEXT,
+            org_name TEXT,
+            author TEXT,
+            pdf_path TEXT,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )""")
     
     conn.commit()
     conn.close()

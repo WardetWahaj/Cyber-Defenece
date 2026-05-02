@@ -67,10 +67,11 @@ except ImportError:
 # ── Database abstraction layer (supports PostgreSQL and SQLite) ────
 sys.path.insert(0, str(Path(__file__).parent / "frontend" / "backend"))
 try:
-    from db import db as db_connection
+    from db import db as db_connection, USE_POSTGRESQL as DB_USE_POSTGRESQL
     CUSTOM_DB_AVAILABLE = True
 except ImportError:
     CUSTOM_DB_AVAILABLE = False
+    DB_USE_POSTGRESQL = False
 
 console = Console()
 
@@ -138,15 +139,26 @@ TIMEOUT = CONFIG["request_timeout"]
 def init_db():
     if CUSTOM_DB_AVAILABLE:
         conn = db_connection.connect()
+        use_pg = DB_USE_POSTGRESQL
     else:
         import sqlite3
         conn = sqlite3.connect(DB_FILE)
+        use_pg = False
     c = conn.cursor()
-    c.execute("""CREATE TABLE IF NOT EXISTS scans (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        target TEXT, module TEXT,
-        timestamp TEXT, results TEXT, user_id INTEGER
-    )""")
+    
+    # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
+    if use_pg:
+        c.execute("""CREATE TABLE IF NOT EXISTS scans (
+            id SERIAL PRIMARY KEY,
+            target TEXT, module TEXT,
+            timestamp TEXT, results TEXT, user_id INTEGER
+        )""")
+    else:
+        c.execute("""CREATE TABLE IF NOT EXISTS scans (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            target TEXT, module TEXT,
+            timestamp TEXT, results TEXT, user_id INTEGER
+        )""")
     conn.commit(); conn.close()
 
 def save_db(target, module, results, user_id=None):
