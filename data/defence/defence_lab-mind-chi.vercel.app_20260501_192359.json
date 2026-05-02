@@ -1,0 +1,99 @@
+{
+  "target": "https://lab-mind-chi.vercel.app",
+  "checks": [
+    {
+      "name": "HTTPS/SSL Certificate",
+      "requirement": "Prevention #2",
+      "status": "PASS",
+      "details": "Valid cert, status 200"
+    },
+    {
+      "name": "HTTP\u2192HTTPS Redirect",
+      "requirement": "Prevention #2",
+      "status": "PASS",
+      "details": "HTTP 308 \u2192 HTTPS"
+    },
+    {
+      "name": "HTTP Security Headers (SecurityHeaders.com)",
+      "requirement": "Best Practice",
+      "status": "FAIL",
+      "details": "Grade: D \u2014 Missing: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options"
+    },
+    {
+      "name": "WAF / Firewall",
+      "requirement": "Prevention #1",
+      "status": "WARN",
+      "details": "Could not verify WAF presence"
+    },
+    {
+      "name": "Cloudflare DDoS Protection",
+      "requirement": "Prevention #5",
+      "status": "WARN",
+      "details": "Cloudflare not detected"
+    },
+    {
+      "name": "WordPress Admin URL",
+      "requirement": "Prevention #1",
+      "status": "PASS",
+      "details": "wp-admin \u2192 403 not accessible"
+    },
+    {
+      "name": "XML-RPC Endpoint",
+      "requirement": "Security Hardening",
+      "status": "PASS",
+      "details": "xmlrpc.php \u2192 403 not accessible"
+    },
+    {
+      "name": "Sucuri SiteCheck (Malware/Blacklist)",
+      "requirement": "Prevention #4",
+      "status": "WARN",
+      "details": "Could not reach Sucuri: HTTPSConnectionPool(host='sitecheck.sucuri.net', port=443): Max retries exceeded with url: /results/lab-mind-chi.vercel.app (Caused by NameResolutionError(\"HTTPSConnection(host='sitecheck.sucuri.net', port=443): Failed to resolve 'sitecheck.sucuri.net' ([Errno 11001] getaddrinfo failed)\"))"
+    },
+    {
+      "name": "2FA / Google Authenticator",
+      "requirement": "Prevention #1",
+      "status": "WARN",
+      "details": "Manual verification in WordPress settings"
+    },
+    {
+      "name": "Geo-blocking (RU/DE/PH)",
+      "requirement": "Prevention #1",
+      "status": "WARN",
+      "details": "Manual verification in Wordfence \u2192 Blocking"
+    },
+    {
+      "name": "Anti-Brute Force (max 3 attempts)",
+      "requirement": "Prevention #1",
+      "status": "WARN",
+      "details": "Manual verification in Wordfence \u2192 Login Security"
+    },
+    {
+      "name": "Antivirus Software Installed",
+      "requirement": "Prevention #3",
+      "status": "WARN",
+      "details": "Manual verification on host machine"
+    },
+    {
+      "name": "Password Manager Configured",
+      "requirement": "Prevention #3",
+      "status": "WARN",
+      "details": "Manual verification (KeyPass/1Password)"
+    },
+    {
+      "name": "Regular Backups Configured",
+      "requirement": "Prevention #6",
+      "status": "WARN",
+      "details": "Manual verification of backup schedule"
+    }
+  ],
+  "score": 29,
+  "pass": 4,
+  "fail": 1,
+  "warn": 9,
+  "sucuri": {
+    "clean": null,
+    "blacklisted": false,
+    "malware": false,
+    "details": "Could not reach Sucuri: HTTPSConnectionPool(host='sitecheck.sucuri.net', port=443): Max retries exceeded with url: /results/lab-mind-chi.vercel.app (Caused by NameResolutionError(\"HTTPSConnection(host='sitecheck.sucuri.net', port=443): Failed to resolve 'sitecheck.sucuri.net' ([Errno 11001] getaddrinfo failed)\"))"
+  }
+}

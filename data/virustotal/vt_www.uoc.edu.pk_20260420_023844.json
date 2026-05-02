@@ -1,0 +1,29 @@
+{
+  "target": "www.uoc.edu.pk",
+  "timestamp": "2026-04-20T02:38:38.712950",
+  "domain_stats": {
+    "malicious": 0,
+    "suspicious": 0,
+    "undetected": 35,
+    "harmless": 59,
+    "timeout": 0
+  },
+  "reputation": 0,
+  "categories": {},
+  "malicious": 0,
+  "suspicious": 0,
+  "harmless": 59,
+  "undetected": 35,
+  "total_engines": 94,
+  "whois": "Creation Date: 2020-02-21\nDomain: uoc.edu.pk\nExpiry Date: 2026-02-21\nName Server: aiden.ns.cloudflare.com\nName Server: gwen.ns.cloudflare.com\nStatus: Domain is Registered",
+  "registrar": "Unknown",
+  "creation_date": 1582243200,
+  "resolved_ip": "203.124.44.76",
+  "ip_malicious": 0,
+  "ip_suspicious": 0,
+  "ip_country": "PK",
+  "ip_asn": 7590,
+  "ip_as_owner": "Commission on Science and Technology for",
+  "url_malicious": 0,
+  "url_suspicious": 0
+}

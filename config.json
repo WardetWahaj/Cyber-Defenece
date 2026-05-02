@@ -1,0 +1,10 @@
+{
+  "wpscan_api_key": "jnpelaMuIpnJ6hG5UXKhghOlDhRrrMCQFXY3Q6QF5zY",
+  "virustotal_api_key": "2add6a8df517960f9483e140af21a5490702ca53c2e1a4319548133e09f16b0d",
+  "nvd_api_key": "02af464a-1fee-465b-b949-5ae3ed0adcdd",
+  "rate_limit_delay": 1.5,
+  "nuclei_binary_path": "D:\\8th Sem\\Projects\\SOC 3.1\\cyberdefence_v31\\tools\\nuclei\\nuclei.exe",
+  "nuclei_templates_path": "C:\\Users\\warde\\nuclei-templates",
+  "max_nuclei_templates": 92,
+  "request_timeout": 10
+}

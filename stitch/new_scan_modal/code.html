@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEW SCAN MODAL - CYBERDEFENCE v3.1</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#dbe2fd",
+                        "secondary-container": "#0053db",
+                        "on-tertiary-fixed-variant": "#005137",
+                        "tertiary-fixed-dim": "#45dfa4",
+                        "on-primary": "#002e6a",
+                        "surface-dim": "#0b1326",
+                        "on-primary-fixed-variant": "#004395",
+                        "primary-container": "#4d8eff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#00a574",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#222a3e",
+                        "outline": "#8c909f",
+                        "on-primary-container": "#00285d",
+                        "error": "#ffb4ab",
+                        "background": "#0b1326",
+                        "surface-bright": "#31394e",
+                        "secondary": "#b4c5ff",
+                        "on-secondary-container": "#cdd7ff",
+                        "surface-container": "#171f33",
+                        "surface": "#0b1326",
+                        "inverse-on-surface": "#283044",
+                        "tertiary-fixed": "#68fcbf",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-tertiary-fixed": "#002114",
+                        "on-secondary": "#002a78",
+                        "on-primary-fixed": "#001a42",
+                        "surface-container-highest": "#2d3449",
+                        "on-error": "#690005",
+                        "surface-tint": "#adc6ff",
+                        "tertiary": "#45dfa4",
+                        "outline-variant": "#424754",
+                        "on-surface": "#dbe2fd",
+                        "on-tertiary-container": "#003120",
+                        "on-surface-variant": "#c2c6d6",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "primary": "#adc6ff",
+                        "surface-container-lowest": "#060d20",
+                        "on-tertiary": "#003825",
+                        "inverse-primary": "#005ac2",
+                        "on-background": "#dbe2fd",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-variant": "#2d3449",
+                        "surface-container-low": "#131b2e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .obsidian-gradient {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%);
+        }
+        .glass-panel {
+            background: rgba(45, 52, 73, 0.7);
+            backdrop-filter: blur(20px);
+        }
+        .ghost-border {
+            border: 1px solid rgba(67, 70, 85, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body min-h-screen flex items-center justify-center p-6 antialiased" data-alt="deep space nebula with dark obsidian crystalline structures and faint blue data streams in a cinematic low light environment" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCdglkBYasiV_k6jy39OLjmNX-lifCuGNsowHDqUPNoBtom9yfIDjjuSU_UGv-0-CEp_xH__CWYa0VyMLdQhd9gjy8UngAsSGJEud0LwTptqNHRcRZ4cZFeu-2_GZl___ij8ggmHJT9xkBt_Vv2VDSgQaZJF4OCuc9qnATmjsOR9cgXCO0dE5xgKPOHfkXwiWzMIkdo_f19IYPijs1QRn05BhgubMNMV0PdzKjx3FNiHbpc9wx0tRfRlB31rGKGW4sBh5-bw9VghhbO'); background-size: cover; background-position: center;">
+<!-- Backdrop Overlay -->
+<div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-0"></div>
+<!-- Main Modal Container -->
+<div class="glass-panel w-full max-w-[500px] rounded-lg shadow-[0_24px_48px_-12px_rgba(0,0,0,0.6)] z-10 relative overflow-hidden flex flex-col">
+<!-- Header Section -->
+<header class="px-6 pt-6 pb-4 flex flex-col space-y-1">
+<div class="flex justify-between items-start">
+<h1 class="text-[18px] font-extrabold tracking-tighter text-on-surface flex items-center gap-2">
+<span class="text-tertiary">✨</span> NEW SECURITY SCAN
+                </h1>
+<span class="text-[11px] font-bold tracking-widest text-outline bg-surface-container-high px-2 py-0.5 rounded-sm">PROTOCOL V3-ALPHA</span>
+</div>
+<div class="h-[1px] w-full bg-gradient-to-r from-transparent via-outline-variant/20 to-transparent mt-4"></div>
+</header>
+<!-- Content Body -->
+<div class="px-6 py-4 space-y-6 overflow-y-auto max-h-[819px]">
+<!-- Target Input -->
+<section class="space-y-2">
+<label class="text-[11px] font-bold uppercase tracking-wider text-outline">Target Identifier</label>
+<div class="relative group">
+<input class="w-full bg-surface-container-low ghost-border px-4 py-3 text-sm rounded-lg focus:ring-2 focus:ring-secondary-container focus:bg-surface-container-high transition-all outline-none text-on-surface placeholder:text-outline/50" placeholder="https://example.com or 192.168.1.1" type="text"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 text-outline/40">
+<span class="material-symbols-outlined text-[18px]">language</span>
+</div>
+</div>
+</section>
+<!-- Scan Mode Selection -->
+<section class="space-y-3">
+<label class="text-[11px] font-bold uppercase tracking-wider text-outline">Scan Mode Configuration</label>
+<div class="grid grid-cols-2 gap-2">
+<!-- Option 1: Active -->
+<div class="bg-surface-container-high ring-1 ring-secondary-container p-3 rounded-lg flex items-center gap-3 cursor-pointer">
+<div class="w-4 h-4 rounded-full border-4 border-secondary-container bg-on-surface flex-shrink-0"></div>
+<div class="flex flex-col">
+<span class="text-[13px] font-bold text-on-surface">Quick</span>
+<span class="text-[10px] text-outline">L1 Recon • 5m</span>
+</div>
+</div>
+<!-- Option 2 -->
+<div class="bg-surface-container-low ghost-border p-3 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="w-4 h-4 rounded-full border-2 border-outline-variant flex-shrink-0"></div>
+<div class="flex flex-col">
+<span class="text-[13px] font-bold text-on-surface">Standard</span>
+<span class="text-[10px] text-outline">L2 Audit • 15m</span>
+</div>
+</div>
+<!-- Option 3 -->
+<div class="bg-surface-container-low ghost-border p-3 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="w-4 h-4 rounded-full border-2 border-outline-variant flex-shrink-0"></div>
+<div class="flex flex-col">
+<span class="text-[13px] font-bold text-on-surface">Comprehensive</span>
+<span class="text-[10px] text-outline">Full Depth • 1h+</span>
+</div>
+</div>
+<!-- Option 4 -->
+<div class="bg-surface-container-low ghost-border p-3 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="w-4 h-4 rounded-full border-2 border-outline-variant flex-shrink-0"></div>
+<div class="flex flex-col">
+<span class="text-[13px] font-bold text-on-surface">Custom</span>
+<span class="text-[10px] text-outline">User Defined</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Active Modules Grid -->
+<section class="space-y-3">
+<label class="text-[11px] font-bold uppercase tracking-wider text-outline">Active Analytics Modules</label>
+<div class="grid grid-cols-2 gap-x-6 gap-y-3 bg-surface-container-lowest/50 p-4 rounded-lg ghost-border">
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 bg-secondary-container rounded-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<span class="text-[13px] text-on-surface group-hover:text-primary transition-colors">Port Discovery</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 bg-secondary-container rounded-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<span class="text-[13px] text-on-surface group-hover:text-primary transition-colors">SSL/TLS</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 bg-secondary-container rounded-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<span class="text-[13px] text-on-surface group-hover:text-primary transition-colors">Asset Mapping</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 bg-secondary-container rounded-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<span class="text-[13px] text-on-surface group-hover:text-primary transition-colors">DNS</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 bg-surface-container-high ghost-border rounded-sm"></div>
+<span class="text-[13px] text-on-surface group-hover:text-primary transition-colors">OSINT</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-4 h-4 bg-surface-container-high ghost-border rounded-sm"></div>
+<span class="text-[13px] text-on-surface group-hover:text-primary transition-colors">SQLI</span>
+</label>
+</div>
+</section>
+<!-- API Source Authentication Status -->
+<section class="space-y-3">
+<label class="text-[11px] font-bold uppercase tracking-wider text-outline">API Integrated Intelligence</label>
+<div class="space-y-1.5">
+<div class="flex justify-between items-center py-1.5 px-2 hover:bg-surface-container-low rounded-md transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-outline">hub</span>
+<span class="text-[13px] text-on-surface-variant font-medium">Shodan</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded uppercase">Verified</span>
+</div>
+<div class="flex justify-between items-center py-1.5 px-2 hover:bg-surface-container-low rounded-md transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-outline">shield</span>
+<span class="text-[13px] text-on-surface-variant font-medium">VirusTotal</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded uppercase">Verified</span>
+</div>
+<div class="flex justify-between items-center py-1.5 px-2 hover:bg-surface-container-low rounded-md transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-outline">lan</span>
+<span class="text-[13px] text-on-surface-variant font-medium">BinaryEdge</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded uppercase">Verified</span>
+</div>
+<div class="flex justify-between items-center py-1.5 px-2 hover:bg-surface-container-low rounded-md transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-outline">password</span>
+<span class="text-[13px] text-on-surface-variant font-medium">HIBP</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded uppercase">Verified</span>
+</div>
+<div class="flex justify-between items-center py-1.5 px-2 hover:bg-surface-container-low rounded-md transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-outline">search_check</span>
+<span class="text-[13px] text-on-surface-variant font-medium">Censys</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded uppercase">Verified</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer Actions -->
+<footer class="px-6 py-6 bg-surface-container/50 border-t border-outline-variant/10 flex justify-between items-center">
+<button class="px-5 py-2.5 text-[13px] font-bold text-outline hover:text-on-surface transition-all active:scale-95">
+                CANCEL
+            </button>
+<button class="obsidian-gradient px-8 py-2.5 rounded text-[13px] font-bold text-white shadow-[0_8px_20px_rgba(59,130,246,0.3)] flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+                START SCAN <span class="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+</button>
+</footer>
+<!-- Decorative Elements -->
+<div class="absolute top-0 right-0 p-1">
+<div class="w-16 h-[2px] bg-secondary-container/30 rotate-45 translate-x-8 -translate-y-4"></div>
+</div>
+</div>
+<!-- Side Decoration (HUD style) -->
+<div class="fixed bottom-10 right-10 flex flex-col items-end space-y-2 opacity-50 select-none hidden lg:flex">
+<div class="text-[10px] font-mono text-outline leading-none">SYSTEM_LOAD: 2.44%</div>
+<div class="text-[10px] font-mono text-tertiary leading-none">ENCRYPTION: AES-256_ACTIVE</div>
+<div class="flex gap-1">
+<div class="w-8 h-1 bg-secondary-container"></div>
+<div class="w-8 h-1 bg-secondary-container"></div>
+<div class="w-8 h-1 bg-surface-container-highest"></div>
+<div class="w-8 h-1 bg-surface-container-highest"></div>
+</div>
+</div>
+</body></html>

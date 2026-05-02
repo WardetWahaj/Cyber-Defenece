@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: frontend/backend/Dockerfile
+    container_name: cyberdefence-api-staging
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    container_name: cyberdefence-web-staging
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+    restart: unless-stopped

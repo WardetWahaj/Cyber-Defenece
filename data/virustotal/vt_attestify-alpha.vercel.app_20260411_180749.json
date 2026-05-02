@@ -1,0 +1,27 @@
+{
+  "target": "attestify-alpha.vercel.app",
+  "timestamp": "2026-04-11T18:07:43.673339",
+  "domain_stats": {
+    "malicious": 0,
+    "suspicious": 0,
+    "undetected": 94,
+    "harmless": 0,
+    "timeout": 0
+  },
+  "reputation": 0,
+  "categories": {},
+  "malicious": 0,
+  "suspicious": 0,
+  "harmless": 0,
+  "undetected": 94,
+  "total_engines": 94,
+  "whois": "Admin City: REDACTED FOR PRIVACY\nAdmin Country: REDACTED FOR PRIVACY\nAdmin Organization: REDACTED FOR PRIVACY\nAdmin Postal Code: REDACTED FOR PRIVACY\nAdmin State/Province: REDACTED FOR PRIVACY\nCreation Date: 2020-01-28T03:03:04Z\nDNSSEC: unsigned\nDomain Name: vercel.app\nDomain Status: clientTransferP",
+  "registrar": "Tucows Domains Inc",
+  "creation_date": 1580180584,
+  "resolved_ip": "64.29.17.3",
+  "ip_malicious": 0,
+  "ip_suspicious": 0,
+  "ip_country": "US",
+  "ip_asn": 16509,
+  "ip_as_owner": "Amazon.com, Inc."
+}

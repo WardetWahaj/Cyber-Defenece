@@ -1,0 +1,61 @@
+# Large binary files
+nuclei_3.7.1_windows_amd64/
+tools/nuclei/nuclei.exe
+*.exe
+*.dll
+
+# Python
+.venv/
+venv/
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Build outputs
+dist/
+build/
+*.zip
+*.tar.gz
+
+# Logs
+logs/
+*.log
+
+# Data files (if large)
+data/scans/
+data/reports/*.pdf
+data/exports/

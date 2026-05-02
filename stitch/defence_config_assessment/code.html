@@ -1,0 +1,335 @@
+<html class="dark"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#dbe2fd",
+                        "secondary-container": "#0053db",
+                        "on-tertiary-fixed-variant": "#005137",
+                        "tertiary-fixed-dim": "#45dfa4",
+                        "on-primary": "#002e6a",
+                        "surface-dim": "#0b1326",
+                        "on-primary-fixed-variant": "#004395",
+                        "primary-container": "#4d8eff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#00a574",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#222a3e",
+                        "outline": "#8c909f",
+                        "on-primary-container": "#00285d",
+                        "error": "#ffb4ab",
+                        "background": "#0b1326",
+                        "surface-bright": "#31394e",
+                        "secondary": "#b4c5ff",
+                        "on-secondary-container": "#cdd7ff",
+                        "surface-container": "#171f33",
+                        "surface": "#0b1326",
+                        "inverse-on-surface": "#283044",
+                        "tertiary-fixed": "#68fcbf",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-tertiary-fixed": "#002114",
+                        "on-secondary": "#002a78",
+                        "on-primary-fixed": "#001a42",
+                        "surface-container-highest": "#2d3449",
+                        "on-error": "#690005",
+                        "surface-tint": "#adc6ff",
+                        "tertiary": "#45dfa4",
+                        "outline-variant": "#424754",
+                        "on-surface": "#dbe2fd",
+                        "on-tertiary-container": "#003120",
+                        "on-surface-variant": "#c2c6d6",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "primary": "#adc6ff",
+                        "surface-container-lowest": "#060d20",
+                        "on-tertiary": "#003825",
+                        "inverse-primary": "#005ac2",
+                        "on-background": "#dbe2fd",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-variant": "#2d3449",
+                        "surface-container-low": "#131b2e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .obsidian-gradient {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%);
+        }
+        .radial-progress {
+            background: radial-gradient(closest-side, #0b1326 82%, transparent 80% 100%),
+                        conic-gradient(#3B82F6 72%, #222a3d 0);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- TopNavBar -->
+<nav class="bg-[#0b1326]/70 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.4)] flex justify-between items-center px-6 py-3 w-full font-['Inter'] text-sm tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-tighter text-[#dae2fd]">CYBERDEFENCE v3.1</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-[#8d90a0] hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors px-3 py-1 rounded" href="#">Dashboard</a>
+<a class="text-[#3B82F6] font-semibold px-3 py-1 rounded bg-[#222a3d]/50" href="#">Scans</a>
+<a class="text-[#8d90a0] hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors px-3 py-1 rounded" href="#">Reports</a>
+<a class="text-[#8d90a0] hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors px-3 py-1 rounded" href="#">Settings</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#8d90a0] cursor-pointer hover:text-[#dae2fd]">notifications</span>
+<span class="material-symbols-outlined text-[#8d90a0] cursor-pointer hover:text-[#dae2fd]">dark_mode</span>
+<span class="material-symbols-outlined text-[#8d90a0] cursor-pointer hover:text-[#dae2fd]">settings</span>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-[#434655]/30">
+<img alt="Analyst Profile Avatar" data-alt="close-up professional portrait of a cybersecurity analyst in a dimly lit high-tech environment with blue ambient light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8huYo06m2u42wB5mklJb9n73m_lSDB-tLm3PccZc5u0ZYGFAl5l3poZvRijEgTb8rStB1qSDa0DTHfa1AyeMOXOzaVNK8OeBrLKASyCNHi8gMUEdUPYidW9RBpv8r5nKLBw_YhHnHPkEuiOM_rTna9AX9U01slULVMzPuCjtxB40_oHaXHInCjjZjzqL_DJr5dlfMSBnc7LPdkyLohHDTY_ev3wVk8EfXNplw0096knLLxSmGn1uDtwr5_NAi81F7OuqPgq68IF_J"/>
+</div>
+</div>
+<div class="bg-gradient-to-r from-transparent via-[#434655]/15 to-transparent h-[1px] w-full absolute bottom-0"></div>
+</nav>
+<div class="flex min-h-[calc(100vh-60px)]">
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden md:flex h-screen w-64 sticky left-0 top-0 flex-col bg-[#131b2e] shadow-[4px_0_24px_rgba(0,0,0,0.3)] py-8 space-y-2">
+<div class="px-6 mb-8">
+<div class="text-[#dae2fd] font-bold font-['Inter'] text-[13px] tracking-wide uppercase">COMMAND CENTER</div>
+<div class="text-[#8d90a0] text-[11px] font-bold tracking-widest mt-1 uppercase">Active Session: Alpha-7</div>
+</div>
+<nav class="flex-grow space-y-1">
+<div class="flex items-center px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer group">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="font-['Inter'] text-[13px] font-medium tracking-wide uppercase">Dashboard</span>
+</div>
+<div class="flex items-center px-6 py-3 text-[#dae2fd] border-r-2 border-[#3B82F6] bg-gradient-to-r from-[#3B82F6]/10 to-transparent cursor-pointer group">
+<span class="material-symbols-outlined mr-3">radar</span>
+<span class="font-['Inter'] text-[13px] font-medium tracking-wide uppercase">Scans</span>
+</div>
+<div class="flex items-center px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer group">
+<span class="material-symbols-outlined mr-3">analytics</span>
+<span class="font-['Inter'] text-[13px] font-medium tracking-wide uppercase">Reports</span>
+</div>
+<div class="flex items-center px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer group">
+<span class="material-symbols-outlined mr-3">tune</span>
+<span class="font-['Inter'] text-[13px] font-medium tracking-wide uppercase">Settings</span>
+</div>
+</nav>
+<div class="mt-auto border-t border-[#434655]/15 pt-4">
+<div class="flex items-center px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer">
+<span class="material-symbols-outlined mr-3">description</span>
+<span class="font-['Inter'] text-[13px] font-medium tracking-wide uppercase">Documentation</span>
+</div>
+<div class="flex items-center px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer">
+<span class="material-symbols-outlined mr-3">logout</span>
+<span class="font-['Inter'] text-[13px] font-medium tracking-wide uppercase">Log Out</span>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-grow p-8 overflow-y-auto">
+<header class="mb-10">
+<h1 class="text-3xl font-bold tracking-tight text-on-surface mb-2">DEFENCE CONFIGURATION ASSESSMENT</h1>
+<p class="text-on-surface-variant max-w-2xl">Visualizing current cloud infrastructure compliance against military-grade security benchmarks. Audit timestamp: 2023-10-24 14:02:11 Zulu.</p>
+</header>
+<!-- Bento Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Left Panel: Score & Summary -->
+<div class="lg:col-span-4 space-y-6">
+<div class="bg-surface-container-low rounded-lg p-8 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
+<!-- Background Accents -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div class="relative w-48 h-48 radial-progress rounded-full flex items-center justify-center mb-6">
+<div class="text-center">
+<span class="block text-5xl font-extrabold text-on-surface tracking-tighter">72</span>
+<span class="text-on-surface-variant text-sm font-bold tracking-widest uppercase">/ 100</span>
+</div>
+</div>
+<div class="bg-tertiary text-surface px-4 py-1.5 rounded-sm font-bold text-xs tracking-widest uppercase shadow-lg mb-8">
+                            Acceptable
+                        </div>
+<div class="w-full grid grid-cols-3 gap-4 border-t border-[#434655]/15 pt-8">
+<div class="text-center">
+<div class="text-tertiary text-2xl font-bold">10</div>
+<div class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">Pass</div>
+</div>
+<div class="text-center">
+<div class="text-error text-2xl font-bold">02</div>
+<div class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">Fail</div>
+</div>
+<div class="text-center">
+<div class="text-yellow-500 text-2xl font-bold">02</div>
+<div class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">Warn</div>
+</div>
+</div>
+</div>
+<!-- Critical Recommendations -->
+<div class="bg-surface-container-low rounded-lg p-6 shadow-xl">
+<h3 class="text-on-surface font-bold text-sm tracking-wider uppercase mb-5 flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary text-lg">priority_high</span>
+                            Tactical Priorities
+                        </h3>
+<div class="space-y-3">
+<div class="bg-surface-container-high p-4 rounded border-l-4 border-error flex justify-between items-start">
+<div>
+<div class="text-[10px] font-extrabold text-error tracking-widest uppercase mb-1">🔴 CRITICAL</div>
+<div class="text-sm font-semibold text-on-surface">Enforce MFA Global Policy</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+</div>
+<div class="bg-surface-container-high p-4 rounded border-l-4 border-error flex justify-between items-start">
+<div>
+<div class="text-[10px] font-extrabold text-error tracking-widest uppercase mb-1">🔴 CRITICAL</div>
+<div class="text-sm font-semibold text-on-surface">Update IAM Password Complexity</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+</div>
+<div class="bg-surface-container-high p-4 rounded border-l-4 border-yellow-500 flex justify-between items-start">
+<div>
+<div class="text-[10px] font-extrabold text-yellow-500 tracking-widest uppercase mb-1">🟡 MEDIUM</div>
+<div class="text-sm font-semibold text-on-surface">Rotate API Keys (&gt; 90 days)</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+</div>
+<div class="bg-surface-container-high p-4 rounded border-l-4 border-yellow-500 flex justify-between items-start">
+<div>
+<div class="text-[10px] font-extrabold text-yellow-500 tracking-widest uppercase mb-1">🟡 MEDIUM</div>
+<div class="text-sm font-semibold text-on-surface">Audit S3 Public Access Points</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Checklist -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<div class="bg-surface-container-low rounded-lg overflow-hidden shadow-2xl">
+<div class="px-6 py-5 bg-surface-container flex items-center justify-between border-b border-[#434655]/10">
+<h2 class="text-on-surface font-bold text-sm tracking-wider uppercase">14-POINT DEFENCE CHECKLIST</h2>
+<div class="flex items-center gap-2">
+<div class="h-2 w-2 rounded-full bg-tertiary animate-pulse"></div>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Real-time monitoring active</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-high text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">
+<tr>
+<th class="px-6 py-4">CHECK NAME</th>
+<th class="px-6 py-4">REQUIREMENT</th>
+<th class="px-6 py-4">STATUS</th>
+<th class="px-6 py-4">DETAILS</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4 font-semibold text-on-surface">Encrypted EBS</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">AES-256 Required</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase">Pass</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">12/12 Volumes Compliant</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-low/50 hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4 font-semibold text-on-surface">IAM Password Policy</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">Min 14 Char + Special</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center bg-error/10 text-error px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase">Fail</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">Length Requirement Met: No</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4 font-semibold text-on-surface">Network ACL Ingress</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">No Open Port 22/3389</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase">Pass</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">Restricted to Bastion IP</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-container-low/50 hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4 font-semibold text-on-surface">VPC Flow Logs</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">Enabled for all VPCs</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase">Pass</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">Destination: CloudWatch</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4 font-semibold text-on-surface">MFA Active Status</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">All Console Users</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center bg-error/10 text-error px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase">Fail</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">2 Users Without MFA</td>
+</tr>
+<!-- Row 6 -->
+<tr class="bg-surface-container-low/50 hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4 font-semibold text-on-surface">Root Access Keys</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">Prohibit Active Keys</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase">Warn</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs">Existing Key: Deleted 2023-01</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Bottom Action Bar -->
+<div class="flex items-center justify-end p-6 bg-surface-container rounded-lg shadow-xl">
+<div class="mr-auto">
+<span class="text-on-surface-variant text-xs italic">Awaiting tactical deployment authorization...</span>
+</div>
+<button class="obsidian-gradient text-white px-8 py-3 rounded-lg font-bold text-sm tracking-widest uppercase flex items-center gap-3 transition-transform active:scale-95 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:brightness-110">
+<span class="material-symbols-outlined text-lg">rocket_launch</span>
+                            DEPLOY COUNTERMEASURE
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Navigation (hidden on desktop) -->
+<div class="md:hidden fixed bottom-0 left-0 w-full bg-surface-container-high flex justify-around items-center py-3 px-4 z-50">
+<div class="flex flex-col items-center gap-1 text-[#8d90a0]">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold uppercase">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#3B82F6]">
+<span class="material-symbols-outlined">radar</span>
+<span class="text-[10px] font-bold uppercase">Scans</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#8d90a0]">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-bold uppercase">Reports</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-[#8d90a0]">
+<span class="material-symbols-outlined">tune</span>
+<span class="text-[10px] font-bold uppercase">Settings</span>
+</div>
+</div>
+</body></html>

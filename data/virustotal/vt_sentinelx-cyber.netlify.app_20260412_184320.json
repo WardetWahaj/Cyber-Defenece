@@ -1,0 +1,11 @@
+{
+  "target": "sentinelx-cyber.netlify.app",
+  "timestamp": "2026-04-12T18:43:14.348486",
+  "error": "Domain not found in VirusTotal database",
+  "resolved_ip": "13.215.239.219",
+  "ip_malicious": 0,
+  "ip_suspicious": 0,
+  "ip_country": "SG",
+  "ip_asn": 16509,
+  "ip_as_owner": "Amazon.com, Inc."
+}

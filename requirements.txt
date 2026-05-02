@@ -1,0 +1,15 @@
+requests
+rich
+fpdf2
+python-nmap
+fastapi
+uvicorn
+pydantic
+python-multipart
+pyjwt
+passlib
+bcrypt
+email-validator
+argon2-cffi
+python-dotenv
+

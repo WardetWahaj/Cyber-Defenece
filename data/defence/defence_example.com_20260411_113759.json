@@ -1,0 +1,99 @@
+{
+  "target": "https://example.com",
+  "checks": [
+    {
+      "name": "HTTPS/SSL Certificate",
+      "requirement": "Prevention #2",
+      "status": "FAIL",
+      "details": "Invalid or self-signed certificate"
+    },
+    {
+      "name": "HTTP\u2192HTTPS Redirect",
+      "requirement": "Prevention #2",
+      "status": "FAIL",
+      "details": "HTTP 200 (no redirect)"
+    },
+    {
+      "name": "HTTP Security Headers (SecurityHeaders.com)",
+      "requirement": "Best Practice",
+      "status": "FAIL",
+      "details": "Grade: ? \u2014 Missing: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security"
+    },
+    {
+      "name": "WAF / Firewall",
+      "requirement": "Prevention #1",
+      "status": "PASS",
+      "details": "WAF detected"
+    },
+    {
+      "name": "Cloudflare DDoS Protection",
+      "requirement": "Prevention #5",
+      "status": "PASS",
+      "details": "CF-RAY: 9ea7fc4f6857fbff-KHI"
+    },
+    {
+      "name": "WordPress Admin URL",
+      "requirement": "Prevention #1",
+      "status": "PASS",
+      "details": "wp-admin \u2192 404 not accessible"
+    },
+    {
+      "name": "XML-RPC Endpoint",
+      "requirement": "Security Hardening",
+      "status": "PASS",
+      "details": "xmlrpc.php \u2192 404 not accessible"
+    },
+    {
+      "name": "Sucuri SiteCheck (Malware/Blacklist)",
+      "requirement": "Prevention #4",
+      "status": "WARN",
+      "details": "Could not reach Sucuri: HTTPSConnectionPool(host='sitecheck.sucuri.net', port=443): Max retries exceeded with url: /results/example.com (Caused by NameResolutionError(\"HTTPSConnection(host='sitecheck.sucuri.net', port=443): Failed to resolve 'sitecheck.sucuri.net' ([Errno 11001] getaddrinfo failed)\"))"
+    },
+    {
+      "name": "2FA / Google Authenticator",
+      "requirement": "Prevention #1",
+      "status": "WARN",
+      "details": "Manual verification in WordPress settings"
+    },
+    {
+      "name": "Geo-blocking (RU/DE/PH)",
+      "requirement": "Prevention #1",
+      "status": "WARN",
+      "details": "Manual verification in Wordfence \u2192 Blocking"
+    },
+    {
+      "name": "Anti-Brute Force (max 3 attempts)",
+      "requirement": "Prevention #1",
+      "status": "WARN",
+      "details": "Manual verification in Wordfence \u2192 Login Security"
+    },
+    {
+      "name": "Antivirus Software Installed",
+      "requirement": "Prevention #3",
+      "status": "WARN",
+      "details": "Manual verification on host machine"
+    },
+    {
+      "name": "Password Manager Configured",
+      "requirement": "Prevention #3",
+      "status": "WARN",
+      "details": "Manual verification (KeyPass/1Password)"
+    },
+    {
+      "name": "Regular Backups Configured",
+      "requirement": "Prevention #6",
+      "status": "WARN",
+      "details": "Manual verification of backup schedule"
+    }
+  ],
+  "score": 29,
+  "pass": 4,
+  "fail": 3,
+  "warn": 7,
+  "sucuri": {
+    "clean": null,
+    "blacklisted": false,
+    "malware": false,
+    "details": "Could not reach Sucuri: HTTPSConnectionPool(host='sitecheck.sucuri.net', port=443): Max retries exceeded with url: /results/example.com (Caused by NameResolutionError(\"HTTPSConnection(host='sitecheck.sucuri.net', port=443): Failed to resolve 'sitecheck.sucuri.net' ([Errno 11001] getaddrinfo failed)\"))"
+  }
+}

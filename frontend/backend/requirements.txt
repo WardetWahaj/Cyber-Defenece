@@ -1,0 +1,8 @@
+requests==2.32.3
+rich==13.9.4
+fpdf2==2.8.2
+python-nmap==0.7.1
+fastapi==0.115.12
+uvicorn==0.34.1
+pydantic==2.11.3
+python-multipart==0.0.20

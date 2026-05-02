@@ -1,0 +1,45 @@
+{
+  "target": "https://example.com",
+  "domain": "example.com",
+  "timestamp": "2026-04-11T11:37:24.486955",
+  "http_status": 200,
+  "final_url": "https://example.com/",
+  "https": true,
+  "server": "cloudflare",
+  "x_powered_by": "",
+  "cms": "Unknown",
+  "technologies": [],
+  "security_headers": {
+    "Strict-Transport-Security": false,
+    "Content-Security-Policy": false,
+    "X-Frame-Options": false,
+    "X-Content-Type-Options": false,
+    "X-XSS-Protection": false,
+    "Referrer-Policy": false,
+    "Permissions-Policy": false
+  },
+  "cloudflare": true,
+  "cf_ray": "9ea7fb86182934e9-KHI",
+  "ssl": {
+    "valid": true,
+    "expires": "Jul  1 21:24:46 2026 GMT",
+    "issuer": {
+      "countryName": "US",
+      "organizationName": "CLOUDFLARE, INC.",
+      "commonName": "Cloudflare TLS Issuing ECC CA 1"
+    },
+    "subject": {
+      "commonName": "example.com"
+    }
+  },
+  "open_ports": [
+    {
+      "port": "error",
+      "service": "'nmap program was not found in path. PATH is : c:\\\\Users\\\\warde\\\\AppData\\\\Roaming\\\\Code\\\\User\\\\globalStorage\\\\github.copilot-chat\\\\debugCommand;c:\\\\Users\\\\warde\\\\AppData\\\\Roaming\\\\Code\\\\User\\\\globalStorage\\\\github.copilot-chat\\\\copilotCli;D:\\\\VS Code\\\\Microsoft VS Code;C:\\\\Python314\\\\Scripts\\\\;C:\\\\Python314\\\\;C:\\\\Program Files\\\\NVIDIA GPU Computing Toolkit\\\\CUDA\\\\v13.0\\\\bin\\\\x64;C:\\\\Program Files\\\\NVIDIA GPU Computing Toolkit\\\\CUDA\\\\v13.0\\\\bin;;C:\\\\Program Files\\\\Microsoft MPI\\\\Bin\\\\;D:\\\\VMware\\\\bin\\\\;C:\\\\Program Files (x86)\\\\Common Files\\\\Oracle\\\\Java\\\\java8path;C:\\\\Program Files (x86)\\\\Common Files\\\\Oracle\\\\Java\\\\javapath;C:\\\\windows\\\\system32;C:\\\\windows;C:\\\\windows\\\\System32\\\\Wbem;C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\;C:\\\\windows\\\\System32\\\\OpenSSH\\\\;C:\\\\Program Files (x86)\\\\NVIDIA Corporation\\\\PhysX\\\\Common;C:\\\\WINDOWS\\\\system32;C:\\\\WINDOWS;C:\\\\WINDOWS\\\\System32\\\\Wbem;C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\;C:\\\\WINDOWS\\\\System32\\\\OpenSSH\\\\;C:\\\\Program Files\\\\dotnet\\\\;C:\\\\MinGW\\\\bin;C:\\\\ProgramData\\\\chocolatey\\\\bin;C:\\\\Program Files\\\\Git\\\\cmd;C:\\\\Program Files\\\\NVIDIA Corporation\\\\Nsight Compute 2025.3.1\\\\;C:\\\\Users\\\\warde\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python310\\\\Scripts;;C:\\\\Program Files\\\\NVIDIA Corporation\\\\NVIDIA App\\\\NvDLISR;C:\\\\Program Files\\\\nodejs\\\\;C:\\\\Users\\\\warde\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python314\\\\Scripts\\\\;C:\\\\Users\\\\warde\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python314\\\\;C:\\\\Users\\\\warde\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python310\\\\Scripts\\\\;C:\\\\Users\\\\warde\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python310\\\\;C:\\\\Program Files\\\\NVIDIA GPU Computing Toolkit\\\\CUDA\\\\v13.0\\\\bin\\\\x64;C:\\\\Program Files\\\\NVIDIA GPU Computing Toolkit\\\\CUDA\\\\v13.0\\\\bin;C:\\\\Program Files\\\\Microsoft MPI\\\\Bin\\\\;D:\\\\VMware\\\\bin\\\\;C:\\\\Program Files (x86)\\\\Common Files\\\\Oracle\\\\Java\\\\java8path;C:\\\\Program Files (x86)\\\\Common Files\\\\Oracle\\\\Java\\\\javapath;C:\\\\windows\\\\system32;C:\\\\windows;C:\\\\windows\\\\System32\\\\Wbem;C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\;C:\\\\windows\\\\System32\\\\OpenSSH\\\\;C:\\\\Program Files (x86)\\\\NVIDIA Corporation\\\\PhysX\\\\Common;C:\\\\WINDOWS\\\\system32;C:\\\\WINDOWS;C:\\\\WINDOWS\\\\System32\\\\Wbem;C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\;C:\\\\WINDOWS\\\\System32\\\\OpenSSH\\\\;C:\\\\Program Files\\\\NVIDIA Corporation\\\\NVIDIA app\\\\NvDLISR;C:\\\\Program Files\\\\dotnet\\\\;C:\\\\MinGW\\\\bin;C:\\\\Program Files\\\\nodejs\\\\;C:\\\\ProgramData\\\\chocolatey\\\\bin;C:\\\\Program Files\\\\Git\\\\cmd;C:\\\\Program Files\\\\Cloudflare\\\\Cloudflare WARP\\\\;C;C:\\\\Users\\\\warde\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python310\\\\Scripts;D:\\\\VS Code\\\\Microsoft VS Code\\\\bin;C:\\\\Users\\\\warde\\\\AppData\\\\Roaming\\\\npm;C:\\\\Users\\\\warde\\\\AppData\\\\Local\\\\GitHubDesktop\\\\bin;c:\\\\Users\\\\warde\\\\.vscode\\\\extensions\\\\ms-python.debugpy-2025.18.0-win32-x64\\\\bundled\\\\scripts\\\\noConfigScripts'",
+      "state": "error"
+    }
+  ],
+  "ip_address": "172.66.147.243",
+  "robots_txt": false,
+  "robots_content": ""
+}

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CyberDefence v3.1 - API Integrations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#dbe2fd",
+                        "secondary-container": "#0053db",
+                        "on-tertiary-fixed-variant": "#005137",
+                        "tertiary-fixed-dim": "#45dfa4",
+                        "on-primary": "#002e6a",
+                        "surface-dim": "#0b1326",
+                        "on-primary-fixed-variant": "#004395",
+                        "primary-container": "#4d8eff",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#00a574",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#222a3e",
+                        "outline": "#8c909f",
+                        "on-primary-container": "#00285d",
+                        "error": "#ffb4ab",
+                        "background": "#0b1326",
+                        "surface-bright": "#31394e",
+                        "secondary": "#b4c5ff",
+                        "on-secondary-container": "#cdd7ff",
+                        "surface-container": "#171f33",
+                        "surface": "#0b1326",
+                        "inverse-on-surface": "#283044",
+                        "tertiary-fixed": "#68fcbf",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-tertiary-fixed": "#002114",
+                        "on-secondary": "#002a78",
+                        "on-primary-fixed": "#001a42",
+                        "surface-container-highest": "#2d3449",
+                        "on-error": "#690005",
+                        "surface-tint": "#adc6ff",
+                        "tertiary": "#45dfa4",
+                        "outline-variant": "#424754",
+                        "on-surface": "#dbe2fd",
+                        "on-tertiary-container": "#003120",
+                        "on-surface-variant": "#c2c6d6",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "primary": "#adc6ff",
+                        "surface-container-lowest": "#060d20",
+                        "on-tertiary": "#003825",
+                        "inverse-primary": "#005ac2",
+                        "on-background": "#dbe2fd",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-variant": "#2d3449",
+                        "surface-container-low": "#131b2e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .obsidian-gradient {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%);
+        }
+        .glass-hud {
+            backdrop-filter: blur(20px);
+            background-color: rgba(45, 52, 73, 0.7);
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1326;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3449;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- TopNavBar (Shared Component) -->
+<nav class="bg-[#0b1326]/70 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.4)] flex justify-between items-center px-6 py-3 w-full">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-tighter text-[#dae2fd]">CYBERDEFENCE v3.1</span>
+<div class="hidden md:flex items-center space-x-6 font-['Inter'] text-sm tracking-tight">
+<a class="text-[#8d90a0] hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors px-3 py-1 rounded-sm active:scale-95 duration-150" href="#">Dashboard</a>
+<a class="text-[#8d90a0] hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors px-3 py-1 rounded-sm active:scale-95 duration-150" href="#">Scans</a>
+<a class="text-[#8d90a0] hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors px-3 py-1 rounded-sm active:scale-95 duration-150" href="#">Reports</a>
+<a class="text-[#3B82F6] font-semibold hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors px-3 py-1 rounded-sm active:scale-95 duration-150" href="#">Settings</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container rounded-sm border border-[#434655]/15">
+<span class="material-symbols-outlined text-outline text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-on-surface-variant" placeholder="Global search..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-outline hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors rounded-sm"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 text-outline hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors rounded-sm"><span class="material-symbols-outlined">dark_mode</span></button>
+<button class="p-2 text-outline hover:text-[#dae2fd] hover:bg-[#222a3d]/50 transition-colors rounded-sm"><span class="material-symbols-outlined">settings</span></button>
+</div>
+<img alt="Analyst Profile Avatar" class="w-8 h-8 rounded-full border border-primary/20" data-alt="Stylized 3D avatar of a professional security analyst with glasses and dark hair on a neutral technical background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnhCLHDzjFFHinV5ikOzTyzl5fRpfsVwoQxyJJpioTUr4mt95KkVeFT0A7_qbkb9W3q3NMa0EomX7QgipsblL-jabh6uuEIaE85f2_3ZXgEYstC5Cy_CQpXDqjGv_GOBeqz20_YG35mXPM1J9OfEm80_hdaTgIAwUl2YCRe98vxpUIS2az-_pIGg4X_HK7RZwiIEwD4AWMaHczRraGdUjI4eW7MabS88ecIP-lXwHtHUj4fpdHUtwLQ4QI-3RMLJ9NOMT5c-k32LQF"/>
+</div>
+<div class="bg-gradient-to-r from-transparent via-[#434655]/15 to-transparent h-[1px] w-full absolute bottom-0 left-0"></div>
+</nav>
+<div class="flex min-h-screen">
+<!-- SideNavBar (Shared Component) -->
+<aside class="bg-[#131b2e] h-screen w-64 fixed left-0 top-0 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.3)] pt-20">
+<div class="px-6 py-4">
+<h3 class="text-[#dae2fd] font-bold text-xs tracking-widest uppercase mb-1">COMMAND CENTER</h3>
+<p class="text-[#8d90a0] text-[10px] font-mono">Active Session: Alpha-7</p>
+</div>
+<nav class="flex flex-col flex-1 py-4 font-['Inter'] text-[13px] font-medium tracking-wide uppercase">
+<a class="flex items-center gap-3 px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer active:bg-[#2d3449]" href="#">
+<span class="material-symbols-outlined text-lg">person</span>
+<span>Profile</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-[#dae2fd] border-r-2 border-[#3B82F6] bg-gradient-to-r from-[#3B82F6]/10 to-transparent cursor-pointer active:bg-[#2d3449]" href="#">
+<span class="material-symbols-outlined text-lg">api</span>
+<span>API Integrations</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer active:bg-[#2d3449]" href="#">
+<span class="material-symbols-outlined text-lg">security</span>
+<span>Security</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer active:bg-[#2d3449]" href="#">
+<span class="material-symbols-outlined text-lg">notifications</span>
+<span>Notifications</span>
+</a>
+</nav>
+<div class="mt-auto pb-8 flex flex-col space-y-1 font-['Inter'] text-[13px] font-medium tracking-wide uppercase">
+<a class="flex items-center gap-3 px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer" href="#">
+<span class="material-symbols-outlined text-lg">description</span>
+<span>Documentation</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-[#8d90a0] hover:bg-[#222a3d] hover:text-[#dae2fd] transition-all cursor-pointer" href="#">
+<span class="material-symbols-outlined text-lg">logout</span>
+<span>Log Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 p-8 flex gap-8">
+<!-- Center Content -->
+<section class="flex-1 space-y-6">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h1 class="text-3xl font-bold tracking-tight text-[#dae2fd]">API INTEGRATIONS</h1>
+<p class="text-on-surface-variant text-sm mt-1">Manage external tool connectivity and authentication keys.</p>
+</div>
+<button class="obsidian-gradient text-white px-5 py-2 rounded-md font-semibold text-sm shadow-lg flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-lg">add</span>
+                        ADD PROVIDER
+                    </button>
+</div>
+<!-- API Integration Grid (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Nuclei -->
+<div class="bg-surface-container-low p-5 rounded-lg border border-[#434655]/15 hover:bg-surface-container-high transition-colors group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#2d3449] flex items-center justify-center rounded border border-primary/20">
+<span class="material-symbols-outlined text-primary text-3xl">target</span>
+</div>
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-[2px] text-[10px] font-bold uppercase tracking-wider">Connected</span>
+</div>
+<h3 class="text-lg font-bold text-[#dae2fd]">Nuclei</h3>
+<p class="text-on-surface-variant text-xs mt-1 mb-6 leading-relaxed">Fast and customizable vulnerability scanner based on simple YAML templates.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-[#434655]/10">
+<span class="text-[10px] font-mono text-outline uppercase tracking-tighter">Last Ping: 12m ago</span>
+<button class="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
+                                [EDIT KEY]
+                            </button>
+</div>
+</div>
+<!-- WPScan -->
+<div class="bg-surface-container-low p-5 rounded-lg border border-[#434655]/15 hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#2d3449] flex items-center justify-center rounded border border-primary/20">
+<span class="material-symbols-outlined text-primary text-3xl">php</span>
+</div>
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-[2px] text-[10px] font-bold uppercase tracking-wider">Connected</span>
+</div>
+<h3 class="text-lg font-bold text-[#dae2fd]">WPScan</h3>
+<p class="text-on-surface-variant text-xs mt-1 mb-6 leading-relaxed">WordPress Security Scanner for identifying vulnerabilities in WP installations.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-[#434655]/10">
+<span class="text-[10px] font-mono text-outline uppercase tracking-tighter">Last Ping: 2h ago</span>
+<button class="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
+                                [EDIT KEY]
+                            </button>
+</div>
+</div>
+<!-- VirusTotal (Error State) -->
+<div class="bg-surface-container-low p-5 rounded-lg border border-error/30 bg-error/5 hover:bg-error/10 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#2d3449] flex items-center justify-center rounded border border-error/20">
+<span class="material-symbols-outlined text-error text-3xl">shield_locked</span>
+</div>
+<span class="bg-error text-white px-2 py-0.5 rounded-[2px] text-[10px] font-bold uppercase tracking-wider">Error/Expired</span>
+</div>
+<h3 class="text-lg font-bold text-[#dae2fd]">VirusTotal</h3>
+<p class="text-on-surface-variant text-xs mt-1 mb-6 leading-relaxed">Aggregated antivirus results from multiple vendors for file and URL scanning.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-error/10">
+<span class="text-[10px] font-mono text-error uppercase tracking-tighter">Auth Failure: 401</span>
+<button class="text-error text-xs font-bold flex items-center gap-1 hover:underline">
+                                [RENEW KEY]
+                            </button>
+</div>
+</div>
+<!-- Sucuri -->
+<div class="bg-surface-container-low p-5 rounded-lg border border-[#434655]/15 hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#2d3449] flex items-center justify-center rounded border border-primary/20">
+<span class="material-symbols-outlined text-primary text-3xl">verified_user</span>
+</div>
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-[2px] text-[10px] font-bold uppercase tracking-wider">Connected</span>
+</div>
+<h3 class="text-lg font-bold text-[#dae2fd]">Sucuri</h3>
+<p class="text-on-surface-variant text-xs mt-1 mb-6 leading-relaxed">Website security platform providing firewall and malware monitoring.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-[#434655]/10">
+<span class="text-[10px] font-mono text-outline uppercase tracking-tighter">Last Ping: 45m ago</span>
+<button class="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
+                                [EDIT KEY]
+                            </button>
+</div>
+</div>
+<!-- SecurityHeaders -->
+<div class="bg-surface-container-low p-5 rounded-lg border border-[#434655]/15 hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#2d3449] flex items-center justify-center rounded border border-primary/20">
+<span class="material-symbols-outlined text-primary text-3xl">code</span>
+</div>
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-[2px] text-[10px] font-bold uppercase tracking-wider">Connected</span>
+</div>
+<h3 class="text-lg font-bold text-[#dae2fd]">SecurityHeaders</h3>
+<p class="text-on-surface-variant text-xs mt-1 mb-6 leading-relaxed">Analyzes HTTP response headers to provide security hardening insights.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-[#434655]/10">
+<span class="text-[10px] font-mono text-outline uppercase tracking-tighter">Last Ping: 1d ago</span>
+<button class="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
+                                [EDIT KEY]
+                            </button>
+</div>
+</div>
+<!-- Cloudflare -->
+<div class="bg-surface-container-low p-5 rounded-lg border border-[#434655]/15 hover:bg-surface-container-high transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#2d3449] flex items-center justify-center rounded border border-primary/20">
+<span class="material-symbols-outlined text-primary text-3xl">cloud</span>
+</div>
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-[2px] text-[10px] font-bold uppercase tracking-wider">Connected</span>
+</div>
+<h3 class="text-lg font-bold text-[#dae2fd]">Cloudflare</h3>
+<p class="text-on-surface-variant text-xs mt-1 mb-6 leading-relaxed">Content delivery network and DDoS mitigation integration.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-[#434655]/10">
+<span class="text-[10px] font-mono text-outline uppercase tracking-tighter">Last Ping: 5m ago</span>
+<button class="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
+                                [EDIT KEY]
+                            </button>
+</div>
+</div>
+</div>
+<!-- Bottom CTA -->
+<div class="pt-8 sticky bottom-0">
+<button class="w-full obsidian-gradient text-white py-4 rounded-sm font-extrabold text-base tracking-widest flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:scale-[1.01] transition-transform">
+<span class="material-symbols-outlined">add_circle</span>
+                        [+ NEW SCAN]
+                    </button>
+</div>
+</section>
+<!-- Right Sidebar (Profile & Health) -->
+<aside class="w-80 space-y-6">
+<!-- Profile Card -->
+<div class="bg-surface-container-high p-6 rounded-lg border border-[#434655]/15 shadow-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div class="flex flex-col items-center text-center">
+<img alt="Profile" class="w-20 h-20 rounded-full border-2 border-primary p-1 mb-4 shadow-2xl" data-alt="Headshot of Kaelen Vance, a security expert in tactical gear with a neutral expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFdeNUYIWNDT2qfqekrOwp4dDEnu9EEDpxWvSOF8F3i_u5lzDer0xymhjILh9363J5tR2Zlvw7SMIHQJ7cGZcQDjQMu9LUqM3hAz7_4fGDcNrugyD-xSabrsP_b1UeDRd85rB-dqMAPxw-kbLY6TaRb6pM57KxhEJH-S9b4Ym_R0zym4qgCW9To_v_Nj9eW0eLjRYUoJZ1nN-W_Iz6rM_pkZseaIo8HB_YhpHVbb4EYvuTATk07PmTYYAlMx6hchu32HIXPTi2Hbr8"/>
+<h2 class="text-xl font-bold text-[#dae2fd]">Kaelen Vance</h2>
+<p class="text-primary text-xs font-semibold tracking-wider uppercase mb-4">Senior Security Analyst</p>
+<div class="w-full bg-surface-container-lowest p-3 rounded flex items-center justify-between border border-[#434655]/15">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-xs font-medium text-on-surface">Security Status</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary bg-tertiary/10 px-2 py-0.5 rounded">2FA ENABLED</span>
+</div>
+</div>
+</div>
+<!-- Integration Health -->
+<div class="bg-surface-container-high p-6 rounded-lg border border-[#434655]/15 shadow-xl">
+<h3 class="text-sm font-bold text-[#dae2fd] uppercase tracking-widest mb-6">Integration Health</h3>
+<div class="relative flex items-center justify-center">
+<!-- SVG Circular Progress -->
+<svg class="w-40 h-40 transform -rotate-90">
+<circle class="text-[#2d3449]" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-primary" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="440" stroke-dashoffset="74.8" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-3xl font-extrabold text-[#dae2fd]">83%</span>
+<span class="text-[10px] text-outline uppercase font-bold tracking-tighter">Operational</span>
+</div>
+</div>
+<div class="mt-6 space-y-3">
+<div class="flex items-center justify-between text-xs">
+<span class="text-on-surface-variant">Active Nodes</span>
+<span class="text-[#dae2fd] font-mono">5/6</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<span class="text-on-surface-variant">Latency (Avg)</span>
+<span class="text-tertiary font-mono">142ms</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<span class="text-on-surface-variant">Fail Rate</span>
+<span class="text-error font-mono">2.1%</span>
+</div>
+</div>
+</div>
+<!-- Recent Events (Implicitly helpful) -->
+<div class="bg-surface-container p-5 rounded-lg border border-[#434655]/15">
+<h4 class="text-xs font-bold text-outline uppercase tracking-widest mb-4">Auth History</h4>
+<ul class="space-y-4">
+<li class="flex gap-3">
+<div class="w-1 bg-tertiary rounded-full"></div>
+<div>
+<p class="text-[11px] text-[#dae2fd] font-medium">Cloudflare token refreshed</p>
+<p class="text-[9px] text-outline">Today, 09:12 AM</p>
+</div>
+</li>
+<li class="flex gap-3">
+<div class="w-1 bg-error rounded-full"></div>
+<div>
+<p class="text-[11px] text-[#dae2fd] font-medium">VirusTotal key expired</p>
+<p class="text-[9px] text-outline">Yesterday, 11:45 PM</p>
+</div>
+</li>
+<li class="flex gap-3">
+<div class="w-1 bg-tertiary rounded-full"></div>
+<div>
+<p class="text-[11px] text-[#dae2fd] font-medium">Sucuri connection stable</p>
+<p class="text-[9px] text-outline">Aug 24, 02:20 PM</p>
+</div>
+</li>
+</ul>
+</div>
+</aside>
+</main>
+</div>
+</body></html>
