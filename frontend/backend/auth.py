@@ -288,7 +288,7 @@ def init_auth_db():
             password_hash TEXT NOT NULL,
             created_at TEXT NOT NULL,
             last_login TEXT,
-            is_active BOOLEAN DEFAULT 1,
+            is_active BOOLEAN DEFAULT TRUE,
             reset_token TEXT,
             reset_token_expiry REAL
         )""")
