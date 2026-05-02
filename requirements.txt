@@ -12,4 +12,4 @@ bcrypt
 email-validator
 argon2-cffi
 python-dotenv
-
+gunicorn
