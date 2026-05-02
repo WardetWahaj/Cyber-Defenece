@@ -439,7 +439,7 @@ def get_user_by_email(email: str) -> dict | None:
     """Get a user by email."""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE email = ?", (email,))
+    c.execute("SELECT * FROM users WHERE email = %s", (email,))
     row = c.fetchone()
     conn.close()
     
@@ -460,7 +460,7 @@ def get_user_by_id(user_id: int) -> dict | None:
     """Get a user by ID."""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    c.execute("SELECT * FROM users WHERE id = %s", (user_id,))
     row = c.fetchone()
     conn.close()
     
@@ -490,7 +490,7 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
     c = conn.cursor()
     try:
         c.execute(
-            "INSERT INTO users (email, full_name, organization, password_hash, created_at) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO users (email, full_name, organization, password_hash, created_at) VALUES (%s, %s, %s, %s, %s)",
             (email, full_name, organization, password_hash, now)
         )
         conn.commit()
@@ -512,7 +512,7 @@ def update_last_login(user_id: int):
     """Update user's last login timestamp."""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("UPDATE users SET last_login = ? WHERE id = ?", 
+    c.execute("UPDATE users SET last_login = %s WHERE id = %s", 
               (datetime.utcnow().isoformat(), user_id))
     conn.commit()
     conn.close()
@@ -522,7 +522,7 @@ def update_password(user_id: int, new_password: str) -> bool:
     password_hash = hash_password(new_password)
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("UPDATE users SET password_hash = ? WHERE id = ?", 
+    c.execute("UPDATE users SET password_hash = %s WHERE id = %s", 
               (password_hash, user_id))
     conn.commit()
     conn.close()
@@ -577,7 +577,7 @@ def create_reset_token_for_user(user_id: int) -> str | None:
         conn = get_db_connection()
         c = conn.cursor()
         c.execute(
-            "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?",
+            "UPDATE users SET reset_token = %s, reset_token_expiry = %s WHERE id = %s",
             (hashed_token, expiry_time, user_id)
         )
         conn.commit()
@@ -608,7 +608,7 @@ def verify_reset_token(token: str) -> dict | None:
         conn = get_db_connection()
         c = conn.cursor()
         c.execute(
-            "SELECT id, email, full_name, reset_token_expiry FROM users WHERE reset_token = ?",
+            "SELECT id, email, full_name, reset_token_expiry FROM users WHERE reset_token = %s",
             (hashed_token,)
         )
         row = c.fetchone()
@@ -650,7 +650,7 @@ def invalidate_reset_token(user_id: int) -> bool:
         conn = get_db_connection()
         c = conn.cursor()
         c.execute(
-            "UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = ?",
+            "UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = %s",
             (user_id,)
         )
         conn.commit()
