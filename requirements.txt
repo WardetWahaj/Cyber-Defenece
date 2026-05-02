@@ -14,9 +14,4 @@ bcrypt
 email-validator
 argon2-cffi
 python-dotenv
-<<<<<<< HEAD
 psycopg2-binary
-
-=======
-gunicorn
->>>>>>> 3b7c6cf2e337f8f7faca9841ac894486dcf6a17b
