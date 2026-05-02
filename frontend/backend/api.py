@@ -270,10 +270,11 @@ def _run_live_job(job_id: str) -> None:
 
 @app.get("/api/health")
 def health() -> dict[str, Any]:
+    db_url = os.environ.get("DATABASE_URL", str(core.DB_FILE))
     return {
         "status": "ok",
         "version": "3.1.0",
-        "database": str(core.DB_FILE),
+        "database": db_url,
         "nuclei_available": core.NUCLEI_AVAILABLE,
         "nmap_available": core.NMAP_AVAILABLE,
         "timestamp": dt.datetime.now().isoformat(),

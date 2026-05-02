@@ -153,6 +153,7 @@ TIMEOUT = CONFIG["request_timeout"]
 
 # ── Database ─────────────────────────────────────────────────────
 def init_db():
+    print(f"[DB] USE_POSTGRES={USE_POSTGRES}, DATABASE_URL exists={bool(os.environ.get('DATABASE_URL'))}")
     conn = get_db_connection()
     c = conn.cursor()
     
