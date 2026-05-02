@@ -272,6 +272,63 @@ def send_password_reset_email(email: str, reset_token: str) -> bool:
     raise NotImplementedError("This function is deprecated. Use send_reset_email() instead.")
 
 # ── Database Management ────────────────────────────────────────────
+def column_exists(cursor, table_name: str, column_name: str) -> bool:
+    """
+    Check if a column exists in a table.
+    Works with both PostgreSQL and SQLite.
+    
+    Args:
+        cursor: Database cursor
+        table_name: Name of the table
+        column_name: Name of the column
+        
+    Returns:
+        True if column exists, False otherwise
+    """
+    try:
+        # Try PostgreSQL method first
+        cursor.execute("""
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = %s AND column_name = %s
+        """, (table_name, column_name))
+        if cursor.fetchone():
+            return True
+    except Exception:
+        # Fall back to SQLite method
+        try:
+            cursor.execute(f"PRAGMA table_info({table_name})")
+            columns = [col[1] for col in cursor.fetchall()]
+            return column_name in columns
+        except Exception:
+            return False
+
+def get_table_columns(cursor, table_name: str) -> list:
+    """
+    Get all column names from a table.
+    Works with both PostgreSQL and SQLite.
+    
+    Args:
+        cursor: Database cursor
+        table_name: Name of the table
+        
+    Returns:
+        List of column names
+    """
+    try:
+        # Try PostgreSQL method first
+        cursor.execute("""
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = %s ORDER BY ordinal_position
+        """, (table_name,))
+        return [row[0] for row in cursor.fetchall()]
+    except Exception:
+        # Fall back to SQLite method
+        try:
+            cursor.execute(f"PRAGMA table_info({table_name})")
+            return [col[1] for col in cursor.fetchall()]
+        except Exception:
+            return []
+
 def init_auth_db():
     """Initialize authentication tables and add new columns for password reset."""
     conn = db.get_connection()
@@ -307,8 +364,7 @@ def init_auth_db():
         )""")
     
     # ── Migration: Add reset_token and reset_token_expiry columns if they don't exist ──
-    c.execute("PRAGMA table_info(users)")
-    columns = [col[1] for col in c.fetchall()]
+    columns = get_table_columns(c, "users")
     
     try:
         if 'reset_token' not in columns:
@@ -325,9 +381,8 @@ def init_auth_db():
         pass  # Column already exists
     
     # Add user_id to scans table if it doesn't exist
-    c.execute("PRAGMA table_info(scans)")
-    columns = [col[1] for col in c.fetchall()]
-    if 'user_id' not in columns:
+    scans_columns = get_table_columns(c, "scans")
+    if 'user_id' not in scans_columns:
         c.execute("""ALTER TABLE scans ADD COLUMN user_id INTEGER""")
     
     # Reports table for tracking generated reports
