@@ -26,7 +26,7 @@ Modules:
   0. Exit
 """
 
-import os, sys, json, re, ssl, socket, sqlite3, logging
+import os, sys, json, re, ssl, socket, logging
 import time, threading, subprocess, datetime, shutil
 from pathlib import Path
 from urllib.parse import urlparse
@@ -63,6 +63,14 @@ try:
     NMAP_AVAILABLE = True
 except ImportError:
     NMAP_AVAILABLE = False
+
+# ── Database abstraction layer (supports PostgreSQL and SQLite) ────
+sys.path.insert(0, str(Path(__file__).parent / "frontend" / "backend"))
+try:
+    from db import db as db_connection
+    CUSTOM_DB_AVAILABLE = True
+except ImportError:
+    CUSTOM_DB_AVAILABLE = False
 
 console = Console()
 
@@ -128,24 +136,36 @@ TIMEOUT = CONFIG["request_timeout"]
 
 # ── Database ─────────────────────────────────────────────────────
 def init_db():
-    conn = sqlite3.connect(DB_FILE)
+    if CUSTOM_DB_AVAILABLE:
+        conn = db_connection.connect()
+    else:
+        import sqlite3
+        conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("""CREATE TABLE IF NOT EXISTS scans (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         target TEXT, module TEXT,
-        timestamp TEXT, results TEXT
+        timestamp TEXT, results TEXT, user_id INTEGER
     )""")
     conn.commit(); conn.close()
 
 def save_db(target, module, results, user_id=None):
-    conn = sqlite3.connect(DB_FILE)
+    if CUSTOM_DB_AVAILABLE:
+        conn = db_connection.connect()
+    else:
+        import sqlite3
+        conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("INSERT INTO scans (target,module,timestamp,results,user_id) VALUES (?,?,?,?,?)",
               (target, module, datetime.datetime.now().isoformat(), json.dumps(results, default=str), user_id))
     conn.commit(); conn.close()
 
 def get_history(limit=20, user_id=None):
-    conn = sqlite3.connect(DB_FILE)
+    if CUSTOM_DB_AVAILABLE:
+        conn = db_connection.connect()
+    else:
+        import sqlite3
+        conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     if user_id:
         c.execute("SELECT * FROM scans WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?", (user_id, limit))
@@ -155,7 +175,11 @@ def get_history(limit=20, user_id=None):
     return rows
 
 def get_latest(module, user_id=None):
-    conn = sqlite3.connect(DB_FILE)
+    if CUSTOM_DB_AVAILABLE:
+        conn = db_connection.connect()
+    else:
+        import sqlite3
+        conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     if user_id:
         c.execute("SELECT results FROM scans WHERE module=? AND user_id=? ORDER BY timestamp DESC LIMIT 1", (module, user_id))

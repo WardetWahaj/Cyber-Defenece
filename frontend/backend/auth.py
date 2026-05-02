@@ -5,7 +5,6 @@ Handles user management, JWT tokens, and password security.
 
 import os
 import sys
-import sqlite3
 import json
 import time
 from pathlib import Path
@@ -26,6 +25,9 @@ if str(ROOT_DIR) not in sys.path:
 # Load environment variables from .env file
 from dotenv import load_dotenv
 load_dotenv(ROOT_DIR / ".env")
+
+# Import database abstraction layer
+from . import db
 
 from pydantic import BaseModel, EmailStr, validator
 import jwt
@@ -272,7 +274,7 @@ def send_password_reset_email(email: str, reset_token: str) -> bool:
 # ── Database Management ────────────────────────────────────────────
 def init_auth_db():
     """Initialize authentication tables and add new columns for password reset."""
-    conn = sqlite3.connect(DB_FILE)
+    conn = db.get_connection()
     c = conn.cursor()
     
     # Users table with password reset support
@@ -297,14 +299,14 @@ def init_auth_db():
         if 'reset_token' not in columns:
             c.execute("""ALTER TABLE users ADD COLUMN reset_token TEXT""")
             print("✅ Added 'reset_token' column to users table")
-    except sqlite3.OperationalError:
+    except Exception:
         pass  # Column already exists
     
     try:
         if 'reset_token_expiry' not in columns:
             c.execute("""ALTER TABLE users ADD COLUMN reset_token_expiry REAL""")
             print("✅ Added 'reset_token_expiry' column to users table")
-    except sqlite3.OperationalError:
+    except Exception:
         pass  # Column already exists
     
     # Add user_id to scans table if it doesn't exist
@@ -330,7 +332,7 @@ def init_auth_db():
 
 def get_user_by_email(email: str) -> dict | None:
     """Get a user by email."""
-    conn = sqlite3.connect(DB_FILE)
+    conn = db.get_connection()
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE email = ?", (email,))
     row = c.fetchone()
@@ -351,7 +353,7 @@ def get_user_by_email(email: str) -> dict | None:
 
 def get_user_by_id(user_id: int) -> dict | None:
     """Get a user by ID."""
-    conn = sqlite3.connect(DB_FILE)
+    conn = db.get_connection()
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     row = c.fetchone()
@@ -379,7 +381,7 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
     password_hash = hash_password(password)
     now = datetime.utcnow().isoformat()
     
-    conn = sqlite3.connect(DB_FILE)
+    conn = db.get_connection()
     c = conn.cursor()
     try:
         c.execute(
@@ -397,13 +399,13 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
             "organization": organization,
             "created_at": now
         }
-    except sqlite3.IntegrityError:
+    except Exception:
         conn.close()
         return None
 
 def update_last_login(user_id: int):
     """Update user's last login timestamp."""
-    conn = sqlite3.connect(DB_FILE)
+    conn = db.get_connection()
     c = conn.cursor()
     c.execute("UPDATE users SET last_login = ? WHERE id = ?", 
               (datetime.utcnow().isoformat(), user_id))
@@ -413,7 +415,7 @@ def update_last_login(user_id: int):
 def update_password(user_id: int, new_password: str) -> bool:
     """Update user's password."""
     password_hash = hash_password(new_password)
-    conn = sqlite3.connect(DB_FILE)
+    conn = db.get_connection()
     c = conn.cursor()
     c.execute("UPDATE users SET password_hash = ? WHERE id = ?", 
               (password_hash, user_id))
@@ -467,7 +469,7 @@ def create_reset_token_for_user(user_id: int) -> str | None:
         expiry_time = time.time() + 3600  # 3600 seconds = 1 hour
         
         # Store in database
-        conn = sqlite3.connect(DB_FILE)
+        conn = db.get_connection()
         c = conn.cursor()
         c.execute(
             "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?",
@@ -498,7 +500,7 @@ def verify_reset_token(token: str) -> dict | None:
         hashed_token = hash_reset_token(token)
         
         # Query database
-        conn = sqlite3.connect(DB_FILE)
+        conn = db.get_connection()
         c = conn.cursor()
         c.execute(
             "SELECT id, email, full_name, reset_token_expiry FROM users WHERE reset_token = ?",
@@ -540,7 +542,7 @@ def invalidate_reset_token(user_id: int) -> bool:
         True if successful
     """
     try:
-        conn = sqlite3.connect(DB_FILE)
+        conn = db.get_connection()
         c = conn.cursor()
         c.execute(
             "UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = ?",
