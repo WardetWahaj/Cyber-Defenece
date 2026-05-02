@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./AuthPages.css";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "";
+
 /**
  * ResetPasswordPage.jsx
  * 
@@ -52,7 +54,7 @@ export default function ResetPasswordPage() {
 
     try {
       // Send reset request to backend with token and new password
-      const response = await fetch("http://127.0.0.1:8000/api/auth/reset-password", {
+      const response = await fetch(`${API_BASE}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
