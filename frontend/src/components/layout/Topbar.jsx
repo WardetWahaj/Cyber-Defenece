@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./Topbar.css";
 
-export default function Topbar() {
+export default function Topbar({ onOpenMobileMenu = () => {} }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -44,6 +44,7 @@ export default function Topbar() {
 
   return (
     <header className="topbar">
+      <button className="mobile-menu-btn material-symbols-outlined" onClick={onOpenMobileMenu}>menu</button>
       <div style={{ display: "flex", alignItems: "center", gap: 18, minWidth: 0 }}>
         <div className="shell-title">CYBERDEFENCE v3.1</div>
         <div className="topbar-search">

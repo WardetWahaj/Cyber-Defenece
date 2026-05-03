@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Sidebar from "./components/layout/Sidebar";
@@ -34,6 +34,7 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   const { loading } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Initialize theme on mount
   useEffect(() => {
@@ -67,9 +68,13 @@ export default function App() {
         element={
           <ProtectedRoute>
             <div className="app-shell">
-              <Sidebar />
+              <Sidebar mobileMenuOpen={mobileMenuOpen} onCloseMobileMenu={() => setMobileMenuOpen(false)} />
+              <div 
+                className={`sidebar-overlay ${mobileMenuOpen ? 'mobile-open' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              />
               <div>
-                <Topbar />
+                <Topbar onOpenMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
                 <main className="main-content page-frame">
                   <Routes>
                     <Route path="/" element={<DashboardPage />} />

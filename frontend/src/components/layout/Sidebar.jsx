@@ -13,9 +13,9 @@ const nav = [
   ["/settings", "Settings"],
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = () => {} }) {
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
       <div style={{ marginBottom: 24 }}>
         <div className="sidebar-brand">CYBERDEFENCE v3.1</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18 }}>
@@ -32,6 +32,7 @@ export default function Sidebar() {
           <NavLink
             key={to}
             to={to}
+            onClick={onCloseMobileMenu}
             className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}
           >
             {label}
