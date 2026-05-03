@@ -4,7 +4,7 @@
   "nvd_api_key": "02af464a-1fee-465b-b949-5ae3ed0adcdd",
   "rate_limit_delay": 1.5,
   "nuclei_binary_path": "/app/bin/nuclei",
-  "nuclei_templates_path": "/app/nuclei-templates",
+  "nuclei_templates_path": "/root/nuclei-templates",
   "max_nuclei_templates": 92,
   "request_timeout": 10
   
