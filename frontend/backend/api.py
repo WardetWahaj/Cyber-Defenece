@@ -915,12 +915,13 @@ def list_user_reports(authorization: str = Header(None), limit: int = 100) -> di
                 results = {}
         except (json.JSONDecodeError, TypeError):
             results = {}
+        
         reports.append({
             "id": row[0],
-            "target": row[1] if row[1] else "N/A",
-            "org_name": results.get("org_name", "N/A"),
+            "target": row[1] if row[1] else results.get("target", "N/A"),
+            "org_name": results.get("org_name", results.get("organisation", "N/A")),
             "generated_at": row[3] if row[3] else "N/A",
-            "score": results.get("score", results.get("security_score", "--")),
+            "score": results.get("score", results.get("security_score", results.get("summary", {}).get("score", "--"))),
             "module": row[2],
         })
     
