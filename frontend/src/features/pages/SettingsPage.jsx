@@ -61,7 +61,7 @@ export default function SettingsPage() {
                 <div key={name} style={{ background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", borderRadius: 6, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 16, fontWeight: 800 }}>{name}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>{name === "VirusTotal" ? "Aggregated antivirus results and reputation checks." : `Integration for ${name.toLowerCase()} telemetry.`}</div>
+                    <div style={{ fontSize: 12, color: "#a0a0a0", marginTop: 4 }}>{name === "VirusTotal" ? "Aggregated antivirus results and reputation checks." : `Integration for ${name.toLowerCase()} telemetry.`}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                     <Badge variant={state === "connected" ? "success" : "warning"}>{state.toUpperCase()}</Badge>
@@ -78,7 +78,7 @@ export default function SettingsPage() {
                 <div style={{ width: 160, height: 160, borderRadius: "50%", background: "conic-gradient(#b4c5ff 0 83%, #2d3449 83% 100%)", display: "grid", placeItems: "center" }}>
                   <div style={{ width: 120, height: 120, borderRadius: "50%", background: "#131b2e", display: "grid", placeItems: "center", textAlign: "center" }}>
                     <div style={{ fontSize: 28, fontWeight: 800 }}>83%</div>
-                    <div style={{ fontSize: 9, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.15em" }}>Operational</div>
+                    <div style={{ fontSize: 9, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.15em" }}>Operational</div>
                   </div>
                 </div>
               </div>
@@ -93,15 +93,15 @@ export default function SettingsPage() {
               <div style={{ display: "grid", gap: 12 }}>
                 <div style={{ borderLeft: "3px solid #45dfa4", paddingLeft: 8 }}>
                   <div style={{ fontSize: 13 }}>Cloudflare token refreshed</div>
-                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Today, 09:12 AM</div>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>Today, 09:12 AM</div>
                 </div>
                 <div style={{ borderLeft: "3px solid #ffb4ab", paddingLeft: 8 }}>
                   <div style={{ fontSize: 13 }}>VirusTotal key expired</div>
-                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Yesterday, 11:45 PM</div>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>Yesterday, 11:45 PM</div>
                 </div>
                 <div style={{ borderLeft: "3px solid #45dfa4", paddingLeft: 8 }}>
                   <div style={{ fontSize: 13 }}>Sucuri connection stable</div>
-                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Aug 24, 02:20 PM</div>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>Aug 24, 02:20 PM</div>
                 </div>
               </div>
             </Card>
@@ -114,12 +114,12 @@ export default function SettingsPage() {
               {user?.full_name?.charAt(0).toUpperCase()}
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, wordBreak: "break-word" }}>{user?.full_name || "User"}</div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", wordBreak: "break-word" }}>{user?.email}</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", wordBreak: "break-word" }}>{user?.email}</div>
             <div style={{ fontSize: 11, color: "#3B82F6", fontWeight: 800, letterSpacing: "0.16em" }}>
               {user?.organization || "ORGANIZATION"}
             </div>
             <div style={{ width: "100%", background: "#060d20", border: "1px solid rgba(67,70,85,0.15)", padding: 12, borderRadius: 6, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Account Status</span>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Account Status</span>
               <Badge variant="success">ACTIVE</Badge>
             </div>
           </div>

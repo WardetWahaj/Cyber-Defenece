@@ -70,11 +70,11 @@ export default function NewScanPage() {
           <div style={{ padding: 24, borderBottom: "1px solid rgba(67,70,85,0.15)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 16 }}>
               <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>✨ NEW SECURITY SCAN</h2>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", color: "var(--text-muted)" }}>PROTOCOL V3-ALPHA</span>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", color: "var(--text-secondary)" }}>PROTOCOL V3-ALPHA</span>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>TARGET IDENTIFIER</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>TARGET IDENTIFIER</div>
               <input
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
@@ -84,7 +84,7 @@ export default function NewScanPage() {
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>SCAN MODE CONFIGURATION</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>SCAN MODE CONFIGURATION</div>
               <div className="grid grid-2" style={{ gap: 8 }}>
                 {[
                   ["Quick", "L1 Recon • 5m"],
@@ -104,7 +104,7 @@ export default function NewScanPage() {
                         <div style={{ width: 12, height: 12, borderRadius: 999, background: active ? "#3B82F6" : "transparent", border: `2px solid ${active ? "#3B82F6" : "#8d90a0"}` }} />
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 800 }}>{title}</div>
-                          <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{desc}</div>
+                          <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>{desc}</div>
                         </div>
                       </div>
                     </button>
@@ -114,7 +114,7 @@ export default function NewScanPage() {
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>ACTIVE ANALYTICS MODULES</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>ACTIVE ANALYTICS MODULES</div>
               <div style={{ background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", borderRadius: 6, padding: 12 }}>
                 <div className="grid grid-2" style={{ gap: 8 }}>
                   {[
@@ -140,7 +140,7 @@ export default function NewScanPage() {
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>API INTEGRATED INTELLIGENCE</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>API INTEGRATED INTELLIGENCE</div>
               <div style={{ display: "grid", gap: 8 }}>
                 {["Shodan", "VirusTotal", "BinaryEdge", "HIBP", "Censys"].map((name) => (
                   <div key={name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" }}>
@@ -155,14 +155,14 @@ export default function NewScanPage() {
             {loading && <p style={{ color: "#b4c5ff", fontSize: 12 }}>Scan in progress... this can take up to a few minutes depending on target.</p>}
             {result?.results && (
               <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.12em" }}>SCAN SUMMARY</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 800, letterSpacing: "0.12em" }}>SCAN SUMMARY</div>
                 <div className="grid grid-2" style={{ gap: 8 }}>
                   <div style={{ background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", borderRadius: 6, padding: 10 }}>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>VULNERABILITIES</div>
+                    <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>VULNERABILITIES</div>
                     <div style={{ fontWeight: 800 }}>{result.results?.vulnerability?.vulnerabilities?.length || 0} findings</div>
                   </div>
                   <div style={{ background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", borderRadius: 6, padding: 10 }}>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>DEFENCE SCORE</div>
+                    <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>DEFENCE SCORE</div>
                     <div style={{ fontWeight: 800 }}>{result.results?.defence?.score ?? "--"}/100</div>
                   </div>
                 </div>

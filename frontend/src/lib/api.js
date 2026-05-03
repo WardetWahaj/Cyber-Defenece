@@ -53,6 +53,7 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  request,
   health: () => request("/api/health"),
   history: (limit = 10) => request(`/api/history?limit=${limit}`),
   dashboard: () => request("/api/dashboard"),
