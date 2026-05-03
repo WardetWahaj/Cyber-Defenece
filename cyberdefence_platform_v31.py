@@ -119,6 +119,13 @@ def load_config():
     return defaults
 
 CONFIG = load_config()
+
+# Override config with environment variables if present
+CONFIG["virustotal_api_key"] = os.environ.get("VIRUSTOTAL_API_KEY", CONFIG.get("virustotal_api_key", ""))
+CONFIG["wpscan_api_key"] = os.environ.get("WPSCAN_API_KEY", CONFIG.get("wpscan_api_key", ""))
+CONFIG["nvd_api_key"] = os.environ.get("NVD_API_KEY", CONFIG.get("nvd_api_key", ""))
+CONFIG["secret_key"] = os.environ.get("SECRET_KEY", CONFIG.get("secret_key", ""))
+
 TIMEOUT = CONFIG["request_timeout"]
 
 def get_nuclei_binary() -> str | None:
