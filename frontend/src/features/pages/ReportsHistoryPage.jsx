@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageTitle from "../../components/ui/PageTitle";
 import Card from "../../components/ui/Card";
 import { api } from "../../lib/api";
@@ -6,6 +7,7 @@ import { api } from "../../lib/api";
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 export default function ReportsHistoryPage() {
+  const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [filteredReports, setFilteredReports] = useState([]);
   const [error, setError] = useState("");
@@ -136,6 +138,11 @@ export default function ReportsHistoryPage() {
     }
   }
 
+  function handleViewReport(reportId) {
+    // Navigate to view the report scan results
+    navigate(`/results/vulnerabilities?report=${reportId}`);
+  }
+
   return (
     <>
       <PageTitle title="Reports History" subtitle="Your generated security reports and historical analysis." />
@@ -225,7 +232,21 @@ export default function ReportsHistoryPage() {
                       {calculateSecurityScore(report)}
                     </span>
                   </td>
-                  <td style={{ textAlign: "right" }}>
+                  <td style={{ textAlign: "right", display: "flex", gap: 12, justifyContent: "flex-end" }}>
+                    <button 
+                      onClick={() => handleViewReport(report.id)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "var(--primary)",
+                        cursor: "pointer",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        textDecoration: "underline"
+                      }}
+                    >
+                      view
+                    </button>
                     {report.pdf_path ? (
                       <button 
                         onClick={() => downloadReport(report)}
@@ -242,9 +263,7 @@ export default function ReportsHistoryPage() {
                       >
                         {downloading === report.id ? "⏳" : "download"}
                       </button>
-                    ) : (
-                      <span style={{ color: "var(--text-muted)", fontSize: 12 }}>—</span>
-                    )}
+                    ) : null}
                   </td>
                 </tr>
               ))}
