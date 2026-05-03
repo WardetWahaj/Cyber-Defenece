@@ -350,7 +350,7 @@ def dashboard(authorization: str = Header(None)) -> dict[str, Any]:
             "domain": recon.get("domain", ""),
         },
         "data_sources": {
-            "nuclei": core.NUCLEI_AVAILABLE,
+            "nuclei": core.refresh_nuclei_status(),
             "wpscan": bool(core.CONFIG.get("wpscan_api_key")),
             "virustotal": bool(core.CONFIG.get("virustotal_api_key")),
             "sucuri": True,

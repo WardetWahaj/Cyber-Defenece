@@ -89,6 +89,17 @@ else:
     def get_db_connection():
         return sqlite3.connect(DB_FILE)
 
+# ── SQL Placeholder Conversion Helper ──────────────────────────────
+def execute_query(cursor, query: str, params: tuple = ()) -> None:
+    """
+    Execute a query with automatic placeholder conversion.
+    Converts PostgreSQL %s placeholders to SQLite ? placeholders when needed.
+    """
+    if not USE_POSTGRES:
+        # Convert %s placeholders to ? for SQLite
+        query = query.replace("%s", "?")
+    cursor.execute(query, params)
+
 console = Console()
 
 # ── Paths ───────────────────────────────────────────────────────
@@ -148,6 +159,17 @@ def get_nuclei_binary() -> str | None:
 NUCLEI_BINARY = get_nuclei_binary()
 NUCLEI_AVAILABLE = NUCLEI_BINARY is not None
 
+def refresh_nuclei_status():
+    global NUCLEI_BINARY, NUCLEI_AVAILABLE
+    # Always check /app/bin/nuclei first (Heroku installation path)
+    if Path("/app/bin/nuclei").exists():
+        NUCLEI_BINARY = "/app/bin/nuclei"
+        NUCLEI_AVAILABLE = True
+    else:
+        NUCLEI_BINARY = get_nuclei_binary()
+        NUCLEI_AVAILABLE = NUCLEI_BINARY is not None
+    return NUCLEI_AVAILABLE
+
 for d in ["recon","vuln","defence","siem","policies","reports","virustotal","nuclei","sucuri"]:
     (DATA_DIR / d).mkdir(parents=True, exist_ok=True)
 
@@ -181,7 +203,7 @@ def init_db():
 def save_db(target, module, results, user_id=None):
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("INSERT INTO scans (target,module,timestamp,results,user_id) VALUES (%s,%s,%s,%s,%s)",
+    execute_query(c, "INSERT INTO scans (target,module,timestamp,results,user_id) VALUES (%s,%s,%s,%s,%s)",
               (target, module, datetime.datetime.now().isoformat(), json.dumps(results, default=str), user_id))
     conn.commit(); conn.close()
 
@@ -189,9 +211,9 @@ def get_history(limit=20, user_id=None):
     conn = get_db_connection()
     c = conn.cursor()
     if user_id:
-        c.execute("SELECT * FROM scans WHERE user_id = %s ORDER BY timestamp DESC LIMIT %s", (user_id, limit))
+        execute_query(c, "SELECT * FROM scans WHERE user_id = %s ORDER BY timestamp DESC LIMIT %s", (user_id, limit))
     else:
-        c.execute("SELECT * FROM scans ORDER BY timestamp DESC LIMIT %s", (limit,))
+        execute_query(c, "SELECT * FROM scans ORDER BY timestamp DESC LIMIT %s", (limit,))
     rows = c.fetchall(); conn.close()
     return rows
 
@@ -199,9 +221,9 @@ def get_latest(module, user_id=None):
     conn = get_db_connection()
     c = conn.cursor()
     if user_id:
-        c.execute("SELECT results FROM scans WHERE module=%s AND user_id=%s ORDER BY timestamp DESC LIMIT 1", (module, user_id))
+        execute_query(c, "SELECT results FROM scans WHERE module=%s AND user_id=%s ORDER BY timestamp DESC LIMIT 1", (module, user_id))
     else:
-        c.execute("SELECT results FROM scans WHERE module=%s ORDER BY timestamp DESC LIMIT 1", (module,))
+        execute_query(c, "SELECT results FROM scans WHERE module=%s ORDER BY timestamp DESC LIMIT 1", (module,))
     row = c.fetchone(); conn.close()
     return json.loads(row[0]) if row else {}
 
