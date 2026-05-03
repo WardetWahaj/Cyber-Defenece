@@ -916,10 +916,10 @@ def list_user_reports(authorization: str = Header(None), limit: int = 100) -> di
         except (json.JSONDecodeError, TypeError):
             results = {}
         reports.append({
-            "id": f"RPT-{row[0]}",
-            "target": row[1] or "N/A",
+            "id": f"RPT-{row[0]}" if not str(row[0]).startswith("RPT-") else str(row[0]),
+            "target": row[1] if row[1] else "N/A",
             "org_name": results.get("org_name", "N/A"),
-            "generated_at": row[3],
+            "generated_at": row[1] if row[1] else "N/A",
             "score": results.get("score", results.get("security_score", "--")),
             "module": row[2],
         })
