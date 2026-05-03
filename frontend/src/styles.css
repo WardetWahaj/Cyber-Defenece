@@ -59,11 +59,42 @@
   background: #ffffff;
   border-color: rgba(67, 70, 85, 0.1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  color: var(--text);
 }
 
 .light-mode .card:hover {
   border-color: rgba(59, 130, 246, 0.3);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+}
+
+.light-mode input,
+.light-mode textarea,
+.light-mode select {
+  background: #ffffff;
+  color: var(--text);
+  border-color: rgba(67, 70, 85, 0.2);
+}
+
+.light-mode input::placeholder,
+.light-mode textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.light-mode .shell-title {
+  color: var(--text);
+}
+
+.light-mode .sidebar-brand {
+  color: var(--text);
+}
+
+.light-mode .kpi-value {
+  color: var(--text);
+}
+
+.light-mode .badge {
+  color: var(--text);
+  background: rgba(59, 130, 246, 0.1);
 }
 
 * {
@@ -102,7 +133,7 @@ a {
 }
 
 .sidebar {
-  background: #131b2e;
+  background: var(--surface);
   padding: 20px 16px;
   border-right: 1px solid rgba(67, 70, 85, 0.15);
   position: sticky;
@@ -133,6 +164,12 @@ a {
   z-index: 10;
   backdrop-filter: blur(20px);
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.4);
+}
+
+.light-mode .topbar {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(67, 70, 85, 0.1);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.08);
 }
 
 .topbar > div:first-child {
@@ -204,6 +241,11 @@ a {
 }
 
 .btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #ffffff;
+}
+
+.light-mode .btn-primary {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #ffffff;
 }
