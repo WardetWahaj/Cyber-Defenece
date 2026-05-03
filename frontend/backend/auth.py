@@ -51,6 +51,37 @@ else:
     def get_db_connection():
         return sqlite3.connect(DB_FILE)
 
+# ── SQL Placeholder Conversion Helper ──────────────────────────────
+def execute_query(cursor, query: str, params: tuple = ()) -> None:
+    """
+    Execute a query with automatic placeholder conversion.
+    Converts PostgreSQL %s placeholders to SQLite ? placeholders when needed.
+    
+    Args:
+        cursor: Database cursor
+        query: SQL query (can use %s for any database)
+        params: Query parameters as tuple
+    """
+    if not USE_POSTGRES:
+        # Convert %s placeholders to ? for SQLite
+        query = query.replace("%s", "?")
+    cursor.execute(query, params)
+
+def fetch_query(cursor, query: str, params: tuple = ()) -> list:
+    """
+    Execute a SELECT query and fetch results with automatic placeholder conversion.
+    
+    Args:
+        cursor: Database cursor
+        query: SQL query (can use %s for any database)
+        params: Query parameters as tuple
+        
+    Returns:
+        List of fetched rows
+    """
+    execute_query(cursor, query, params)
+    return cursor.fetchall()
+
 from pydantic import BaseModel, EmailStr, validator
 import jwt
 
@@ -439,7 +470,7 @@ def get_user_by_email(email: str) -> dict | None:
     """Get a user by email."""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE email = %s", (email,))
+    execute_query(c, "SELECT * FROM users WHERE email = %s", (email,))
     row = c.fetchone()
     conn.close()
     
@@ -460,7 +491,7 @@ def get_user_by_id(user_id: int) -> dict | None:
     """Get a user by ID."""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    execute_query(c, "SELECT * FROM users WHERE id = %s", (user_id,))
     row = c.fetchone()
     conn.close()
     
@@ -489,7 +520,7 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
     conn = get_db_connection()
     c = conn.cursor()
     try:
-        c.execute(
+        execute_query(c,
             "INSERT INTO users (email, full_name, organization, password_hash, created_at) VALUES (%s, %s, %s, %s, %s)",
             (email, full_name, organization, password_hash, now)
         )
@@ -512,7 +543,7 @@ def update_last_login(user_id: int):
     """Update user's last login timestamp."""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("UPDATE users SET last_login = %s WHERE id = %s", 
+    execute_query(c, "UPDATE users SET last_login = %s WHERE id = %s", 
               (datetime.utcnow().isoformat(), user_id))
     conn.commit()
     conn.close()
@@ -522,7 +553,7 @@ def update_password(user_id: int, new_password: str) -> bool:
     password_hash = hash_password(new_password)
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("UPDATE users SET password_hash = %s WHERE id = %s", 
+    execute_query(c, "UPDATE users SET password_hash = %s WHERE id = %s", 
               (password_hash, user_id))
     conn.commit()
     conn.close()
@@ -576,7 +607,7 @@ def create_reset_token_for_user(user_id: int) -> str | None:
         # Store in database
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute(
+        execute_query(c,
             "UPDATE users SET reset_token = %s, reset_token_expiry = %s WHERE id = %s",
             (hashed_token, expiry_time, user_id)
         )
@@ -607,7 +638,7 @@ def verify_reset_token(token: str) -> dict | None:
         # Query database
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute(
+        execute_query(c,
             "SELECT id, email, full_name, reset_token_expiry FROM users WHERE reset_token = %s",
             (hashed_token,)
         )
@@ -649,7 +680,7 @@ def invalidate_reset_token(user_id: int) -> bool:
     try:
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute(
+        execute_query(c,
             "UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = %s",
             (user_id,)
         )
@@ -659,6 +690,139 @@ def invalidate_reset_token(user_id: int) -> bool:
     except Exception as e:
         print(f"❌ Error invalidating reset token: {e}")
         return False
+
+# ── Report Management ──────────────────────────────────────────────
+def save_report(user_id: int, target: str, org_name: str, author: str, pdf_path: str = None) -> dict | None:
+    """
+    Save a generated security report to the database.
+    
+    Args:
+        user_id: User's ID
+        target: Target URL/domain
+        org_name: Organization name
+        author: Report author name
+        pdf_path: Path to generated PDF file (optional)
+        
+    Returns:
+        Report dict with id and metadata, or None if failed
+    """
+    try:
+        now = datetime.utcnow().isoformat()
+        conn = get_db_connection()
+        c = conn.cursor()
+        execute_query(c,
+            "INSERT INTO reports (user_id, target, org_name, author, pdf_path, created_at) VALUES (%s, %s, %s, %s, %s, %s)",
+            (user_id, target, org_name, author, pdf_path, now)
+        )
+        conn.commit()
+        report_id = c.lastrowid
+        conn.close()
+        
+        return {
+            "id": report_id,
+            "user_id": user_id,
+            "target": target,
+            "org_name": org_name,
+            "author": author,
+            "pdf_path": pdf_path,
+            "created_at": now
+        }
+    except Exception as e:
+        print(f"❌ Error saving report: {e}")
+        return None
+
+def get_user_reports(user_id: int, limit: int = 50) -> list:
+    """
+    Get all reports generated by a user.
+    
+    Args:
+        user_id: User's ID
+        limit: Maximum number of reports to fetch
+        
+    Returns:
+        List of report dicts
+    """
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        execute_query(c,
+            "SELECT id, user_id, target, org_name, author, pdf_path, created_at FROM reports WHERE user_id = %s ORDER BY created_at DESC LIMIT %s",
+            (user_id, limit)
+        )
+        rows = c.fetchall()
+        conn.close()
+        
+        reports = []
+        for row in rows:
+            reports.append({
+                "id": row[0],
+                "user_id": row[1],
+                "target": row[2],
+                "org_name": row[3],
+                "author": row[4],
+                "pdf_path": row[5],
+                "created_at": row[6]
+            })
+        return reports
+    except Exception as e:
+        print(f"❌ Error fetching user reports: {e}")
+        return []
+
+def get_report_by_id(report_id: int, user_id: int = None) -> dict | None:
+    """
+    Get a specific report by ID. Optionally verify it belongs to a specific user.
+    
+    Args:
+        report_id: Report's ID
+        user_id: User's ID (for permission check), optional
+        
+    Returns:
+        Report dict or None if not found
+    """
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        
+        if user_id:
+            execute_query(c,
+                "SELECT id, user_id, target, org_name, author, pdf_path, created_at FROM reports WHERE id = %s AND user_id = %s",
+                (report_id, user_id)
+            )
+        else:
+            execute_query(c,
+                "SELECT id, user_id, target, org_name, author, pdf_path, created_at FROM reports WHERE id = %s",
+                (report_id,)
+            )
+        
+        row = c.fetchone()
+        conn.close()
+        
+        if row:
+            return {
+                "id": row[0],
+                "user_id": row[1],
+                "target": row[2],
+                "org_name": row[3],
+                "author": row[4],
+                "pdf_path": row[5],
+                "created_at": row[6]
+            }
+        return None
+    except Exception as e:
+        print(f"❌ Error fetching report: {e}")
+        return None
+
+def get_user_reports(user_id: int, limit: int = 100) -> list:
+    """Get list of reports for a user from the database."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    execute_query(c,
+        "SELECT * FROM reports WHERE user_id = %s ORDER BY created_at DESC LIMIT %s",
+        (user_id, limit)
+    )
+    rows = c.fetchall()
+    conn.close()
+    return rows
 
 # ── Pydantic Models ────────────────────────────────────────────────
 class SignupRequest(BaseModel):
