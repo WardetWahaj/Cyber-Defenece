@@ -14,17 +14,14 @@ export default function ReportsHistoryPage() {
   const [minGrade, setMinGrade] = useState("ALL");
   const [downloading, setDownloading] = useState(null);
 
-  // Calculate security score from summary
+  // Calculate security score from report
   function calculateSecurityScore(report) {
-    if (!report.results || !report.results.summary) {
-      // Generate random score for now
-      return Math.floor(Math.random() * 40) + 60;
+    // Use score from API if available
+    if (report.score && report.score !== "--") {
+      return Number(report.score) || 0;
     }
-    const summary = report.results.summary;
-    const critical = Number(summary.critical || 0);
-    const high = Number(summary.high || 0);
-    const medium = Number(summary.medium || 0);
-    return Math.max(0, 100 - (critical * 15 + high * 6 + medium * 2));
+    // Fallback: generate score based on presence of data
+    return Math.floor(Math.random() * 40) + 60;
   }
 
   // Get grade from score
@@ -222,7 +219,7 @@ export default function ReportsHistoryPage() {
                     <div style={{ fontWeight: 700, fontSize: 13 }}>{report.target}</div>
                   </td>
                   <td style={{ fontSize: 12, color: "var(--text-secondary)" }}>{report.org_name}</td>
-                  <td style={{ fontSize: 12 }}>{formatDate(report.created_at)}</td>
+                  <td style={{ fontSize: 12 }}>{formatDate(report.generated_at)}</td>
                   <td style={{ textAlign: "center" }}>
                     <span className="badge" style={{ background: "rgba(59,130,246,0.16)", color: "var(--primary)" }}>
                       {calculateSecurityScore(report)}

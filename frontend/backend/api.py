@@ -911,18 +911,27 @@ def list_user_reports(authorization: str = Header(None), limit: int = 100) -> di
     for row in rows:
         try:
             results = json.loads(row[4]) if row[4] else {}
-            if results is None:
+            if not isinstance(results, dict):
                 results = {}
         except (json.JSONDecodeError, TypeError):
             results = {}
         
+        # Extract score from various possible locations
+        score = (
+            results.get("score") or
+            results.get("security_score") or
+            results.get("summary", {}).get("score") or
+            "--"
+        )
+        
         reports.append({
             "id": row[0],
             "target": row[1] if row[1] else results.get("target", "N/A"),
-            "org_name": results.get("org_name", results.get("organisation", "N/A")),
-            "generated_at": row[3] if row[3] else "N/A",
-            "score": results.get("score", results.get("security_score", results.get("summary", {}).get("score", "--"))),
+            "org_name": results.get("org_name", results.get("organisation", results.get("organization", "N/A"))),
+            "generated_at": row[3],
+            "score": score,
             "module": row[2],
+            "status": "COMPLETED",
         })
     
     return {"reports": reports, "total": len(reports)}
