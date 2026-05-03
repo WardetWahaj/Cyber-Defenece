@@ -99,41 +99,6 @@ DB_FILE   = DATA_DIR / "cyberdefence.db"
 NUCLEI_LOCAL_EXE = BASE_DIR / "tools" / "nuclei" / ("nuclei.exe" if os.name == "nt" else "nuclei")
 
 
-def get_nuclei_binary() -> str | None:
-    configured = globals().get("CONFIG", {}).get("nuclei_binary_path", "")
-    if configured:
-        configured_path = Path(configured)
-        if configured_path.exists():
-            return str(configured_path)
-
-    local_binary = NUCLEI_LOCAL_EXE
-    if local_binary.exists():
-        return str(local_binary)
-
-    path_binary = shutil.which("nuclei")
-    if path_binary:
-        return path_binary
-
-    return None
-
-
-NUCLEI_BINARY = get_nuclei_binary()
-
-def check_nuclei_available():
-    nuclei_path = CONFIG.get("nuclei_binary_path", "nuclei")
-    return shutil.which(nuclei_path) is not None or Path(nuclei_path).exists()
-
-NUCLEI_AVAILABLE = check_nuclei_available()
-
-for d in ["recon","vuln","defence","siem","policies","reports","virustotal","nuclei","sucuri"]:
-    (DATA_DIR / d).mkdir(parents=True, exist_ok=True)
-
-logging.basicConfig(
-    filename=DATA_DIR / "platform.log",
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
-
 # ── Config ──────────────────────────────────────────────────────
 def load_config():
     defaults = {
@@ -155,6 +120,35 @@ def load_config():
 
 CONFIG = load_config()
 TIMEOUT = CONFIG["request_timeout"]
+
+def get_nuclei_binary() -> str | None:
+    configured = CONFIG.get("nuclei_binary_path", "")
+    if configured:
+        configured_path = Path(configured)
+        if configured_path.exists():
+            return str(configured_path)
+
+    local_binary = NUCLEI_LOCAL_EXE
+    if local_binary.exists():
+        return str(local_binary)
+
+    path_binary = shutil.which("nuclei")
+    if path_binary:
+        return path_binary
+
+    return None
+
+NUCLEI_BINARY = get_nuclei_binary()
+NUCLEI_AVAILABLE = NUCLEI_BINARY is not None
+
+for d in ["recon","vuln","defence","siem","policies","reports","virustotal","nuclei","sucuri"]:
+    (DATA_DIR / d).mkdir(parents=True, exist_ok=True)
+
+logging.basicConfig(
+    filename=DATA_DIR / "platform.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
 
 # ── Database ─────────────────────────────────────────────────────
 def init_db():
