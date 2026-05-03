@@ -118,7 +118,12 @@ def get_nuclei_binary() -> str | None:
 
 
 NUCLEI_BINARY = get_nuclei_binary()
-NUCLEI_AVAILABLE = NUCLEI_BINARY is not None
+
+def check_nuclei_available():
+    nuclei_path = CONFIG.get("nuclei_binary_path", "nuclei")
+    return shutil.which(nuclei_path) is not None or Path(nuclei_path).exists()
+
+NUCLEI_AVAILABLE = check_nuclei_available()
 
 for d in ["recon","vuln","defence","siem","policies","reports","virustotal","nuclei","sucuri"]:
     (DATA_DIR / d).mkdir(parents=True, exist_ok=True)

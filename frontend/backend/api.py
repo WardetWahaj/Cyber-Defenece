@@ -271,6 +271,8 @@ def _run_live_job(job_id: str) -> None:
 @app.get("/api/health")
 def health() -> dict[str, Any]:
     db_url = os.environ.get("DATABASE_URL", str(core.DB_FILE))
+    if "@" in db_url:
+        db_url = "postgresql://***@" + db_url.split("@")[1]
     return {
         "status": "ok",
         "version": "3.1.0",
