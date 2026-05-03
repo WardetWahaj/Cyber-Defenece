@@ -915,7 +915,6 @@ def list_user_reports(authorization: str = Header(None), limit: int = 100) -> di
                 results = {}
         except (json.JSONDecodeError, TypeError):
             results = {}
-        print(f"DEBUG row[0]={row[0]}, type={type(row[0])}")
         reports.append({
             "id": row[0],
             "target": row[1] if row[1] else "N/A",
