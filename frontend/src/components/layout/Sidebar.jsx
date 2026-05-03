@@ -17,7 +17,7 @@ export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = ()
   return (
     <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
       <div style={{ marginBottom: 24 }}>
-        <div className="sidebar-brand">CYBERDEFENCE v3.1</div>
+        <div className="sidebar-brand">CYBER DEFENCE</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18 }}>
           <div style={{ width: 4, height: 32, borderRadius: 999, background: "linear-gradient(180deg, #3B82F6, #2563eb)" }} />
           <div>

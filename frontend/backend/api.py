@@ -555,7 +555,7 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     pdf.add_page()
     pdf.set_font("Helvetica", "B", 32)
     pdf.ln(50)
-    pdf.cell(0, 20, "CYBERDEFENCE v3.1", ln=True, align="C")
+    pdf.cell(0, 20, "CYBER DEFENCE", ln=True, align="C")
     pdf.set_font("Helvetica", "B", 24)
     pdf.cell(0, 15, "Security Assessment Report", ln=True, align="C")
     
@@ -783,7 +783,7 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     pdf.cell(0, 7, f"Organization: {org_sanitized}", ln=True)
     pdf.cell(0, 7, f"Analyst: {author_sanitized}", ln=True)
     pdf.cell(0, 7, f"Assessment Type: Comprehensive Security Evaluation", ln=True)
-    pdf.cell(0, 7, f"Platform: CyberDefence v3.1", ln=True)
+    pdf.cell(0, 7, f"Platform: Cyber Defence", ln=True)
     
     pdf.ln(15)
     pdf.set_font("Helvetica", "B", 11)

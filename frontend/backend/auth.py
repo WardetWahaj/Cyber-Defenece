@@ -178,8 +178,8 @@ def send_reset_email(to_email: str, reset_url: str, user_name: str) -> bool:
     try:
         # Create message with both plain text and HTML versions
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = "🔐 Password Reset — CyberDefence v3.1"
-        msg["From"] = f"CyberDefence Security <{sender_email}>"
+        msg["Subject"] = "🔐 Password Reset — Cyber Defence"
+        msg["From"] = f"Cyber Defence Security <{sender_email}>"
         msg["To"] = to_email
         
         # Plain text version (fallback for email clients without HTML support)
@@ -192,7 +192,7 @@ Reset link: {reset_url}
 This link expires in 1 hour.
 If you did not request this, ignore this email.
 
-— CyberDefence v3.1 Security Platform"""
+— Cyber Defence Security Platform"""
         
         # HTML version with dark cybersecurity theme
         html_body = f"""<html>
@@ -201,7 +201,7 @@ If you did not request this, ignore this email.
       
       <!-- Header -->
       <div style="text-align:center; padding-bottom:20px; border-bottom:2px solid #238636;">
-        <h2 style="color:#58a6ff; margin:0;">🔐 CyberDefence v3.1</h2>
+        <h2 style="color:#58a6ff; margin:0;">🔐 Cyber Defence</h2>
       </div>
       
       <!-- Main Content -->
@@ -245,7 +245,7 @@ If you did not request this, ignore this email.
       <!-- Footer -->
       <div style="text-align:center; padding-top:20px; border-top:1px solid #30363d; 
                   color:#8b949e; font-size:11px;">
-        <p style="margin:0;">CyberDefence v3.1 — Enterprise Security Analysis Platform</p>
+        <p style="margin:0;">Cyber Defence — Enterprise Security Analysis Platform</p>
       </div>
       
     </div>

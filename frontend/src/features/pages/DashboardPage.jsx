@@ -74,7 +74,7 @@ export default function DashboardPage() {
   return (
     <>
       <PageTitle 
-        title="Landing Dashboard" 
+        title="Dashboard" 
         subtitle={`Welcome back, ${fullName}`}
       />
       {error && <p style={{ color: "#ffb4ab" }}>{error}</p>}

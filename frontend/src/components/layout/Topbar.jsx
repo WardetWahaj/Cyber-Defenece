@@ -46,7 +46,7 @@ export default function Topbar({ onOpenMobileMenu = () => {} }) {
     <header className="topbar">
       <button className="mobile-menu-btn material-symbols-outlined" onClick={onOpenMobileMenu}>menu</button>
       <div style={{ display: "flex", alignItems: "center", gap: 18, minWidth: 0 }}>
-        <div className="shell-title">CYBERDEFENCE v3.1</div>
+        <div className="shell-title">CYBER DEFENCE</div>
         <div className="topbar-search">
           <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--text-muted)" }}>search</span>
           <input placeholder="Global threat lookup..." />
