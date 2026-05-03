@@ -909,7 +909,12 @@ def list_user_reports(authorization: str = Header(None), limit: int = 100) -> di
     
     reports = []
     for row in rows:
-        results = json.loads(row[4]) if row[4] else {}
+        try:
+            results = json.loads(row[4]) if row[4] else {}
+            if results is None:
+                results = {}
+        except (json.JSONDecodeError, TypeError):
+            results = {}
         reports.append({
             "id": f"RPT-{row[0]}",
             "target": row[1] or "N/A",
