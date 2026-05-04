@@ -466,6 +466,113 @@ def init_auth_db():
     conn.commit()
     conn.close()
 
+def migrate_pdf_paths_for_reports():
+    """
+    Migration: Update existing reports that have NULL pdf_path.
+    Links reports with available PDF files using intelligent timestamp matching.
+    """
+    try:
+        # Import cyberdefence_platform_v31 to get DATA_DIR
+        import cyberdefence_platform_v31 as core
+        
+        conn = get_db_connection()
+        c = conn.cursor()
+        
+        # Get all reports where pdf_path is NULL or empty
+        execute_query(c, 
+            "SELECT id, user_id, target, org_name, author, created_at FROM reports WHERE pdf_path IS NULL OR pdf_path = ''",
+            ()
+        )
+        null_reports = c.fetchall()
+        
+        if not null_reports:
+            conn.close()
+            return  # No migration needed
+        
+        print(f"📋 Found {len(null_reports)} reports without pdf_path")
+        
+        # Check if data/reports directory exists and has orphaned PDFs
+        reports_dir = core.DATA_DIR / "reports"
+        if not reports_dir.exists():
+            conn.close()
+            return
+        
+        pdf_files = sorted(reports_dir.glob("*.pdf"), reverse=True)
+        
+        if not pdf_files:
+            conn.close()
+            return
+        
+        print(f"   Found {len(pdf_files)} PDF files in reports directory")
+        
+        # Strategy: Try to match reports with PDFs by timestamp proximity
+        # If no close match found, use most recent PDF for that user
+        for report_row in null_reports:
+            report_id = report_row[0]
+            user_id = report_row[1]
+            target = report_row[2]
+            created_at = report_row[5]  # ISO format timestamp
+            
+            try:
+                # Parse report created_at timestamp
+                if "T" in created_at:
+                    # ISO format: 2026-05-02T16:45:24
+                    report_time = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                else:
+                    # Other format - skip this one
+                    continue
+                
+                # Find closest PDF by modification time (within 120 seconds)
+                closest_pdf = None
+                closest_diff = float('inf')
+                
+                for pdf_file in pdf_files:
+                    try:
+                        pdf_mtime = datetime.fromtimestamp(pdf_file.stat().st_mtime)
+                        time_diff = abs((pdf_mtime - report_time).total_seconds())
+                        
+                        # If PDF was created within 120 seconds of report, it's a potential match
+                        if time_diff < 120 and time_diff < closest_diff:
+                            closest_pdf = pdf_file
+                            closest_diff = time_diff
+                    except Exception:
+                        continue
+                
+                # Update report with matched PDF
+                if closest_pdf:
+                    pdf_path = str(closest_pdf)
+                    execute_query(c,
+                        "UPDATE reports SET pdf_path = %s WHERE id = %s",
+                        (pdf_path, report_id)
+                    )
+                    print(f"   ✅ Report #{report_id} → {closest_pdf.name} (Δ {closest_diff:.0f}s)")
+                else:
+                    # No close match - use the most recent PDF as fallback
+                    if pdf_files:
+                        latest_pdf = pdf_files[0]  # Most recent
+                        pdf_path = str(latest_pdf)
+                        execute_query(c,
+                            "UPDATE reports SET pdf_path = %s WHERE id = %s",
+                            (pdf_path, report_id)
+                        )
+                        print(f"   ⚠️  Report #{report_id} → {latest_pdf.name} (using latest)")
+                        
+            except Exception as e:
+                print(f"   ❌ Error processing Report #{report_id}: {e}")
+                continue
+        
+        conn.commit()
+        conn.close()
+        print("✅ Migration completed!")
+        
+    except Exception as e:
+        print(f"❌ Migration error: {e}")
+        import traceback
+        traceback.print_exc()
+
+# Run migration on startup
+migrate_pdf_paths_for_reports()
+
 def get_user_by_email(email: str) -> dict | None:
     """Get a user by email."""
     conn = get_db_connection()
