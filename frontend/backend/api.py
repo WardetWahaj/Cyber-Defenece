@@ -907,38 +907,26 @@ def list_user_reports(authorization: str = Header(None), limit: int = 100) -> di
     user = get_current_user(authorization)
     
     # Get user's actual reports from reports table (not scan history)
-    db_reports = auth.get_user_reports(user["id"], limit=limit)
+    rows = auth.get_user_reports(user["id"], limit=limit)
     
-    if not db_reports:
+    if not rows:
         return {"reports": [], "total": 0}
     
     reports = []
-    for report in db_reports:
-        # Calculate score if available from scan results
-        score = "--"
-        if report.get("results"):
-            try:
-                results = json.loads(report["results"]) if isinstance(report["results"], str) else report["results"]
-                if isinstance(results, dict):
-                    score = (
-                        results.get("score") or
-                        results.get("security_score") or
-                        results.get("summary", {}).get("score") or
-                        "--"
-                    )
-            except (json.JSONDecodeError, TypeError):
-                pass
-        
-        reports.append({
-            "id": report.get("id"),
-            "target": report.get("target", "N/A"),
-            "org_name": report.get("org_name", "N/A"),
-            "author": report.get("author", "Security Analyst"),
-            "generated_at": report.get("created_at"),
-            "pdf_path": report.get("pdf_path"),
-            "score": score,
+    for row in rows:
+        # Row structure: (id, user_id, target, org_name, author, pdf_path, created_at)
+        report_dict = {
+            "id": row[0],
+            "user_id": row[1],
+            "target": row[2] if row[2] else "N/A",
+            "org_name": row[3] if row[3] else "N/A",
+            "author": row[4] if row[4] else "Security Analyst",
+            "pdf_path": row[5],
+            "generated_at": row[6],
             "status": "COMPLETED",
-        })
+            "score": "--"  # Score would need to come from scan results
+        }
+        reports.append(report_dict)
     
     return {"reports": reports, "total": len(reports)}
 
