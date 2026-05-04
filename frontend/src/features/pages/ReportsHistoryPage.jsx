@@ -139,8 +139,23 @@ export default function ReportsHistoryPage() {
   }
 
   function handleViewReport(reportId) {
-    // Navigate to view the report scan results
-    navigate(`/results/vulnerabilities?report=${reportId}`);
+    // Find the report and open the PDF
+    const report = filteredReports.find(r => r.id === reportId);
+    if (report && report.pdf_path) {
+      const token = localStorage.getItem("auth_token");
+      const filename = report.pdf_path.split(/[\\/]/).pop();
+      const url = `${API_BASE}/api/report/download?filename=${encodeURIComponent(filename)}`;
+      
+      // Open PDF in new tab
+      const newTab = window.open(url, '_blank');
+      if (newTab && token) {
+        newTab.addEventListener('load', () => {
+          newTab.document.setRequestHeader = function() {};
+        });
+      }
+    } else {
+      alert("Report PDF not available");
+    }
   }
 
   return (
