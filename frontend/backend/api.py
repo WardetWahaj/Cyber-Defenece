@@ -905,32 +905,38 @@ def download_pdf(filename: str = None):
 @app.get("/api/reports/list")
 def list_user_reports(authorization: str = Header(None), limit: int = 100) -> dict:
     user = get_current_user(authorization)
-    rows = core.get_history(limit=limit, user_id=user["id"])
+    
+    # Get user's actual reports from reports table (not scan history)
+    db_reports = auth.get_user_reports(user["id"], limit=limit)
+    
+    if not db_reports:
+        return {"reports": [], "total": 0}
     
     reports = []
-    for row in rows:
-        try:
-            results = json.loads(row[4]) if row[4] else {}
-            if not isinstance(results, dict):
-                results = {}
-        except (json.JSONDecodeError, TypeError):
-            results = {}
-        
-        # Extract score from various possible locations
-        score = (
-            results.get("score") or
-            results.get("security_score") or
-            results.get("summary", {}).get("score") or
-            "--"
-        )
+    for report in db_reports:
+        # Calculate score if available from scan results
+        score = "--"
+        if report.get("results"):
+            try:
+                results = json.loads(report["results"]) if isinstance(report["results"], str) else report["results"]
+                if isinstance(results, dict):
+                    score = (
+                        results.get("score") or
+                        results.get("security_score") or
+                        results.get("summary", {}).get("score") or
+                        "--"
+                    )
+            except (json.JSONDecodeError, TypeError):
+                pass
         
         reports.append({
-            "id": row[0],
-            "target": row[1] if row[1] else results.get("target", "N/A"),
-            "org_name": results.get("org_name", results.get("organisation", results.get("organization", "N/A"))),
-            "generated_at": row[3],
+            "id": report.get("id"),
+            "target": report.get("target", "N/A"),
+            "org_name": report.get("org_name", "N/A"),
+            "author": report.get("author", "Security Analyst"),
+            "generated_at": report.get("created_at"),
+            "pdf_path": report.get("pdf_path"),
             "score": score,
-            "module": row[2],
             "status": "COMPLETED",
         })
     
