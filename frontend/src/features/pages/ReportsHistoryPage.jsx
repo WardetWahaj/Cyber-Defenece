@@ -141,20 +141,25 @@ export default function ReportsHistoryPage() {
   function handleViewReport(reportId) {
     // Find the report and open the PDF
     const report = filteredReports.find(r => r.id === reportId);
-    if (report && report.pdf_path) {
+    if (!report) {
+      alert("Report not found");
+      return;
+    }
+
+    if (!report.pdf_path) {
+      alert("PDF report not yet generated for this report. Please regenerate the report with PDF option.");
+      return;
+    }
+
+    try {
       const token = localStorage.getItem("auth_token");
       const filename = report.pdf_path.split(/[\\/]/).pop();
       const url = `${API_BASE}/api/report/download?filename=${encodeURIComponent(filename)}`;
       
       // Open PDF in new tab
-      const newTab = window.open(url, '_blank');
-      if (newTab && token) {
-        newTab.addEventListener('load', () => {
-          newTab.document.setRequestHeader = function() {};
-        });
-      }
-    } else {
-      alert("Report PDF not available");
+      window.open(url, '_blank');
+    } catch (e) {
+      alert(`Failed to open report: ${e.message}`);
     }
   }
 
