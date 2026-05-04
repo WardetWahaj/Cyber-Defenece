@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageTitle from "../../components/ui/PageTitle";
 import Button from "../../components/ui/Button";
@@ -20,6 +20,17 @@ export default function NewScanPage() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [currentModule, setCurrentModule] = useState("");
+  const [modulesToScan, setModulesToScan] = useState([]);
+
+  const modulesInfo = {
+    recon: { label: "Reconnaissance", duration: 1500 },
+    vulnerability: { label: "Vulnerability Assessment", duration: 2000 },
+    defence: { label: "Defence Configuration", duration: 1200 },
+    siem: { label: "SIEM Events Analysis", duration: 1000 },
+    virustotal: { label: "Malware Reputation", duration: 800 },
+  };
 
   function getModulesForMode() {
     if (scanMode === "Quick") return ["recon"];
@@ -37,11 +48,24 @@ export default function NewScanPage() {
   async function runScan() {
     setLoading(true);
     setError("");
+    setProgress(0);
+    setCurrentModule("");
+    
     try {
       const modules = getModulesForMode();
       if (!modules.length) {
         throw new Error("Select at least one module in Custom mode.");
       }
+
+      setModulesToScan(modules);
+
+      // Simulate progress
+      let progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 95) return 95;
+          return prev + Math.random() * 15;
+        });
+      }, 500);
 
       let data;
       if (scanMode === "Comprehensive") {
@@ -50,6 +74,8 @@ export default function NewScanPage() {
         data = await api.customScan(target, modules);
       }
 
+      clearInterval(progressInterval);
+      setProgress(100);
       setResult(data);
       setTimeout(() => {
         navigate(`/reports/pdf?target=${encodeURIComponent(target)}&autogen=1`);
@@ -140,7 +166,7 @@ export default function NewScanPage() {
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>API INTEGRATED INTELLIGENCE</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>API INTEGRATED INTELLIGENCE</div>
               <div style={{ display: "grid", gap: 8 }}>
                 {["Shodan", "VirusTotal", "BinaryEdge", "HIBP", "Censys"].map((name) => (
                   <div key={name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" }}>
@@ -152,10 +178,74 @@ export default function NewScanPage() {
             </div>
 
             {error && <p style={{ color: "#ffb4ab" }}>{error}</p>}
-            {loading && <p style={{ color: "#b4c5ff", fontSize: 12 }}>Scan in progress... this can take up to a few minutes depending on target.</p>}
+            
+            {loading && (
+              <div style={{ marginTop: 20, padding: 16, background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 8, display: "grid", gap: 14 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "var(--text-muted)", letterSpacing: "0.05em" }}>SCAN PROGRESS</div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: "var(--primary)" }}>{Math.round(progress)}%</div>
+                </div>
+                
+                <div style={{ width: "100%", height: 8, background: "var(--surface-high)", borderRadius: 4, overflow: "hidden", boxShadow: "inset 0 1px 3px rgba(0,0,0,0.2)" }}>
+                  <div style={{ 
+                    width: `${progress}%`, 
+                    height: "100%", 
+                    background: `linear-gradient(90deg, var(--primary) 0%, #60a5fa 50%, var(--primary) 100%)`,
+                    borderRadius: 4, 
+                    transition: "width 0.2s ease-out",
+                    boxShadow: "0 0 8px rgba(59, 130, 246, 0.5)"
+                  }} />
+                </div>
+                
+                <div style={{ display: "grid", gap: 10 }}>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>ACTIVE MODULES</div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {modulesToScan.map((module, idx) => {
+                      const moduleProgress = Math.min(100, Math.max(0, progress - (idx * 20)));
+                      const isRunning = moduleProgress > 0 && moduleProgress < 100;
+                      const isCompleted = moduleProgress === 100;
+                      const status = isCompleted ? "✓" : isRunning ? "⟳" : "○";
+                      const statusColor = isCompleted ? "#22c55e" : isRunning ? "var(--primary)" : "var(--text-muted)";
+                      
+                      return (
+                        <div key={module} style={{ display: "flex", alignItems: "center", gap: 10, padding: 8, background: "var(--bg)", borderRadius: 6 }}>
+                          <div style={{ fontSize: 16, color: statusColor, fontWeight: 800, minWidth: 20, textAlign: "center" }}>
+                            {status}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>
+                              {modulesInfo[module]?.label || module}
+                            </div>
+                            <div style={{ width: "100%", height: 4, background: "var(--surface-high)", borderRadius: 2, overflow: "hidden" }}>
+                              <div style={{ 
+                                width: `${moduleProgress}%`, 
+                                height: "100%", 
+                                background: statusColor,
+                                transition: "width 0.3s ease-out"
+                              }} />
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", minWidth: 30, textAlign: "right" }}>
+                            {Math.round(moduleProgress)}%
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                <div style={{ display: "grid", gap: 8, paddingTop: 8, borderTop: "1px solid var(--ghost)" }}>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>TARGET BEING SCANNED</div>
+                  <div style={{ fontSize: 13, color: "var(--text)", fontWeight: 600, wordBreak: "break-all", padding: 8, background: "var(--bg)", borderRadius: 4 }}>
+                    {target}
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {result?.results && (
               <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 800, letterSpacing: "0.12em" }}>SCAN SUMMARY</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 800, letterSpacing: "0.12em" }}>SCAN SUMMARY</div>
                 <div className="grid grid-2" style={{ gap: 8 }}>
                   <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 6, padding: 10 }}>
                     <div style={{ fontSize: 10, color: "var(--text-muted)" }}>VULNERABILITIES</div>
@@ -178,8 +268,8 @@ export default function NewScanPage() {
             )}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 24, background: "#0b1326" }}>
-            <button className="btn btn-secondary" onClick={() => { setTarget(""); setResult(null); setError(""); }}>Cancel</button>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 24, background: "var(--bg)" }}>
+            <button className="btn btn-secondary" onClick={() => { setTarget(""); setResult(null); setError(""); setProgress(0); setCurrentModule(""); setModulesToScan([]); }}>Cancel</button>
             <Button onClick={runScan} disabled={loading || !target}>{loading ? "Scanning..." : "Run Scan →"}</Button>
           </div>
         </div>
