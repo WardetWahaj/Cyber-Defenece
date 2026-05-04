@@ -168,14 +168,14 @@ export default function PdfReportPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
           <div style={{ width: 40, height: 40, background: "#3B82F6", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800 }}>🔐</div>
           <div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: "#fff" }}>Security Report</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--text)" }}>Security Report</div>
             <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>{orgName}</div>
           </div>
         </div>
       </div>
 
       {/* Overall Security Score */}
-      <div style={{ background: "linear-gradient(135deg, #1f2937, #111827)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: 24, marginBottom: 24 }}>
+      <div style={{ background: "var(--surface-high)", border: "1px solid var(--ghost)", borderRadius: 12, padding: 24, marginBottom: 24 }}>
         <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12, fontWeight: 800, textTransform: "uppercase" }}>Your Security Score</div>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div>
@@ -188,7 +188,7 @@ export default function PdfReportPage() {
             <div style={{ fontSize: 18, fontWeight: 800, color: getSecurityGrade(result.summary.security_score || 0).color, marginBottom: 8 }}>
               Grade: {getSecurityGrade(result.summary.security_score || 0).grade}
             </div>
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
               {getSecurityGrade(result.summary.security_score || 0).grade === "A" && "Excellent security posture. Keep up with updates and monitoring."}
               {getSecurityGrade(result.summary.security_score || 0).grade === "B" && "Good security practices. Address the identified medium-priority issues."}
               {getSecurityGrade(result.summary.security_score || 0).grade === "C" && "Fair security level. Multiple issues need attention to reduce risk."}
@@ -200,15 +200,15 @@ export default function PdfReportPage() {
 
       {/* Threats Summary */}
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "#fff" }}>🎯 Threat Overview</div>
+        <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "var(--text)" }}>🎯 Threat Overview</div>
         <div className="grid grid-2" style={{ gap: 12, marginBottom: 12 }}>
-          <div style={{ background: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 16 }}>
+          <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 6, fontWeight: 800 }}>Security Events Detected</div>
             <div style={{ fontSize: 32, fontWeight: 800, color: "#3B82F6" }}>{result.summary.siem?.events || 0}</div>
             <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 8 }}>Total suspicious activities across your systems</div>
           </div>
-          <div style={{ background: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 6, fontWeight: 800 }}>Malware Checks</div>
+          <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 6, fontWeight: 800 }}>Malware Checks</div>
             <div style={{ fontSize: 28, fontWeight: 800, color: result.summary.virustotal?.malicious > 0 ? "#ff2d55" : "#34c759" }}>
               {result.summary.virustotal?.malicious || 0}
             </div>
@@ -220,12 +220,12 @@ export default function PdfReportPage() {
       {/* Critical Vulnerabilities Section */}
       {result.details?.vulnerabilities && result.details.vulnerabilities.length > 0 && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "#fff" }}>🔍 Detailed Security Issues Found</div>
+          <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "var(--text)" }}>🔍 Detailed Security Issues Found</div>
           <div style={{ display: "grid", gap: 10 }}>
             {result.details.vulnerabilities.slice(0, 10).map((vuln, idx) => {
               const sevColor = getSeverityColor(vuln.severity);
               return (
-                <div key={idx} style={{ background: "#1f2937", border: `2px solid ${sevColor.bg}40`, borderRadius: 8, padding: 12 }}>
+                <div key={idx} style={{ background: "var(--surface)", border: `2px solid ${sevColor.bg}40`, borderRadius: 8, padding: 12 }}>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                     <div style={{ width: 40, height: 40, background: sevColor.bg, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 18, flexShrink: 0 }}>
                       {vuln.severity === "CRITICAL" && "🔴"}
@@ -234,7 +234,7 @@ export default function PdfReportPage() {
                       {vuln.severity === "LOW" && "🟢"}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", marginBottom: 4 }}>{vuln.name}</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text)", marginBottom: 4 }}>{vuln.name}</div>
                       <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 8, lineHeight: 1.4 }}>
                         {vuln.evidence || "Security check identified this issue"}
                       </div>
@@ -273,7 +273,7 @@ export default function PdfReportPage() {
       {/* Vulnerabilities Summary */}
       {result.summary.vulnerability_summary && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 12, color: "#fff" }}>⚠️ Issues by Severity</div>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 12, color: "var(--text)" }}>⚠️ Issues by Severity</div>
           <div style={{ display: "grid", gap: 10 }}>
             {result.summary.vulnerability_summary?.critical > 0 && (
               <div style={{ background: "#ff2d55", borderRadius: 8, padding: 14, color: "#fff" }}>
@@ -306,18 +306,18 @@ export default function PdfReportPage() {
       {/* Defence Checks */}
       {result.summary.defence && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "#fff" }}>✓ Security Configuration Checks</div>
+          <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "var(--text)" }}>✓ Security Configuration Checks</div>
           <div style={{ display: "grid", gap: 8 }}>
-            <div style={{ background: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 13 }}>✅ Passed Security Tests</span>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 8, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 13, color: "var(--text)" }}>✅ Passed Security Tests</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: "#34c759" }}>{result.summary.defence.pass || 0}</span>
             </div>
-            <div style={{ background: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 13 }}>❌ Failed Tests (Needs Fix)</span>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 8, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 13, color: "var(--text)" }}>❌ Failed Tests (Needs Fix)</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: "#ff2d55" }}>{result.summary.defence.fail || 0}</span>
             </div>
-            <div style={{ background: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 13 }}>⚠️ Warnings (Review Needed)</span>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 8, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 13, color: "var(--text)" }}>⚠️ Warnings (Review Needed)</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: "#ff9500" }}>{result.summary.defence.warn || 0}</span>
             </div>
           </div>
@@ -326,8 +326,8 @@ export default function PdfReportPage() {
             <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 800 }}>DETAILED CHECKS</div>
               {result.details.defence_checks.map((check, idx) => (
-                <div key={idx} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 6, padding: 10, borderLeft: `3px solid ${check.status === "PASS" ? "#34c759" : check.status === "FAIL" ? "#ff2d55" : "#ff9500"}` }}>
-                  <div style={{ fontSize: 12, color: "#fff", fontWeight: 600, marginBottom: 4 }}>
+                <div key={idx} style={{ background: "var(--surface)", borderRadius: 6, padding: 10, borderLeft: `3px solid ${check.status === "PASS" ? "#34c759" : check.status === "FAIL" ? "#ff2d55" : "#ff9500"}` }}>
+                  <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600, marginBottom: 4 }}>
                     {check.status === "PASS" && "✓"} {check.status === "FAIL" && "✗"} {check.status === "WARN" && "⚠"} {check.name || check.check}
                   </div>
                   <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>{check.description || check.detail || "Security configuration item"}</div>
@@ -341,17 +341,17 @@ export default function PdfReportPage() {
       {/* SIEM Events */}
       {result.details?.siem_events && result.details.siem_events.length > 0 && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "#fff" }}>📊 Detected Security Events</div>
+          <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "var(--text)" }}>📊 Detected Security Events</div>
           <div style={{ display: "grid", gap: 8 }}>
             {result.details.siem_events.slice(0, 8).map((event, idx) => {
               const eventSev = getSeverityColor(event.severity);
               return (
-                <div key={idx} style={{ background: "#1f2937", border: `1px solid ${eventSev.bg}40`, borderRadius: 8, padding: 10, display: "flex", gap: 8 }}>
+                <div key={idx} style={{ background: "var(--surface)", border: `1px solid ${eventSev.bg}40`, borderRadius: 8, padding: 10, display: "flex", gap: 8 }}>
                   <div style={{ width: 32, height: 32, background: eventSev.bg, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 14, flexShrink: 0 }}>
                     📌
                   </div>
                   <div style={{ flex: 1, fontSize: 11 }}>
-                    <div style={{ fontWeight: 600, color: "#fff", marginBottom: 2 }}>{event.type || event.event_type || "Security Event"}</div>
+                    <div style={{ fontWeight: 600, color: "var(--text)", marginBottom: 2 }}>{event.type || event.event_type || "Security Event"}</div>
                     <div style={{ color: "var(--text-secondary)", fontSize: 10 }}>{event.description || event.message || "Suspicious activity detected"}</div>
                     <div style={{ color: eventSev.bg, fontSize: 10, marginTop: 2, fontWeight: 600 }}>Severity: {event.severity}</div>
                   </div>
@@ -369,27 +369,27 @@ export default function PdfReportPage() {
 
       {/* Recommendations */}
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "#fff" }}>💡 What Should You Do?</div>
+        <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "var(--text)" }}>💡 What Should You Do?</div>
         <div style={{ display: "grid", gap: 10 }}>
           {result.summary.vulnerability_summary?.critical > 0 && (
-            <div style={{ background: "#1f2937", border: "1px solid rgba(255,0,0,0.3)", borderRadius: 8, padding: 14 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid rgba(255,0,0,0.3)", borderRadius: 8, padding: 14 }}>
               <div style={{ fontWeight: 800, marginBottom: 6, color: "#ff2d55" }}>Priority 1: Fix Critical Issues (Today)</div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>Stop and fix critical vulnerabilities immediately. These could allow attackers to compromise your system. Consider taking the affected service offline until fixed. Patch all known vulnerabilities from your software vendors.</div>
             </div>
           )}
           {result.summary.vulnerability_summary?.high > 0 && (
-            <div style={{ background: "#1f2937", border: "1px solid rgba(255,153,0,0.3)", borderRadius: 8, padding: 14 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid rgba(255,153,0,0.3)", borderRadius: 8, padding: 14 }}>
               <div style={{ fontWeight: 800, marginBottom: 6, color: "#ff9500" }}>Priority 2: Address High-Risk Issues (This Week)</div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>Plan to fix these within 3-5 days. Apply security patches and updates from your software vendors as soon as they're available. Test patches in a non-production environment first.</div>
             </div>
           )}
           {result.summary.defence?.fail > 0 && (
-            <div style={{ background: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 14 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 14 }}>
               <div style={{ fontWeight: 800, marginBottom: 6, color: "#3B82F6" }}>Priority 3: Improve Configuration ({result.summary.defence.fail} Failures)</div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>Review and fix failed security configuration checks. Enable security headers, configure firewalls properly, and enable logging and monitoring.</div>
             </div>
           )}
-          <div style={{ background: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 14 }}>
+          <div style={{ background: "var(--surface)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: 14 }}>
             <div style={{ fontWeight: 800, marginBottom: 6, color: "#45dfa4" }}>Ongoing Security Practices</div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>
               • Keep all software, systems, and plugins updated<br/>
@@ -404,7 +404,7 @@ export default function PdfReportPage() {
       </div>
 
       {/* Report Info */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16, color: "var(--text-secondary)", fontSize: 10 }}>
+      <div style={{ borderTop: "1px solid var(--ghost)", paddingTop: 16, color: "var(--text-secondary)", fontSize: 10 }}>
         <div style={{ marginBottom: 6 }}><strong>Report Generated:</strong> {new Date().toLocaleString()}</div>
         <div style={{ marginBottom: 6 }}><strong>Target Asset:</strong> {target}</div>
         <div style={{ marginBottom: 6 }}><strong>Analyst:</strong> {author}</div>
@@ -463,7 +463,7 @@ export default function PdfReportPage() {
                   </Button>
                 </div>
                 {result.pdf_path && (
-                  <div style={{ background: "#1f2937", border: "1px solid rgba(52,199,89,0.3)", borderRadius: 6, padding: 10, marginTop: 12 }}>
+                  <div style={{ background: "var(--surface)", border: "1px solid rgba(52,199,89,0.3)", borderRadius: 6, padding: 10, marginTop: 12 }}>
                     <div style={{ fontSize: 11, color: "#34c759", fontWeight: 800, marginBottom: 4 }}>✓ PDF Generated</div>
                     <div style={{ fontSize: 10, color: "var(--text-secondary)", wordBreak: "break-all" }}>{result.pdf_path}</div>
                   </div>
@@ -473,7 +473,7 @@ export default function PdfReportPage() {
           </div>
         </Card>
 
-        <div style={{ background: "rgba(15,23,42,0.8)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.05)", padding: 28 }}>
+        <div style={{ background: "var(--surface)", borderRadius: 8, border: "1px solid var(--ghost)", padding: 28 }}>
           {reportContent}
         </div>
       </div>
