@@ -58,10 +58,10 @@ export default function SettingsPage() {
           <Card title="API INTEGRATIONS" right={<Buttonish onClick={addProvider} />}>
             <div style={{ display: "grid", gap: 12 }}>
               {services.map(([name, state]) => (
-                <div key={name} style={{ background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", borderRadius: 6, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+                <div key={name} style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 6, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 16, fontWeight: 800 }}>{name}</div>
-                    <div style={{ fontSize: 12, color: "#a0a0a0", marginTop: 4 }}>{name === "VirusTotal" ? "Aggregated antivirus results and reputation checks." : `Integration for ${name.toLowerCase()} telemetry.`}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: "var(--text)" }}>{name}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>{name === "VirusTotal" ? "Aggregated antivirus results and reputation checks." : `Integration for ${name.toLowerCase()} telemetry.`}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                     <Badge variant={state === "connected" ? "success" : "warning"}>{state.toUpperCase()}</Badge>
@@ -75,10 +75,10 @@ export default function SettingsPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             <Card title="INTEGRATION HEALTH">
               <div style={{ display: "grid", placeItems: "center", padding: "8px 0 12px" }}>
-                <div style={{ width: 160, height: 160, borderRadius: "50%", background: "conic-gradient(#b4c5ff 0 83%, #2d3449 83% 100%)", display: "grid", placeItems: "center" }}>
-                  <div style={{ width: 120, height: 120, borderRadius: "50%", background: "#131b2e", display: "grid", placeItems: "center", textAlign: "center" }}>
-                    <div style={{ fontSize: 28, fontWeight: 800 }}>83%</div>
-                    <div style={{ fontSize: 9, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.15em" }}>Operational</div>
+                <div style={{ width: 160, height: 160, borderRadius: "50%", background: "conic-gradient(var(--primary) 0 83%, var(--surface-high) 83% 100%)", display: "grid", placeItems: "center" }}>
+                  <div style={{ width: 120, height: 120, borderRadius: "50%", background: "var(--surface)", display: "grid", placeItems: "center", textAlign: "center" }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: "var(--text)" }}>83%</div>
+                    <div style={{ fontSize: 9, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.15em" }}>Operational</div>
                   </div>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function SettingsPage() {
 
         <Card title="PROFILE" style={{ height: "fit-content", position: "sticky", top: 80 }}>
           <div style={{ display: "grid", placeItems: "center", textAlign: "center", gap: 12 }}>
-            <div style={{ width: 90, height: 90, borderRadius: 18, border: "2px solid #b4c5ff", padding: 4, background: "#2d3449", display: "grid", placeItems: "center", fontSize: 36, fontWeight: 800, color: "#b4c5ff", flexShrink: 0 }}>
+            <div style={{ width: 90, height: 90, borderRadius: 18, border: "2px solid var(--primary)", padding: 4, background: "var(--surface-high)", display: "grid", placeItems: "center", fontSize: 36, fontWeight: 800, color: "var(--primary)", flexShrink: 0 }}>
               {user?.full_name?.charAt(0).toUpperCase()}
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, wordBreak: "break-word" }}>{user?.full_name || "User"}</div>
@@ -118,7 +118,7 @@ export default function SettingsPage() {
             <div style={{ fontSize: 11, color: "#3B82F6", fontWeight: 800, letterSpacing: "0.16em" }}>
               {user?.organization || "ORGANIZATION"}
             </div>
-            <div style={{ width: "100%", background: "#060d20", border: "1px solid rgba(67,70,85,0.15)", padding: 12, borderRadius: 6, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <div style={{ width: "100%", background: "var(--surface-highest)", border: "1px solid var(--ghost)", padding: 12, borderRadius: 6, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>Account Status</span>
               <Badge variant="success">ACTIVE</Badge>
             </div>

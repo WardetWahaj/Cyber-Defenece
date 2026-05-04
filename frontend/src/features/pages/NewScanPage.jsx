@@ -66,25 +66,25 @@ export default function NewScanPage() {
       <PageTitle title="New Scan Modal" subtitle="Centered scan sheet with quick, standard, comprehensive, and custom modes." />
 
       <div style={{ minHeight: "72vh", display: "grid", placeItems: "center" }}>
-        <div style={{ width: "min(500px, 100%)", background: "rgba(45,52,73,0.72)", backdropFilter: "blur(20px)", borderRadius: 8, border: "1px solid rgba(67,70,85,0.15)", boxShadow: "0 24px 48px -12px rgba(0,0,0,0.6)", overflow: "hidden" }}>
-          <div style={{ padding: 24, borderBottom: "1px solid rgba(67,70,85,0.15)" }}>
+        <div style={{ width: "min(500px, 100%)", background: "var(--surface-high)", backdropFilter: "blur(20px)", borderRadius: 8, border: "1px solid var(--ghost)", boxShadow: "0 24px 48px -12px rgba(0,0,0,0.6)", overflow: "hidden" }}>
+          <div style={{ padding: 24, borderBottom: "1px solid var(--ghost)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 16 }}>
               <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>✨ NEW SECURITY SCAN</h2>
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", color: "var(--text-secondary)" }}>PROTOCOL V3-ALPHA</span>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>TARGET IDENTIFIER</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>TARGET IDENTIFIER</div>
               <input
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 placeholder="https://example.com or 192.168.1.1"
-                style={{ width: "100%", background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", color: "var(--text)", padding: 12, borderRadius: 6 }}
+                style={{ width: "100%", background: "var(--surface)", border: "1px solid var(--ghost)", color: "var(--text)", padding: 12, borderRadius: 6 }}
               />
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>SCAN MODE CONFIGURATION</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>SCAN MODE CONFIGURATION</div>
               <div className="grid grid-2" style={{ gap: 8 }}>
                 {[
                   ["Quick", "L1 Recon • 5m"],
@@ -98,13 +98,13 @@ export default function NewScanPage() {
                       key={title}
                       type="button"
                       onClick={() => setScanMode(title)}
-                      style={{ background: active ? "#222a3d" : "#131b2e", border: `1px solid ${active ? "#3B82F6" : "rgba(67,70,85,0.15)"}`, borderRadius: 6, padding: 12, textAlign: "left", color: "var(--text)", cursor: "pointer" }}
+                      style={{ background: active ? "var(--surface-high)" : "var(--surface)", border: `1px solid ${active ? "var(--primary)" : "var(--ghost)"}`, borderRadius: 6, padding: 12, textAlign: "left", color: "var(--text)", cursor: "pointer" }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 12, height: 12, borderRadius: 999, background: active ? "#3B82F6" : "transparent", border: `2px solid ${active ? "#3B82F6" : "#8d90a0"}` }} />
+                        <div style={{ width: 12, height: 12, borderRadius: 999, background: active ? "var(--primary)" : "transparent", border: `2px solid ${active ? "var(--primary)" : "var(--text-muted)"}` }} />
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 800 }}>{title}</div>
-                          <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>{desc}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text)" }}>{title}</div>
+                          <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{desc}</div>
                         </div>
                       </div>
                     </button>
@@ -115,7 +115,7 @@ export default function NewScanPage() {
 
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>ACTIVE ANALYTICS MODULES</div>
-              <div style={{ background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", borderRadius: 6, padding: 12 }}>
+              <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 6, padding: 12 }}>
                 <div className="grid grid-2" style={{ gap: 8 }}>
                   {[
                     ["portDiscovery", "Port Discovery"],
@@ -157,13 +157,13 @@ export default function NewScanPage() {
               <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
                 <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 800, letterSpacing: "0.12em" }}>SCAN SUMMARY</div>
                 <div className="grid grid-2" style={{ gap: 8 }}>
-                  <div style={{ background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", borderRadius: 6, padding: 10 }}>
-                    <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>VULNERABILITIES</div>
-                    <div style={{ fontWeight: 800 }}>{result.results?.vulnerability?.vulnerabilities?.length || 0} findings</div>
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 6, padding: 10 }}>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>VULNERABILITIES</div>
+                    <div style={{ fontWeight: 800, color: "var(--text)" }}>{result.results?.vulnerability?.vulnerabilities?.length || 0} findings</div>
                   </div>
-                  <div style={{ background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", borderRadius: 6, padding: 10 }}>
-                    <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>DEFENCE SCORE</div>
-                    <div style={{ fontWeight: 800 }}>{result.results?.defence?.score ?? "--"}/100</div>
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 6, padding: 10 }}>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>DEFENCE SCORE</div>
+                    <div style={{ fontWeight: 800, color: "var(--text)" }}>{result.results?.defence?.score ?? "--"}/100</div>
                   </div>
                 </div>
               </div>

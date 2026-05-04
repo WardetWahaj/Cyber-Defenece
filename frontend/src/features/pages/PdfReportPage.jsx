@@ -429,16 +429,16 @@ export default function PdfReportPage() {
         <Card title="REPORT SETTINGS" subtitle="Customize your report">
           <div style={{ display: "grid", gap: 12 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>ORGANIZATION NAME</div>
-              <input value={orgName} onChange={(e) => setOrgName(e.target.value)} style={{ width: "100%", background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", color: "var(--text)", padding: 12, borderRadius: 6 }} />
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>ORGANIZATION NAME</div>
+              <input value={orgName} onChange={(e) => setOrgName(e.target.value)} style={{ width: "100%", background: "var(--surface)", border: "1px solid var(--ghost)", color: "var(--text)", padding: 12, borderRadius: 6 }} />
             </div>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>TARGET / ASSET</div>
-              <input value={target} onChange={(e) => setTarget(e.target.value)} style={{ width: "100%", background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", color: "var(--text)", padding: 12, borderRadius: 6 }} />
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>TARGET / ASSET</div>
+              <input value={target} onChange={(e) => setTarget(e.target.value)} style={{ width: "100%", background: "var(--surface)", border: "1px solid var(--ghost)", color: "var(--text)", padding: 12, borderRadius: 6 }} />
             </div>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-secondary)", marginBottom: 8 }}>ANALYST NAME</div>
-              <input value={author} onChange={(e) => setAuthor(e.target.value)} style={{ width: "100%", background: "#131b2e", border: "1px solid rgba(67,70,85,0.15)", color: "var(--text)", padding: 12, borderRadius: 6 }} />
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "var(--text-muted)", marginBottom: 8 }}>ANALYST NAME</div>
+              <input value={author} onChange={(e) => setAuthor(e.target.value)} style={{ width: "100%", background: "var(--surface)", border: "1px solid var(--ghost)", color: "var(--text)", padding: 12, borderRadius: 6 }} />
             </div>
             
             {error && <p style={{ color: "#ffb4ab", fontSize: 12 }}>❌ {error}</p>}
