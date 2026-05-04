@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import PageTitle from "../../components/ui/PageTitle";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
@@ -10,6 +10,7 @@ export default function DefencePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const intervalRef = useRef(null);
 
   const modulesInfo = {
     headers: { label: "Security Headers Check", duration: 1500 },
@@ -22,8 +23,11 @@ export default function DefencePage() {
     setError("");
     setProgress(0);
     
+    // Clear any existing interval
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    
     // Simulate progress
-    let progressInterval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setProgress(prev => {
         if (prev >= 95) return 95;
         return prev + Math.random() * 15;
@@ -32,11 +36,20 @@ export default function DefencePage() {
     
     try {
       const result = await api.defence(target);
-      clearInterval(progressInterval);
+      // Immediately clear the interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      // Small delay to flush pending state updates
+      await new Promise(resolve => setTimeout(resolve, 50));
       setProgress(100);
       setData(result);
     } catch (e) {
-      clearInterval(progressInterval);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       setError(String(e.message || e));
     } finally {
       setLoading(false);
