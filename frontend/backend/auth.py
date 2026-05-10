@@ -598,7 +598,10 @@ def get_user_by_email(email: str) -> dict | None:
             "password_hash": row[4],
             "created_at": row[5],
             "last_login": row[6],
-            "is_active": row[7]
+            "is_active": row[7],
+            "reset_token": row[8] if len(row) > 8 else None,
+            "reset_token_expiry": row[9] if len(row) > 9 else None,
+            "role": row[10] if len(row) > 10 else "analyst"
         }
     return None
 
@@ -619,7 +622,10 @@ def get_user_by_id(user_id: int) -> dict | None:
             "password_hash": row[4],
             "created_at": row[5],
             "last_login": row[6],
-            "is_active": row[7]
+            "is_active": row[7],
+            "reset_token": row[8] if len(row) > 8 else None,
+            "reset_token_expiry": row[9] if len(row) > 9 else None,
+            "role": row[10] if len(row) > 10 else "analyst"
         }
     return None
 
