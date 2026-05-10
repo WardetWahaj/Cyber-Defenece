@@ -59,24 +59,39 @@ export default function NewScanPage() {
 
       setModulesToScan(modules);
 
-      // Simulate progress
-      let progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 95) return 95;
-          return prev + Math.random() * 15;
-        });
-      }, 500);
-
-      let data;
+      // Start the scan and get job_id
+      let jobResponse;
       if (scanMode === "Comprehensive") {
-        data = await api.autoScan(target);
+        jobResponse = await api.autoScan(target);
       } else {
-        data = await api.customScan(target, modules);
+        jobResponse = await api.customScan(target, modules);
       }
 
-      clearInterval(progressInterval);
-      setProgress(100);
-      setResult(data);
+      const jobId = jobResponse.job_id;
+      
+      // Poll for job status every 3 seconds
+      let completed = false;
+      let result = null;
+      
+      while (!completed) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        try {
+          const statusResponse = await api.scanStatus(jobId);
+          setProgress(statusResponse.progress || 0);
+          
+          if (statusResponse.status === "completed") {
+            completed = true;
+            result = statusResponse.result;
+            setResult(result);
+          } else if (statusResponse.status === "failed") {
+            throw new Error(statusResponse.error || "Scan failed");
+          }
+        } catch (e) {
+          throw new Error(`Failed to fetch job status: ${e.message}`);
+        }
+      }
+
       setTimeout(() => {
         navigate(`/reports/pdf?target=${encodeURIComponent(target)}&autogen=1`);
       }, 800);

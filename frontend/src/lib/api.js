@@ -73,6 +73,7 @@ export const api = {
       body: JSON.stringify({ target, modules }),
       timeoutMs: 300000,
     }),
+  scanStatus: (jobId) => request(`/api/scan/status/${jobId}`),
   policy: (policyId, orgName) =>
     request("/api/policy/generate", {
       method: "POST",

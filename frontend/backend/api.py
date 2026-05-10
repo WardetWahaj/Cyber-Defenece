@@ -65,6 +65,9 @@ class CustomScanRequest(BaseModel):
 LIVE_JOBS: dict[str, dict[str, Any]] = {}
 LIVE_JOBS_LOCK = threading.Lock()
 
+SCAN_JOBS: dict[str, dict] = {}
+SCAN_JOBS_LOCK = threading.Lock()
+
 
 def _history_rows(limit: int, user_id: str = None) -> list[dict[str, Any]]:
     rows = core.get_history(limit, user_id=user_id)
@@ -437,58 +440,118 @@ def scan_virustotal(payload: TargetRequest, authorization: str = Header(None)) -
 @app.post("/api/scan/custom")
 def scan_custom(payload: CustomScanRequest, authorization: str = Header(None)) -> dict[str, Any]:
     user = get_current_user(authorization)
-    requested = payload.modules or ["recon", "vulnerability", "defence", "siem", "virustotal"]
-    allowed = {
-        "recon": lambda target: core.module_recon(target, silent=True),
-        "vulnerability": lambda target: core.module_vuln(target, silent=True, recon_data=core.get_latest("recon")),
-        "defence": lambda target: core.module_defence(target, silent=True),
-        "siem": lambda target: core.module_siem(target, silent=True),
-        "virustotal": lambda target: core.module_virustotal(target, silent=True),
-    }
+    job_id = str(uuid.uuid4())
+    
+    with SCAN_JOBS_LOCK:
+        SCAN_JOBS[job_id] = {"status": "running", "progress": 0, "result": None, "error": None}
+    
+    def run_scan():
+        try:
+            requested = payload.modules or ["recon", "vulnerability", "defence", "siem", "virustotal"]
+            allowed = {
+                "recon": lambda target: core.module_recon(target, silent=True),
+                "vulnerability": lambda target: core.module_vuln(target, silent=True, recon_data=core.get_latest("recon")),
+                "defence": lambda target: core.module_defence(target, silent=True),
+                "siem": lambda target: _module_siem_noninteractive(target),
+                "virustotal": lambda target: core.module_virustotal(target, silent=True),
+            }
 
-    results: dict[str, Any] = {}
-    for module_name in requested:
-        if module_name not in allowed:
-            continue
-        results[module_name] = _safe_call(module_name, lambda m=module_name: allowed[m](payload.target), user_id=user["id"])
-
-    return {
-        "target": payload.target,
-        "modules": list(results.keys()),
-        "results": results,
-        "completed_at": dt.datetime.now().isoformat(),
-    }
+            results: dict[str, Any] = {}
+            module_count = len(requested)
+            for idx, module_name in enumerate(requested):
+                if module_name not in allowed:
+                    continue
+                results[module_name] = _safe_call(module_name, lambda m=module_name: allowed[m](payload.target), user_id=user["id"])
+                progress = int((idx + 1) / module_count * 100)
+                with SCAN_JOBS_LOCK:
+                    SCAN_JOBS[job_id]["progress"] = min(progress, 95)
+            
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["progress"] = 100
+                SCAN_JOBS[job_id]["status"] = "completed"
+                SCAN_JOBS[job_id]["result"] = {
+                    "target": payload.target,
+                    "modules": list(results.keys()),
+                    "results": results,
+                    "completed_at": dt.datetime.now().isoformat(),
+                }
+        except Exception as e:
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["status"] = "failed"
+                SCAN_JOBS[job_id]["error"] = str(e)
+    
+    t = threading.Thread(target=run_scan, daemon=True)
+    t.start()
+    return {"job_id": job_id, "status": "running", "message": "Scan started in background"}
 
 
 @app.post("/api/scan/auto")
 def scan_auto(payload: TargetRequest, authorization: str = Header(None)) -> dict[str, Any]:
     user = get_current_user(authorization)
-    started = time.time()
-    target = payload.target
-    domain = core.get_domain(core.clean_url(target))
+    job_id = str(uuid.uuid4())
+    
+    with SCAN_JOBS_LOCK:
+        SCAN_JOBS[job_id] = {"status": "running", "progress": 0, "result": None, "error": None}
+    
+    def run_scan():
+        try:
+            started = time.time()
+            target = payload.target
+            domain = core.get_domain(core.clean_url(target))
+            
+            recon = _safe_call("recon", lambda: core.module_recon(target, silent=True), user_id=user["id"])
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["progress"] = 20
+            
+            vulnerability = _safe_call("vulnerability", lambda: core.module_vuln(target, silent=True, recon_data=recon), user_id=user["id"])
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["progress"] = 40
+            
+            defence = _safe_call("defence", lambda: core.module_defence(target, silent=True), user_id=user["id"])
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["progress"] = 60
+            
+            siem = _safe_call("siem", lambda: _module_siem_noninteractive(target), user_id=user["id"])
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["progress"] = 80
+            
+            virustotal = _safe_call("virustotal", lambda: core.module_virustotal(domain, silent=True), user_id=user["id"])
+            dashboard = _safe_call("dashboard", lambda: core.module_dashboard(silent=True), user_id=user["id"])
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["progress"] = 100
+                SCAN_JOBS[job_id]["status"] = "completed"
+                SCAN_JOBS[job_id]["result"] = {
+                    "meta": {
+                        "target": target,
+                        "elapsed_seconds": round(time.time() - started, 2),
+                        "completed_at": dt.datetime.now().isoformat(),
+                    },
+                    "results": {
+                        "recon": recon,
+                        "vulnerability": vulnerability,
+                        "defence": defence,
+                        "siem": siem,
+                        "virustotal": virustotal,
+                        "dashboard": dashboard,
+                    },
+                }
+        except Exception as e:
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["status"] = "failed"
+                SCAN_JOBS[job_id]["error"] = str(e)
+    
+    t = threading.Thread(target=run_scan, daemon=True)
+    t.start()
+    return {"job_id": job_id, "status": "running", "message": "Scan started in background"}
 
-    recon = _safe_call("recon", lambda: core.module_recon(target, silent=True), user_id=user["id"])
-    vulnerability = _safe_call("vulnerability", lambda: core.module_vuln(target, silent=True, recon_data=recon), user_id=user["id"])
-    defence = _safe_call("defence", lambda: core.module_defence(target, silent=True), user_id=user["id"])
-    siem = _safe_call("siem", lambda: _module_siem_noninteractive(target), user_id=user["id"])
-    virustotal = _safe_call("virustotal", lambda: core.module_virustotal(domain, silent=True), user_id=user["id"])
-    dashboard = _safe_call("dashboard", lambda: core.module_dashboard(silent=True), user_id=user["id"])
 
-    return {
-        "meta": {
-            "target": target,
-            "elapsed_seconds": round(time.time() - started, 2),
-            "completed_at": dt.datetime.now().isoformat(),
-        },
-        "results": {
-            "recon": recon,
-            "vulnerability": vulnerability,
-            "defence": defence,
-            "siem": siem,
-            "virustotal": virustotal,
-            "dashboard": dashboard,
-        },
-    }
+@app.get("/api/scan/status/{job_id}")
+def scan_job_status(job_id: str) -> dict[str, Any]:
+    with SCAN_JOBS_LOCK:
+        job = SCAN_JOBS.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
 
 
 @app.post("/api/policy/generate")
