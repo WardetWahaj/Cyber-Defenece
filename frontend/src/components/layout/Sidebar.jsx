@@ -17,6 +17,9 @@ const nav = [
 export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = () => {} }) {
   const { user } = useAuth();
   
+  // Debug: Log user role for troubleshooting
+  console.log('User role:', user?.role);
+  
   // Add admin link if user is admin
   const navItems = user?.role === "admin" ? [...nav, ["/admin", "Admin Panel"]] : nav;
 

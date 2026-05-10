@@ -1098,7 +1098,8 @@ def signup(request: auth.SignupRequest) -> dict:
             "id": user["id"],
             "email": user["email"],
             "full_name": user["full_name"],
-            "organization": user["organization"]
+            "organization": user["organization"],
+            "role": user.get("role", "analyst")
         }
     }
 
@@ -1124,7 +1125,8 @@ def login(request: auth.LoginRequest) -> dict:
             "id": user["id"],
             "email": user["email"],
             "full_name": user["full_name"],
-            "organization": user["organization"]
+            "organization": user["organization"],
+            "role": user.get("role", "analyst")
         }
     }
 
@@ -1138,6 +1140,7 @@ def get_current_user_info(authorization: str = Header(None)) -> dict:
         "email": user["email"],
         "full_name": user["full_name"],
         "organization": user["organization"],
+        "role": user.get("role", "analyst"),
         "created_at": user["created_at"]
     }
 
