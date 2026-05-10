@@ -10,6 +10,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+import requests as req
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -1066,6 +1067,14 @@ def get_current_user(authorization: str = Header(None)) -> dict:
     return user
 
 
+def require_admin(authorization: str = Header(None)) -> dict:
+    """Extract and verify user, ensuring they have admin role."""
+    user = get_current_user(authorization)
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
 @app.post("/api/auth/signup")
 def signup(request: auth.SignupRequest) -> dict:
     """Create a new user account."""
@@ -1218,6 +1227,85 @@ def reset_password(request: auth.PasswordResetConfirm) -> dict:
         "status": "success",
         "message": "Password reset successfully"
     }
+
+
+# ────────────────────────────────────────────────────────────────
+# ADMIN ENDPOINTS
+# ────────────────────────────────────────────────────────────────
+
+@app.get("/api/admin/users")
+def admin_get_users(admin: dict = Depends(require_admin)) -> dict:
+    """Get all registered users."""
+    conn = auth.get_db_connection()
+    c = conn.cursor()
+    c.execute("SELECT id, email, full_name, organization, role, created_at, last_login FROM users ORDER BY created_at DESC")
+    rows = c.fetchall()
+    conn.close()
+    users = [{"id": r[0], "email": r[1], "full_name": r[2], "organization": r[3], "role": r[4], "created_at": r[5], "last_login": r[6]} for r in rows]
+    return {"users": users, "total": len(users)}
+
+
+@app.get("/api/admin/scans")
+def admin_get_scans(admin: dict = Depends(require_admin), limit: int = 100) -> dict:
+    """Get recent scans across all users."""
+    rows = core.get_history(limit=limit)
+    scans = [{"id": r[0], "target": r[1], "module": r[2], "timestamp": r[3], "user_id": r[5] if len(r) > 5 else None} for r in rows]
+    return {"scans": scans, "total": len(scans)}
+
+
+@app.put("/api/admin/config/keys")
+def admin_update_keys(payload: dict, admin: dict = Depends(require_admin)) -> dict:
+    """Update API keys on Heroku."""
+    heroku_token = os.environ.get("HEROKU_API_TOKEN", "")
+    heroku_app = os.environ.get("HEROKU_APP_NAME", "cyberdefence-app-ebf9df3d3adb")
+    
+    if not heroku_token:
+        raise HTTPException(status_code=500, detail="HEROKU_API_TOKEN not configured")
+    
+    headers = {
+        "Authorization": f"Bearer {heroku_token}",
+        "Accept": "application/vnd.heroku+json; version=3",
+        "Content-Type": "application/json"
+    }
+    
+    config_vars = {}
+    if payload.get("virustotal_api_key"):
+        config_vars["VIRUSTOTAL_API_KEY"] = payload["virustotal_api_key"]
+    if payload.get("wpscan_api_key"):
+        config_vars["WPSCAN_API_KEY"] = payload["wpscan_api_key"]
+    if payload.get("nvd_api_key"):
+        config_vars["NVD_API_KEY"] = payload["nvd_api_key"]
+    
+    r = req.patch(
+        f"https://api.heroku.com/apps/{heroku_app}/config-vars",
+        headers=headers,
+        json=config_vars
+    )
+    
+    if r.status_code == 200:
+        # Update local CONFIG too
+        for key, value in config_vars.items():
+            env_to_config = {
+                "VIRUSTOTAL_API_KEY": "virustotal_api_key",
+                "WPSCAN_API_KEY": "wpscan_api_key",
+                "NVD_API_KEY": "nvd_api_key"
+            }
+            if key in env_to_config:
+                core.CONFIG[env_to_config[key]] = value
+        return {"status": "success", "updated": list(config_vars.keys())}
+    else:
+        raise HTTPException(status_code=500, detail=f"Heroku API error: {r.text}")
+
+
+@app.put("/api/admin/users/{user_id}/role")
+def admin_update_user_role(user_id: int, payload: dict, admin: dict = Depends(require_admin)) -> dict:
+    """Update a user's role."""
+    conn = auth.get_db_connection()
+    c = conn.cursor()
+    c.execute("UPDATE users SET role = %s WHERE id = %s", (payload.get("role"), user_id))
+    conn.commit()
+    conn.close()
+    return {"status": "success", "user_id": user_id, "role": payload.get("role")}
 
 
 # Legacy endpoints for backward compatibility

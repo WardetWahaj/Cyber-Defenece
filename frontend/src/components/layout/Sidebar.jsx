@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const nav = [
   ["/", "Dashboard"],
@@ -14,6 +15,11 @@ const nav = [
 ];
 
 export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = () => {} }) {
+  const { user } = useAuth();
+  
+  // Add admin link if user is admin
+  const navItems = user?.role === "admin" ? [...nav, ["/admin", "Admin Panel"]] : nav;
+
   return (
     <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
       <div style={{ marginBottom: 24 }}>
@@ -28,7 +34,7 @@ export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = ()
       </div>
 
       <nav style={{ display: "grid", gap: 4 }}>
-        {nav.map(([to, label]) => (
+        {navItems.map(([to, label]) => (
           <NavLink
             key={to}
             to={to}

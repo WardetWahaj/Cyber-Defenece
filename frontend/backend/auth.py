@@ -463,6 +463,14 @@ def init_auth_db():
             FOREIGN KEY (user_id) REFERENCES users (id)
         )""")
     
+    # ── Migration: Add role column if it doesn't exist ──
+    try:
+        if 'role' not in columns:
+            c.execute("""ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'analyst'""")
+            print("✅ Added 'role' column to users table")
+    except Exception:
+        pass  # Column already exists
+    
     conn.commit()
     conn.close()
 
