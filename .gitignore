@@ -6,6 +6,7 @@ tools/nuclei/nuclei.exe
 
 # Python
 .venv/
+.venv310/
 venv/
 *.pyc
 __pycache__/
