@@ -91,9 +91,8 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     reports_dir.mkdir(parents=True, exist_ok=True)
     path = reports_dir / f"security_report_api_{core.ts()}.pdf"
 
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=20)
-    page_width = 210  # A4 width in mm
+    # Sanitize org name early for use in SecurePDF class
+    org_sanitized = _sanitize_for_pdf(org_name)
 
     # ── Color palette ──
     COLOR_PRIMARY = (15, 23, 42)       # Dark navy
@@ -107,6 +106,33 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     COLOR_WHITE = (255, 255, 255)
     COLOR_BORDER = (203, 213, 225)     # Light border
 
+    # Custom PDF class with automatic header/footer
+    class SecurePDF(FPDF):
+        def __init__(self, org_name_sanitized):
+            super().__init__()
+            self._org_name = org_name_sanitized
+        
+        def header(self):
+            # Top accent bar on every page (skip cover page)
+            if self.page_no() > 1:
+                self.set_fill_color(*COLOR_ACCENT)
+                self.rect(0, 0, 210, 4, "F")
+        
+        def footer(self):
+            # Footer on every page (skip cover page)
+            if self.page_no() > 1:
+                self.set_y(-15)
+                self.set_font("Helvetica", "", 7)
+                self.set_text_color(*COLOR_INFO)
+                self.cell(0, 5, f"Cyber Defence Security Report  |  {self._org_name}  |  CONFIDENTIAL", align="L")
+                self.set_x(-30)
+                self.cell(0, 5, f"Page {self.page_no()}", align="R")
+                self.set_text_color(*COLOR_PRIMARY)
+
+    pdf = SecurePDF(org_sanitized)
+    pdf.set_auto_page_break(auto=True, margin=20)
+    page_width = 210  # A4 width in mm
+
     def get_severity_color(severity):
         s = severity.upper() if severity else ""
         if s == "CRITICAL": return COLOR_CRITICAL
@@ -114,19 +140,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
         if s == "MEDIUM": return COLOR_MEDIUM
         if s == "LOW": return COLOR_LOW
         return COLOR_INFO
-
-    def add_header_footer():
-        """Add header bar and footer to current page"""
-        # Top accent bar
-        pdf.set_fill_color(*COLOR_ACCENT)
-        pdf.rect(0, 0, page_width, 4, "F")
-        # Footer
-        pdf.set_y(-15)
-        pdf.set_font("Helvetica", "", 7)
-        pdf.set_text_color(*COLOR_INFO)
-        pdf.cell(0, 5, f"Cyber Defence Security Report  |  {_sanitize_for_pdf(org_sanitized)}  |  CONFIDENTIAL", align="L")
-        pdf.cell(0, 5, f"Page {pdf.page_no()}", align="R", ln=True)
-        pdf.set_text_color(*COLOR_PRIMARY)
 
     def section_title(number, title):
         """Add a styled section title"""
@@ -159,7 +172,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
         pdf.cell(w - 4, 10, str(value))
         pdf.set_text_color(*COLOR_PRIMARY)
 
-    org_sanitized = _sanitize_for_pdf(org_name)
     target_sanitized = _sanitize_for_pdf(target)
     author_sanitized = _sanitize_for_pdf(author)
     report_date = dt.datetime.now().strftime("%B %d, %Y at %H:%M UTC")
@@ -280,8 +292,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # PAGE 2: TABLE OF CONTENTS
     # ════════════════════════════════════════════
     pdf.add_page()
-    add_header_footer()
-
     pdf.set_y(15)
     pdf.set_font("Helvetica", "B", 20)
     pdf.set_text_color(*COLOR_PRIMARY)
@@ -313,7 +323,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # PAGE 3: EXECUTIVE SUMMARY + SCORE
     # ════════════════════════════════════════════
     pdf.add_page()
-    add_header_footer()
     pdf.set_y(12)
     section_title("1", "EXECUTIVE SUMMARY")
 
@@ -402,7 +411,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # PAGE 4: METHODOLOGY
     # ════════════════════════════════════════════
     pdf.add_page()
-    add_header_footer()
     pdf.set_y(12)
     section_title("3", "ASSESSMENT METHODOLOGY")
 
@@ -440,7 +448,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # ════════════════════════════════════════════
     if details and details.get("vulnerabilities"):
         pdf.add_page()
-        add_header_footer()
         pdf.set_y(12)
         section_title("4", "DETAILED VULNERABILITY FINDINGS")
 
@@ -455,7 +462,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
 
             if pdf.get_y() > 250:
                 pdf.add_page()
-                add_header_footer()
                 pdf.set_y(12)
 
             # Severity badge
@@ -508,7 +514,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # ════════════════════════════════════════════
     if details and details.get("defence_checks"):
         pdf.add_page()
-        add_header_footer()
         pdf.set_y(12)
         section_title("5", "SECURITY CONFIGURATION AUDIT")
 
@@ -557,7 +562,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # ════════════════════════════════════════════
     if details and details.get("siem_events") and len(details.get("siem_events", [])) > 0:
         pdf.add_page()
-        add_header_footer()
         pdf.set_y(12)
         section_title("6", "SECURITY EVENTS & INCIDENT DETECTION")
 
@@ -593,7 +597,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # VIRUSTOTAL / THREAT ANALYSIS
     # ════════════════════════════════════════════
     pdf.add_page()
-    add_header_footer()
     pdf.set_y(12)
     section_title("7", "MALWARE & THREAT ANALYSIS")
 
@@ -630,7 +633,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # REMEDIATION ROADMAP
     # ════════════════════════════════════════════
     pdf.add_page()
-    add_header_footer()
     pdf.set_y(12)
     section_title("8", "REMEDIATION ROADMAP")
 
@@ -686,7 +688,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # SEVERITY DEFINITIONS & GLOSSARY
     # ════════════════════════════════════════════
     pdf.add_page()
-    add_header_footer()
     pdf.set_y(12)
     section_title("9", "SEVERITY DEFINITIONS & GLOSSARY")
 
@@ -741,7 +742,6 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     # FINAL PAGE: REPORT DETAILS & DISCLAIMER
     # ════════════════════════════════════════════
     pdf.add_page()
-    add_header_footer()
     pdf.set_y(12)
 
     pdf.set_font("Helvetica", "B", 16)
