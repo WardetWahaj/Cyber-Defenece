@@ -9,28 +9,9 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const [health, setHealth] = useState(null);
   const [message, setMessage] = useState("");
-  const [virustotalKey, setVirustotalKey] = useState("");
-  const [wpscanKey, setWpscanKey] = useState("");
-  const [nvdKey, setNvdKey] = useState("");
-  const [keysStatus, setKeysStatus] = useState({});
-  const [savingKey, setSavingKey] = useState("");
-  const [services, setServices] = useState([
-    ["Nuclei", "connected"],
-    ["WPScan", "connected"],
-    ["VirusTotal", "attention"],
-    ["Sucuri", "connected"],
-    ["SecurityHeaders", "connected"],
-    ["Cloudflare", "connected"],
-  ]);
 
   useEffect(() => {
     api.health().then(setHealth).catch(() => setHealth({ status: "offline" }));
-    // Load API keys configuration status
-    if (user?.role === "admin") {
-      api.getApiKeysStatus()
-        .then(data => setKeysStatus(data.keys || {}))
-        .catch(() => {});
-    }
   }, [user]);
 
   async function refreshHealth() {
@@ -42,40 +23,6 @@ export default function SettingsPage() {
     }
   }
 
-  async function saveApiKey(keyName, keyValue, setter) {
-    if (!keyValue.trim()) return;
-    setSavingKey(keyName);
-    try {
-      await api.updateApiKey(keyName, keyValue);
-      setKeysStatus(prev => ({ ...prev, [keyName]: true }));
-      setter("");
-      setMessage(`✓ ${keyName} updated successfully!`);
-      setTimeout(() => setMessage(""), 3000);
-    } catch (e) {
-      setMessage(`✗ Failed to update ${keyName}: ${e.message}`);
-      setTimeout(() => setMessage(""), 4000);
-    } finally {
-      setSavingKey("");
-    }
-  }
-
-  async function onProviderAction(name, state) {
-    const defaultValue = state === "attention" ? "paste-new-key" : "current-key";
-    const value = window.prompt(`${state === "attention" ? "Renew" : "Edit"} key for ${name}:`, defaultValue);
-    if (!value) return;
-
-    setMessage(`${name} key ${state === "attention" ? "renewed" : "updated"} successfully.`);
-    setServices((prev) => prev.map(([n, s]) => (n === name ? [n, "connected"] : [n, s])));
-    await refreshHealth();
-  }
-
-  function addProvider() {
-    const name = window.prompt("Provider name:", "NewProvider");
-    if (!name) return;
-    setServices((prev) => [...prev, [name, "attention"]]);
-    setMessage(`${name} provider added. Configure key to connect.`);
-  }
-
   const isAdmin = user?.role === "admin";
 
   return (
@@ -85,115 +32,6 @@ export default function SettingsPage() {
       {health?.status === "offline" && <p style={{ color: "#ffb4ab", fontSize: 12 }}>Backend health check is offline.</p>}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start", minHeight: "100vh" }}>
         <section style={{ display: "grid", gap: 24 }}>
-          {isAdmin && (
-            <Card title="🔑 API KEY MANAGEMENT" subtitle="Configure API keys for threat intelligence modules">
-              <div style={{ display: "grid", gap: 16 }}>
-                {/* VirusTotal */}
-                <div style={{ marginBottom: 8 }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: keysStatus.VIRUSTOTAL_API_KEY ? "var(--success)" : "var(--critical)", display: "inline-block" }} />
-                    VirusTotal API Key
-                    <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 400 }}>
-                      {keysStatus.VIRUSTOTAL_API_KEY ? "(Configured)" : "(Not configured)"}
-                    </span>
-                  </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input
-                      type="password"
-                      placeholder="Enter VirusTotal API Key..."
-                      value={virustotalKey}
-                      onChange={(e) => setVirustotalKey(e.target.value)}
-                      style={{ flex: 1, padding: "8px 12px", background: "var(--surface-high)", color: "var(--text)", border: "1px solid var(--ghost)", borderRadius: 6, fontSize: 13 }}
-                    />
-                    <button
-                      onClick={() => saveApiKey("VIRUSTOTAL_API_KEY", virustotalKey, setVirustotalKey)}
-                      disabled={savingKey === "VIRUSTOTAL_API_KEY" || !virustotalKey.trim()}
-                      style={{ padding: "8px 16px", background: "var(--primary)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", opacity: savingKey === "VIRUSTOTAL_API_KEY" || !virustotalKey.trim() ? 0.5 : 1, fontWeight: 600 }}
-                    >
-                      {savingKey === "VIRUSTOTAL_API_KEY" ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* WPScan */}
-                <div style={{ marginBottom: 8 }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: keysStatus.WPSCAN_API_KEY ? "var(--success)" : "var(--critical)", display: "inline-block" }} />
-                    WPScan API Key
-                    <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 400 }}>
-                      {keysStatus.WPSCAN_API_KEY ? "(Configured)" : "(Not configured)"}
-                    </span>
-                  </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input
-                      type="password"
-                      placeholder="Enter WPScan API Key..."
-                      value={wpscanKey}
-                      onChange={(e) => setWpscanKey(e.target.value)}
-                      style={{ flex: 1, padding: "8px 12px", background: "var(--surface-high)", color: "var(--text)", border: "1px solid var(--ghost)", borderRadius: 6, fontSize: 13 }}
-                    />
-                    <button
-                      onClick={() => saveApiKey("WPSCAN_API_KEY", wpscanKey, setWpscanKey)}
-                      disabled={savingKey === "WPSCAN_API_KEY" || !wpscanKey.trim()}
-                      style={{ padding: "8px 16px", background: "var(--primary)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", opacity: savingKey === "WPSCAN_API_KEY" || !wpscanKey.trim() ? 0.5 : 1, fontWeight: 600 }}
-                    >
-                      {savingKey === "WPSCAN_API_KEY" ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* NVD */}
-                <div>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: keysStatus.NVD_API_KEY ? "var(--success)" : "var(--critical)", display: "inline-block" }} />
-                    NVD API Key
-                    <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 400 }}>
-                      {keysStatus.NVD_API_KEY ? "(Configured)" : "(Not configured)"}
-                    </span>
-                  </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input
-                      type="password"
-                      placeholder="Enter NVD API Key..."
-                      value={nvdKey}
-                      onChange={(e) => setNvdKey(e.target.value)}
-                      style={{ flex: 1, padding: "8px 12px", background: "var(--surface-high)", color: "var(--text)", border: "1px solid var(--ghost)", borderRadius: 6, fontSize: 13 }}
-                    />
-                    <button
-                      onClick={() => saveApiKey("NVD_API_KEY", nvdKey, setNvdKey)}
-                      disabled={savingKey === "NVD_API_KEY" || !nvdKey.trim()}
-                      style={{ padding: "8px 16px", background: "var(--primary)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", opacity: savingKey === "NVD_API_KEY" || !nvdKey.trim() ? 0.5 : 1, fontWeight: 600 }}
-                    >
-                      {savingKey === "NVD_API_KEY" ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ fontSize: 12, color: "var(--text-muted)", paddingTop: 8, borderTop: "1px solid var(--ghost)" }}>
-                  <p style={{ margin: "8px 0" }}>💡 Keys are saved to Heroku Config Vars and take effect immediately.</p>
-                  <p style={{ margin: "4px 0" }}>🔒 Keys are never displayed in plaintext - only the configuration status is shown.</p>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          <Card title="API INTEGRATIONS" right={<Buttonish onClick={addProvider} />}>
-            <div style={{ display: "grid", gap: 12 }}>
-              {services.map(([name, state]) => (
-                <div key={name} style={{ background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 6, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: "var(--text)" }}>{name}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>{name === "VirusTotal" ? "Aggregated antivirus results and reputation checks." : `Integration for ${name.toLowerCase()} telemetry.`}</div>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-                    <Badge variant={state === "connected" ? "success" : "warning"}>{state.toUpperCase()}</Badge>
-                    <button className="btn btn-secondary" style={{ padding: "8px 12px", whiteSpace: "nowrap" }} onClick={() => onProviderAction(name, state)}>{state === "attention" ? "RENEW KEY" : "EDIT KEY"}</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             <Card title="INTEGRATION HEALTH">
               <div style={{ display: "grid", placeItems: "center", padding: "8px 0 12px" }}>
@@ -257,10 +95,4 @@ export default function SettingsPage() {
   );
 }
 
-function Buttonish({ onClick }) {
-  return (
-    <button className="btn btn-primary" style={{ padding: "8px 12px" }} onClick={onClick}>
-      + ADD PROVIDER
-    </button>
-  );
-}
+
