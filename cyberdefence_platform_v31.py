@@ -1365,31 +1365,57 @@ def module_shodan(target=None, silent=False):
         results["resolved_ip"] = ip
         
         if ip:
-            # Get host info
-            host = api.host(ip)
-            results["ip"] = host.get("ip_str", ip)
-            results["organization"] = host.get("org", "Unknown")
-            results["os"] = host.get("os", "Unknown")
-            results["ports"] = host.get("ports", [])
-            results["vulns"] = host.get("vulns", [])
-            results["last_update"] = host.get("last_update", "")
-            results["country"] = host.get("country_name", "Unknown")
-            results["city"] = host.get("city", "Unknown")
-            results["isp"] = host.get("isp", "Unknown")
-            
-            # Service details
-            services = []
-            for item in host.get("data", []):
-                services.append({
-                    "port": item.get("port"),
-                    "transport": item.get("transport", "tcp"),
-                    "product": item.get("product", "Unknown"),
-                    "version": item.get("version", ""),
-                    "banner": (item.get("data", ""))[:200]
-                })
-            results["services"] = services
-            results["total_services"] = len(services)
-            results["total_vulns"] = len(results["vulns"])
+            # Try host lookup (requires paid plan)
+            try:
+                host = api.host(ip)
+                results["ip"] = host.get("ip_str", ip)
+                results["organization"] = host.get("org", "Unknown")
+                results["os"] = host.get("os", "Unknown")
+                results["ports"] = host.get("ports", [])
+                results["vulns"] = host.get("vulns", [])
+                results["last_update"] = host.get("last_update", "")
+                results["country"] = host.get("country_name", "Unknown")
+                results["city"] = host.get("city", "Unknown")
+                results["isp"] = host.get("isp", "Unknown")
+                
+                services = []
+                for item in host.get("data", []):
+                    services.append({
+                        "port": item.get("port"),
+                        "transport": item.get("transport", "tcp"),
+                        "product": item.get("product", "Unknown"),
+                        "version": item.get("version", ""),
+                        "banner": (item.get("data", ""))[:200]
+                    })
+                results["services"] = services
+                results["total_services"] = len(services)
+                results["total_vulns"] = len(results["vulns"])
+            except Exception as host_err:
+                # Free plan fallback - use search instead
+                results["ip"] = ip
+                results["note"] = "Limited results (free Shodan plan). Upgrade for full host details."
+                try:
+                    search_results = api.search(f"ip:{ip}")
+                    matches = search_results.get("matches", [])
+                    ports = list(set(m.get("port") for m in matches if m.get("port")))
+                    results["ports"] = ports
+                    services = []
+                    for m in matches[:10]:
+                        services.append({
+                            "port": m.get("port"),
+                            "transport": m.get("transport", "tcp"),
+                            "product": m.get("product", "Unknown"),
+                            "version": m.get("version", ""),
+                            "banner": (m.get("data", ""))[:200]
+                        })
+                    results["services"] = services
+                    results["total_services"] = len(services)
+                    results["organization"] = matches[0].get("org", "Unknown") if matches else "Unknown"
+                    results["isp"] = matches[0].get("isp", "Unknown") if matches else "Unknown"
+                    results["country"] = matches[0].get("location", {}).get("country_name", "Unknown") if matches else "Unknown"
+                    results["city"] = matches[0].get("location", {}).get("city", "Unknown") if matches else "Unknown"
+                except Exception:
+                    results["error"] = f"Shodan query failed: {str(host_err)}"
         
     except Exception as e:
         results["error"] = str(e)
