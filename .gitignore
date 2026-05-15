@@ -36,6 +36,19 @@ config.json
 *.sqlite
 *.sqlite3
 
+# Generated scan data
+data/recon/
+data/vuln/
+data/defence/
+data/siem/
+data/policies/
+data/virustotal/
+data/nuclei/
+data/sucuri/
+data/reports/
+data/*.db
+data/*.log
+
 # IDE
 .vscode/
 .idea/
