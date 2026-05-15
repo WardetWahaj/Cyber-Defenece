@@ -34,35 +34,33 @@ export default function SettingsPage() {
         <section style={{ display: "grid", gap: 24 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             <Card title="INTEGRATION HEALTH">
-              <div style={{ display: "grid", placeItems: "center", padding: "8px 0 12px" }}>
-                <div style={{ width: 160, height: 160, borderRadius: "50%", background: "conic-gradient(var(--primary) 0 83%, var(--surface-high) 83% 100%)", display: "grid", placeItems: "center" }}>
-                  <div style={{ width: 120, height: 120, borderRadius: "50%", background: "var(--surface)", display: "grid", placeItems: "center", textAlign: "center" }}>
-                    <div style={{ fontSize: 28, fontWeight: 800, color: "var(--text)" }}>83%</div>
-                    <div style={{ fontSize: 9, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.15em" }}>Operational</div>
-                  </div>
+              <div style={{ display: "grid", gap: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Status</span>
+                  <Badge variant={health?.status === "online" ? "success" : "warning"}>
+                    {health?.status ? health.status.toUpperCase() : "UNKNOWN"}
+                  </Badge>
                 </div>
-              </div>
-              <div style={{ display: "grid", gap: 8, fontSize: 13, color: "var(--text-secondary)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}><span>Active Nodes</span><span>5/6</span></div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}><span>Latency (Avg)</span><span>142ms</span></div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}><span>Fail Rate</span><span>2.1%</span></div>
+                {health?.version && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span>Backend Version</span>
+                    <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{health.version}</span>
+                  </div>
+                )}
+                {health?.nuclei_available !== undefined && (
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span>Nuclei Scanner</span>
+                    <Badge variant={health.nuclei_available ? "success" : "warning"}>
+                      {health.nuclei_available ? "AVAILABLE" : "UNAVAILABLE"}
+                    </Badge>
+                  </div>
+                )}
               </div>
             </Card>
 
             <Card title="AUTH HISTORY">
-              <div style={{ display: "grid", gap: 12 }}>
-                <div style={{ borderLeft: "3px solid #45dfa4", paddingLeft: 8 }}>
-                  <div style={{ fontSize: 13 }}>Cloudflare token refreshed</div>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>Today, 09:12 AM</div>
-                </div>
-                <div style={{ borderLeft: "3px solid #ffb4ab", paddingLeft: 8 }}>
-                  <div style={{ fontSize: 13 }}>VirusTotal key expired</div>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>Yesterday, 11:45 PM</div>
-                </div>
-                <div style={{ borderLeft: "3px solid #45dfa4", paddingLeft: 8 }}>
-                  <div style={{ fontSize: 13 }}>Sucuri connection stable</div>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>Aug 24, 02:20 PM</div>
-                </div>
+              <div style={{ display: "grid", gap: 12, textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
+                <p>Auth event logging coming soon.</p>
               </div>
             </Card>
           </div>

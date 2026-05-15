@@ -17,10 +17,7 @@ const nav = [
 ];
 
 export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = () => {} }) {
-  const { user } = useAuth();
-  
-  // Debug: Log user role for troubleshooting
-  console.log('User role:', user?.role);
+  const { user, logout } = useAuth();
   
   // Add admin link if user is admin
   const navItems = user?.role === "admin" ? [...nav, ["/admin", "Admin Panel"]] : nav;
@@ -60,7 +57,7 @@ export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = ()
 
       <div style={{ marginTop: 24, display: "grid", gap: 4 }}>
         <div className="sidebar-link">Documentation</div>
-        <div className="sidebar-link">Log Out</div>
+        <div className="sidebar-link" onClick={() => { logout(); }} style={{ cursor: "pointer" }}>Log Out</div>
       </div>
     </aside>
   );

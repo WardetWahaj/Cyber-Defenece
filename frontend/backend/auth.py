@@ -86,7 +86,6 @@ from pydantic import BaseModel, EmailStr, validator
 import jwt
 
 # ── Configuration ──────────────────────────────────────────────────
-DB_FILE = ROOT_DIR / "data" / "cyberdefence.db"
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")  # development or production
 SECRET_KEY = os.getenv("SECRET_KEY", "")
 if ENVIRONMENT == "production" and (not SECRET_KEY or SECRET_KEY == "your-super-secret-key-change-in-production"):
@@ -997,18 +996,6 @@ def get_report_by_id(report_id: int, user_id: int = None) -> dict | None:
     except Exception as e:
         print(f"❌ Error fetching report: {e}")
         return None
-
-def get_user_reports(user_id: int, limit: int = 100) -> list:
-    """Get list of reports for a user from the database."""
-    conn = get_db_connection()
-    c = conn.cursor()
-    execute_query(c,
-        "SELECT * FROM reports WHERE user_id = %s ORDER BY created_at DESC LIMIT %s",
-        (user_id, limit)
-    )
-    rows = c.fetchall()
-    conn.close()
-    return rows
 
 # ── Pydantic Models ────────────────────────────────────────────────
 class SignupRequest(BaseModel):
