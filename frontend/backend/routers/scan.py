@@ -17,7 +17,20 @@ from pydantic import BaseModel, Field
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-import cyberdefence_platform_v31 as core
+from frontend.backend.core import (
+    module_recon,
+    module_vuln,
+    module_defence,
+    module_virustotal,
+    module_shodan,
+    module_abuseipdb,
+    generate_demo_events,
+    SEVERITY_MAP,
+    save_db,
+    get_latest,
+    clean_url,
+    get_domain,
+)
 from frontend.backend.routers.auth_routes import get_current_user
 
 router = APIRouter(prefix="/api/scan", tags=["scan"])
@@ -43,7 +56,7 @@ SCAN_JOBS_LOCK = threading.Lock()
 
 def _module_siem_noninteractive(target: str) -> dict[str, Any]:
     """Run SIEM module in non-interactive mode (for API use)."""
-    events = core.generate_demo_events(60)
+    events = generate_demo_events(60)
 
     ip_counts: dict[str, int] = {}
     for event in events:
@@ -66,9 +79,9 @@ def _module_siem_noninteractive(target: str) -> dict[str, Any]:
         attack_type = str(event.get("attack_type", "UNKNOWN"))
         patterns[attack_type] = patterns.get(attack_type, 0) + 1
 
-    critical = sum(1 for event in events if core.SEVERITY_MAP.get(event.get("attack_type")) == "CRITICAL")
-    high = sum(1 for event in events if core.SEVERITY_MAP.get(event.get("attack_type")) == "HIGH")
-    medium = sum(1 for event in events if core.SEVERITY_MAP.get(event.get("attack_type")) == "MEDIUM")
+    critical = sum(1 for event in events if SEVERITY_MAP.get(event.get("attack_type")) == "CRITICAL")
+    high = sum(1 for event in events if SEVERITY_MAP.get(event.get("attack_type")) == "HIGH")
+    medium = sum(1 for event in events if SEVERITY_MAP.get(event.get("attack_type")) == "MEDIUM")
 
     results = {
         "target": target,
@@ -80,7 +93,7 @@ def _module_siem_noninteractive(target: str) -> dict[str, Any]:
         "high": high,
         "medium": medium,
     }
-    core.save_db(target or "siem", "siem", results)
+    save_db(target or "siem", "siem", results)
     return results
 
 
@@ -204,9 +217,9 @@ def _safe_call(name: str, fn, user_id=None):
         result = fn()
         # Save to database with user_id if provided
         if user_id:
-            core.save_db(target="", module=name, results=result, user_id=user_id)
+            save_db(target="", module=name, results=result, user_id=user_id)
         else:
-            core.save_db(target="", module=name, results=result)
+            save_db(target="", module=name, results=result)
         return result
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"{name} failed: {exc}") from exc
@@ -257,7 +270,7 @@ def scan_live_cancel(job_id: str) -> dict[str, Any]:
 def scan_recon(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     """Run reconnaissance scan."""
     user = get_current_user(authorization)
-    return _safe_call("recon", lambda: core.module_recon(payload.target, silent=True), user_id=user["id"])
+    return _safe_call("recon", lambda: module_recon(payload.target, silent=True), user_id=user["id"])
 
 
 @limiter.limit("10/minute")
@@ -265,10 +278,10 @@ def scan_recon(payload: TargetRequest, authorization: str = Header(None), reques
 def scan_vulnerability(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     """Run vulnerability assessment scan."""
     user = get_current_user(authorization)
-    recon_data = core.get_latest("recon")
+    recon_data = get_latest("recon")
     return _safe_call(
         "vulnerability",
-        lambda: core.module_vuln(payload.target, silent=True, recon_data=recon_data),
+        lambda: module_vuln(payload.target, silent=True, recon_data=recon_data),
         user_id=user["id"]
     )
 
@@ -278,7 +291,7 @@ def scan_vulnerability(payload: TargetRequest, authorization: str = Header(None)
 def scan_defence(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     """Run defence/security headers assessment scan."""
     user = get_current_user(authorization)
-    return _safe_call("defence", lambda: core.module_defence(payload.target, silent=True), user_id=user["id"])
+    return _safe_call("defence", lambda: module_defence(payload.target, silent=True), user_id=user["id"])
 
 
 @limiter.limit("10/minute")
@@ -294,7 +307,7 @@ def scan_siem(payload: TargetRequest, authorization: str = Header(None), request
 def scan_virustotal(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     """Run VirusTotal reputation scan."""
     user = get_current_user(authorization)
-    return _safe_call("virustotal", lambda: core.module_virustotal(payload.target, silent=True), user_id=user["id"])
+    return _safe_call("virustotal", lambda: module_virustotal(payload.target, silent=True), user_id=user["id"])
 
 
 @limiter.limit("10/minute")
@@ -302,7 +315,7 @@ def scan_virustotal(payload: TargetRequest, authorization: str = Header(None), r
 def scan_shodan(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     """Run Shodan internet intelligence scan."""
     user = get_current_user(authorization)
-    return _safe_call("shodan", lambda: core.module_shodan(payload.target, silent=True), user_id=user["id"])
+    return _safe_call("shodan", lambda: module_shodan(payload.target, silent=True), user_id=user["id"])
 
 
 @limiter.limit("10/minute")
@@ -310,7 +323,7 @@ def scan_shodan(payload: TargetRequest, authorization: str = Header(None), reque
 def scan_abuseipdb(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     """Run AbuseIPDB IP reputation scan."""
     user = get_current_user(authorization)
-    return _safe_call("abuseipdb", lambda: core.module_abuseipdb(payload.target, silent=True), user_id=user["id"])
+    return _safe_call("abuseipdb", lambda: module_abuseipdb(payload.target, silent=True), user_id=user["id"])
 
 
 @limiter.limit("10/minute")
@@ -327,11 +340,11 @@ def scan_custom(payload: CustomScanRequest, authorization: str = Header(None), r
         try:
             requested = payload.modules or ["recon", "vulnerability", "defence", "siem", "virustotal"]
             allowed = {
-                "recon": lambda target: core.module_recon(target, silent=True),
-                "vulnerability": lambda target: core.module_vuln(target, silent=True, recon_data=core.get_latest("recon")),
-                "defence": lambda target: core.module_defence(target, silent=True),
+                "recon": lambda target: module_recon(target, silent=True),
+                "vulnerability": lambda target: module_vuln(target, silent=True, recon_data=get_latest("recon")),
+                "defence": lambda target: module_defence(target, silent=True),
                 "siem": lambda target: _module_siem_noninteractive(target),
-                "virustotal": lambda target: core.module_virustotal(target, silent=True),
+                "virustotal": lambda target: module_virustotal(target, silent=True),
             }
 
             results: dict[str, Any] = {}
@@ -377,17 +390,17 @@ def scan_auto(payload: TargetRequest, authorization: str = Header(None), request
         try:
             started = time.time()
             target = payload.target
-            domain = core.get_domain(core.clean_url(target))
+            domain = get_domain(clean_url(target))
             
-            recon = _safe_call("recon", lambda: core.module_recon(target, silent=True), user_id=user["id"])
+            recon = _safe_call("recon", lambda: module_recon(target, silent=True), user_id=user["id"])
             with SCAN_JOBS_LOCK:
                 SCAN_JOBS[job_id]["progress"] = 20
             
-            vulnerability = _safe_call("vulnerability", lambda: core.module_vuln(target, silent=True, recon_data=recon), user_id=user["id"])
+            vulnerability = _safe_call("vulnerability", lambda: module_vuln(target, silent=True, recon_data=recon), user_id=user["id"])
             with SCAN_JOBS_LOCK:
                 SCAN_JOBS[job_id]["progress"] = 40
             
-            defence = _safe_call("defence", lambda: core.module_defence(target, silent=True), user_id=user["id"])
+            defence = _safe_call("defence", lambda: module_defence(target, silent=True), user_id=user["id"])
             with SCAN_JOBS_LOCK:
                 SCAN_JOBS[job_id]["progress"] = 60
             
@@ -395,25 +408,25 @@ def scan_auto(payload: TargetRequest, authorization: str = Header(None), request
             with SCAN_JOBS_LOCK:
                 SCAN_JOBS[job_id]["progress"] = 80
             
-            virustotal = _safe_call("virustotal", lambda: core.module_virustotal(domain, silent=True), user_id=user["id"])
+            virustotal = _safe_call("virustotal", lambda: module_virustotal(domain, silent=True), user_id=user["id"])
             with SCAN_JOBS_LOCK:
                 SCAN_JOBS[job_id]["progress"] = 90
             
             # Run Shodan if API key is configured
             shodan_result = {}
             try:
-                shodan_result = core.module_shodan(target, silent=True)
+                shodan_result = module_shodan(target, silent=True)
             except Exception:
                 shodan_result = {"error": "Shodan scan failed"}
             
             # Run AbuseIPDB if API key is configured
             abuseipdb_result = {}
             try:
-                abuseipdb_result = core.module_abuseipdb(target, silent=True)
+                abuseipdb_result = module_abuseipdb(target, silent=True)
             except Exception:
                 abuseipdb_result = {"error": "AbuseIPDB check failed"}
             
-            dashboard = _safe_call("dashboard", lambda: core.module_dashboard(silent=True), user_id=user["id"])
+            dashboard = _safe_call("dashboard", lambda: module_dashboard(silent=True), user_id=user["id"])
             with SCAN_JOBS_LOCK:
                 SCAN_JOBS[job_id]["progress"] = 100
                 SCAN_JOBS[job_id]["status"] = "completed"
@@ -458,7 +471,7 @@ def scan_job_status(job_id: str) -> dict[str, Any]:
 def get_scan_history(authorization: str = Header(None), limit: int = 20) -> dict:
     """Get authenticated user's scan history."""
     user = get_current_user(authorization)
-    history = core.get_history(limit=limit, user_id=user["id"])
+    history = get_latest(limit=limit, user_id=user["id"])
     
     scans = []
     for row in history:

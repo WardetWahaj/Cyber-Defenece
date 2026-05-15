@@ -4,6 +4,28 @@ CYBERDEFENCE ANALYST PLATFORM v3.1
 by Tudorache Flavius Robert
 SecuritateIT.ro — Final Project
 
+⚠️  DEPRECATION NOTICE (May 2026):
+This module has been refactored into separate modular components under:
+    frontend/backend/core/
+    ├── __init__.py           — Package initialization & exports
+    ├── recon.py              — module_recon()
+    ├── vulnerability.py      — module_vuln()
+    ├── defence.py            — module_defence()
+    ├── siem.py               — module_siem()
+    ├── virustotal.py         — module_virustotal()
+    ├── shodan.py             — module_shodan()
+    └── abuseipdb.py          — module_abuseipdb()
+
+For new code, import from:
+    from frontend.backend.core import (
+        module_recon, module_vuln, module_defence, module_siem,
+        module_virustotal, module_shodan, module_abuseipdb,
+        clean_url, get_domain, save_db, get_latest,
+        generate_demo_events, SEVERITY_MAP
+    )
+
+This file is maintained for backward compatibility with the original CLI interface.
+
 Live Data Sources:
   - Nuclei v3.7.1        — 92 templates, misconfigs, SSL, CVEs
   - WPScan               — WordPress CVE database
