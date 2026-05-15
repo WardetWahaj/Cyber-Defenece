@@ -5,6 +5,7 @@ Supports both SQLite (default) and PostgreSQL (when DATABASE_URL is set)
 
 import os
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Optional
 
@@ -127,6 +128,30 @@ db = DatabaseConnection()
 def get_connection():
     """Get a new database connection"""
     return db.connect()
+
+
+@contextmanager
+def get_db():
+    """Context manager for database connections. Ensures connections are always closed.
+    
+    Important for Heroku Postgres which has limited connection slots (~20).
+    Prevents connection leaks that can crash the app.
+    
+    Usage:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM users")
+            rows = cursor.fetchall()
+    """
+    conn = db.connect()
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 def execute_query(query: str, params: tuple = None, fetch: str = None) -> Any:
