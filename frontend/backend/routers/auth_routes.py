@@ -128,7 +128,7 @@ def login(request_data: auth.LoginRequest, request: Request = None) -> dict:
 
 @limiter.limit("10/minute")
 @router.post("/refresh")
-def refresh_access_token(request_data: auth.RefreshTokenRequest) -> dict:
+def refresh_access_token(request_data: auth.RefreshTokenRequest, request: Request = None) -> dict:
     """Refresh access token using a valid refresh token."""
     refresh_token = request_data.refresh_token
     
