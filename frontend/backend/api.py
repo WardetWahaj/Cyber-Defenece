@@ -11,10 +11,13 @@ from pathlib import Path
 from typing import Any
 
 import requests as req
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 if str(ROOT_DIR) not in sys.path:
@@ -32,6 +35,11 @@ core.init_db()
 auth.init_auth_db()
 
 app = FastAPI(title="CyberDefence API", version="3.1.0")
+
+# Configure rate limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -403,14 +411,16 @@ def scan_live_cancel(job_id: str) -> dict[str, Any]:
     return {"job_id": job_id, "status": "cancelling"}
 
 
+@limiter.limit("10/minute")
 @app.post("/api/scan/recon")
-def scan_recon(payload: TargetRequest, authorization: str = Header(None)) -> dict[str, Any]:
+def scan_recon(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     user = get_current_user(authorization)
     return _safe_call("recon", lambda: core.module_recon(payload.target, silent=True), user_id=user["id"])
 
 
+@limiter.limit("10/minute")
 @app.post("/api/scan/vulnerability")
-def scan_vulnerability(payload: TargetRequest, authorization: str = Header(None)) -> dict[str, Any]:
+def scan_vulnerability(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     user = get_current_user(authorization)
     recon_data = core.get_latest("recon")
     return _safe_call(
@@ -420,26 +430,30 @@ def scan_vulnerability(payload: TargetRequest, authorization: str = Header(None)
     )
 
 
+@limiter.limit("10/minute")
 @app.post("/api/scan/defence")
-def scan_defence(payload: TargetRequest, authorization: str = Header(None)) -> dict[str, Any]:
+def scan_defence(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     user = get_current_user(authorization)
     return _safe_call("defence", lambda: core.module_defence(payload.target, silent=True), user_id=user["id"])
 
 
+@limiter.limit("10/minute")
 @app.post("/api/scan/siem")
-def scan_siem(payload: TargetRequest, authorization: str = Header(None)) -> dict[str, Any]:
+def scan_siem(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     user = get_current_user(authorization)
     return _safe_call("siem", lambda: _module_siem_noninteractive(payload.target), user_id=user["id"])
 
 
+@limiter.limit("10/minute")
 @app.post("/api/scan/virustotal")
-def scan_virustotal(payload: TargetRequest, authorization: str = Header(None)) -> dict[str, Any]:
+def scan_virustotal(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     user = get_current_user(authorization)
     return _safe_call("virustotal", lambda: core.module_virustotal(payload.target, silent=True), user_id=user["id"])
 
 
+@limiter.limit("10/minute")
 @app.post("/api/scan/custom")
-def scan_custom(payload: CustomScanRequest, authorization: str = Header(None)) -> dict[str, Any]:
+def scan_custom(payload: CustomScanRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     user = get_current_user(authorization)
     job_id = str(uuid.uuid4())
     
@@ -486,8 +500,9 @@ def scan_custom(payload: CustomScanRequest, authorization: str = Header(None)) -
     return {"job_id": job_id, "status": "running", "message": "Scan started in background"}
 
 
+@limiter.limit("10/minute")
 @app.post("/api/scan/auto")
-def scan_auto(payload: TargetRequest, authorization: str = Header(None)) -> dict[str, Any]:
+def scan_auto(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     user = get_current_user(authorization)
     job_id = str(uuid.uuid4())
     
@@ -1075,14 +1090,15 @@ def require_admin(authorization: str = Header(None)) -> dict:
     return user
 
 
+@limiter.limit("10/minute")
 @app.post("/api/auth/signup")
-def signup(request: auth.SignupRequest) -> dict:
+def signup(request_data: auth.SignupRequest, request: Request = None) -> dict:
     """Create a new user account."""
     user = auth.create_user(
-        email=request.email,
-        full_name=request.full_name,
-        password=request.password,
-        organization=request.organization
+        email=request_data.email,
+        full_name=request_data.full_name,
+        password=request_data.password,
+        organization=request_data.organization
     )
     
     if not user:
@@ -1104,12 +1120,13 @@ def signup(request: auth.SignupRequest) -> dict:
     }
 
 
+@limiter.limit("5/minute")
 @app.post("/api/auth/login")
-def login(request: auth.LoginRequest) -> dict:
+def login(request_data: auth.LoginRequest, request: Request = None) -> dict:
     """Authenticate user and return access token."""
-    user = auth.get_user_by_email(request.email)
+    user = auth.get_user_by_email(request_data.email)
     
-    if not user or not auth.verify_password(request.password, user["password_hash"]):
+    if not user or not auth.verify_password(request_data.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     # Update last login
@@ -1145,8 +1162,9 @@ def get_current_user_info(authorization: str = Header(None)) -> dict:
     }
 
 
+@limiter.limit("3/minute")
 @app.post("/api/auth/forgot-password")
-def forgot_password(request: auth.PasswordResetRequest) -> dict:
+def forgot_password(request_data: auth.PasswordResetRequest, request: Request = None) -> dict:
     """
     Request a password reset token via email.
     Uses SHA-256 hashed tokens stored in database.
@@ -1157,7 +1175,7 @@ def forgot_password(request: auth.PasswordResetRequest) -> dict:
     """
     try:
         # Query user - but don't reveal if found or not
-        user = auth.get_user_by_email(request.email)
+        user = auth.get_user_by_email(request_data.email)
         
         if user:
             # User exists - generate and send reset token
