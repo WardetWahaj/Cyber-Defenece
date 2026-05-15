@@ -823,6 +823,8 @@ def generate_report(payload: ReportRequest, authorization: str = Header(None)) -
     defence = core.get_latest("defence")
     siem = core.get_latest("siem")
     vt = core.get_latest("virustotal")
+    shodan_data = core.get_latest("shodan", user_id=user["id"])
+    abuseipdb_data = core.get_latest("abuseipdb", user_id=user["id"])
     
     summary = {
         "security_score": defence.get("score", 0),
@@ -842,6 +844,15 @@ def generate_report(payload: ReportRequest, authorization: str = Header(None)) -
             "malicious": vt.get("malicious", 0),
             "suspicious": vt.get("suspicious", 0),
             "total_engines": vt.get("total_engines", 0),
+        },
+        "shodan": {
+            "ports": len(shodan_data.get("ports", [])) if shodan_data and not shodan_data.get("error") else 0,
+            "vulns": len(shodan_data.get("vulns", [])) if shodan_data and not shodan_data.get("error") else 0,
+            "organization": shodan_data.get("organization", "N/A") if shodan_data and not shodan_data.get("error") else "N/A",
+        },
+        "abuseipdb": {
+            "abuse_score": abuseipdb_data.get("abuse_confidence_score", 0) if abuseipdb_data and not abuseipdb_data.get("error") else 0,
+            "total_reports": abuseipdb_data.get("total_reports", 0) if abuseipdb_data and not abuseipdb_data.get("error") else 0,
         },
     }
     

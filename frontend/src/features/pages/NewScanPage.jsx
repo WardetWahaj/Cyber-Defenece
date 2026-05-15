@@ -271,6 +271,74 @@ export default function NewScanPage() {
                     <div style={{ fontWeight: 800, color: "var(--text)" }}>{result.results?.defence?.score ?? "--"}/100</div>
                   </div>
                 </div>
+
+                {result.results?.shodan && !result.results.shodan.error && (
+                  <div style={{ marginTop: 12, background: "var(--surface-high)", border: "1px solid var(--ghost)", borderRadius: 6, padding: 12 }}>
+                    <h4 style={{ margin: "0 0 12px 0", fontSize: 13, fontWeight: 800, color: "var(--text)" }}>🔎 Shodan Intelligence</h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>IP Address</span><br/><strong style={{ fontSize: 12 }}>{result.results.shodan.ip || result.results.shodan.resolved_ip || "N/A"}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>Open Ports</span><br/><strong style={{ fontSize: 12, color: (result.results.shodan.ports?.length || 0) > 5 ? "var(--critical)" : "var(--success)" }}>{result.results.shodan.ports?.length || 0}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>Vulnerabilities</span><br/><strong style={{ fontSize: 12, color: (result.results.shodan.total_vulns || 0) > 0 ? "var(--critical)" : "var(--success)" }}>{result.results.shodan.total_vulns || 0}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>Organization</span><br/><strong style={{ fontSize: 12 }}>{result.results.shodan.organization || "N/A"}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>ISP</span><br/><strong style={{ fontSize: 12 }}>{result.results.shodan.isp || "N/A"}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>Location</span><br/><strong style={{ fontSize: 12 }}>{result.results.shodan.city || "?"}, {result.results.shodan.country || "?"}</strong></div>
+                    </div>
+                    {result.results.shodan.services?.length > 0 && (
+                      <div style={{ marginTop: 12 }}>
+                        <h5 style={{ margin: "0 0 8px 0", fontSize: 12, fontWeight: 700 }}>Services ({result.results.shodan.services.length})</h5>
+                        <div style={{ maxHeight: 200, overflowY: "auto", fontSize: 11 }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                            <thead>
+                              <tr style={{ borderBottom: "1px solid var(--ghost)" }}>
+                                <th style={{ padding: 4, textAlign: "left", fontWeight: 700 }}>Port</th>
+                                <th style={{ padding: 4, textAlign: "left", fontWeight: 700 }}>Protocol</th>
+                                <th style={{ padding: 4, textAlign: "left", fontWeight: 700 }}>Product</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {result.results.shodan.services.map((svc, i) => (
+                                <tr key={i} style={{ borderBottom: "1px solid var(--ghost)" }}>
+                                  <td style={{ padding: 4 }}><strong>{svc.port}</strong></td>
+                                  <td style={{ padding: 4 }}>{svc.transport}</td>
+                                  <td style={{ padding: 4 }}>{svc.product || "-"}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                    {result.results.shodan.vulns?.length > 0 && (
+                      <div style={{ marginTop: 8 }}>
+                        <h5 style={{ margin: "0 0 6px 0", fontSize: 12, fontWeight: 700, color: "var(--critical)" }}>Known CVEs</h5>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                          {result.results.shodan.vulns.map((cve) => (
+                            <span key={cve} style={{ background: "var(--critical)", color: "#fff", padding: "2px 6px", borderRadius: 3, fontSize: 10 }}>{cve}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {result.results?.abuseipdb && !result.results.abuseipdb.error && (
+                  <div style={{ marginTop: 12, background: "var(--surface-high)", border: "1px solid var(--ghost)", borderRadius: 6, padding: 12 }}>
+                    <h4 style={{ margin: "0 0 12px 0", fontSize: 13, fontWeight: 800, color: "var(--text)" }}>⚠️ AbuseIPDB Reputation</h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+                      <div>
+                        <span style={{ color: "var(--text-muted)", fontSize: 11 }}>Abuse Confidence</span><br/>
+                        <strong style={{ fontSize: 16, color: (result.results.abuseipdb.abuse_confidence_score || 0) >= 50 ? "var(--critical)" : (result.results.abuseipdb.abuse_confidence_score || 0) > 0 ? "var(--medium)" : "var(--success)" }}>
+                          {result.results.abuseipdb.abuse_confidence_score || 0}%
+                        </strong>
+                      </div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>Total Reports</span><br/><strong style={{ fontSize: 12, color: (result.results.abuseipdb.total_reports || 0) > 0 ? "var(--critical)" : "var(--success)" }}>{result.results.abuseipdb.total_reports || 0}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>IP Address</span><br/><strong style={{ fontSize: 12 }}>{result.results.abuseipdb.resolved_ip || "N/A"}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>ISP</span><br/><strong style={{ fontSize: 12 }}>{result.results.abuseipdb.isp || "N/A"}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>Country</span><br/><strong style={{ fontSize: 12 }}>{result.results.abuseipdb.country_code || "N/A"}</strong></div>
+                      <div><span style={{ color: "var(--text-muted)", fontSize: 11 }}>Last Reported</span><br/><strong style={{ fontSize: 12 }}>{result.results.abuseipdb.last_reported_at || "Never"}</strong></div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {result?.modules && <p style={{ color: "#45dfa4", fontSize: 12, marginTop: 8 }}>Completed modules: {result.modules.join(", ")}.</p>}

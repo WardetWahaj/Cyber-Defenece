@@ -396,6 +396,23 @@ def scan_auto(payload: TargetRequest, authorization: str = Header(None), request
                 SCAN_JOBS[job_id]["progress"] = 80
             
             virustotal = _safe_call("virustotal", lambda: core.module_virustotal(domain, silent=True), user_id=user["id"])
+            with SCAN_JOBS_LOCK:
+                SCAN_JOBS[job_id]["progress"] = 90
+            
+            # Run Shodan if API key is configured
+            shodan_result = {}
+            try:
+                shodan_result = core.module_shodan(target, silent=True)
+            except Exception:
+                shodan_result = {"error": "Shodan scan failed"}
+            
+            # Run AbuseIPDB if API key is configured
+            abuseipdb_result = {}
+            try:
+                abuseipdb_result = core.module_abuseipdb(target, silent=True)
+            except Exception:
+                abuseipdb_result = {"error": "AbuseIPDB check failed"}
+            
             dashboard = _safe_call("dashboard", lambda: core.module_dashboard(silent=True), user_id=user["id"])
             with SCAN_JOBS_LOCK:
                 SCAN_JOBS[job_id]["progress"] = 100
@@ -412,6 +429,8 @@ def scan_auto(payload: TargetRequest, authorization: str = Header(None), request
                         "defence": defence,
                         "siem": siem,
                         "virustotal": virustotal,
+                        "shodan": shodan_result,
+                        "abuseipdb": abuseipdb_result,
                         "dashboard": dashboard,
                     },
                 }
