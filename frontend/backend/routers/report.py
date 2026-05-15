@@ -186,7 +186,7 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
         grade, grade_desc = "C", "Multiple issues require attention"
         grade_color = COLOR_MEDIUM
     else:
-        grade, grade_desc = "D", "Critical issues — immediate action required"
+        grade, grade_desc = "D", "Critical issues - immediate action required"
         grade_color = COLOR_CRITICAL
 
     # ════════════════════════════════════════════
@@ -227,7 +227,7 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     pdf.cell(60, 6, "ORGANIZATION")
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(*COLOR_PRIMARY)
-    pdf.cell(0, 6, org_sanitized, ln=True)
+    pdf.cell(0, 6, _sanitize_for_pdf(org_sanitized), ln=True)
 
     pdf.set_x(38)
     pdf.set_font("Helvetica", "B", 9)
@@ -235,7 +235,7 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     pdf.cell(60, 6, "TARGET ASSET")
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(*COLOR_PRIMARY)
-    pdf.cell(0, 6, target_sanitized, ln=True)
+    pdf.cell(0, 6, _sanitize_for_pdf(target_sanitized), ln=True)
 
     pdf.set_x(38)
     pdf.set_font("Helvetica", "B", 9)
@@ -243,7 +243,7 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     pdf.cell(60, 6, "ANALYST")
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(*COLOR_PRIMARY)
-    pdf.cell(0, 6, author_sanitized, ln=True)
+    pdf.cell(0, 6, _sanitize_for_pdf(author_sanitized), ln=True)
 
     pdf.set_x(38)
     pdf.set_font("Helvetica", "B", 9)
@@ -319,7 +319,7 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
 
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(*COLOR_PRIMARY)
-    pdf.multi_cell(0, 5, f"This security assessment was conducted on {report_date} targeting {target_sanitized} for {org_sanitized}. The assessment evaluated the target across multiple security domains including vulnerability scanning, security configuration analysis, threat intelligence correlation, and event monitoring.")
+    pdf.multi_cell(0, 5, _sanitize_for_pdf(f"This security assessment was conducted on {report_date} targeting {target_sanitized} for {org_sanitized}. The assessment evaluated the target across multiple security domains including vulnerability scanning, security configuration analysis, threat intelligence correlation, and event monitoring."))
     pdf.ln(5)
 
     # Score display
@@ -344,7 +344,7 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     pdf.set_xy(50, grade_box_y + 14)
     pdf.set_font("Helvetica", "", 11)
     pdf.set_text_color(*COLOR_INFO)
-    pdf.cell(0, 8, grade_desc)
+    pdf.cell(0, 8, _sanitize_for_pdf(grade_desc))
     pdf.set_text_color(*COLOR_PRIMARY)
 
     pdf.set_y(grade_box_y + 38)
@@ -471,21 +471,21 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
             pdf.set_xy(30, badge_y)
             pdf.set_font("Helvetica", "B", 10)
             pdf.set_text_color(*COLOR_PRIMARY)
-            pdf.cell(0, 6, f"{i}. {vuln_name}", ln=True)
+            pdf.cell(0, 6, _sanitize_for_pdf(f"{i}. {vuln_name}"), ln=True)
 
             # Details
             pdf.set_font("Helvetica", "", 8)
             pdf.set_text_color(*COLOR_INFO)
             cvss = vuln.get("cvss", "N/A")
             source = _sanitize_for_pdf(vuln.get("source", "Scanner"))
-            pdf.cell(0, 5, f"   CVSS: {cvss}/10  |  Source: {source}", ln=True)
+            pdf.cell(0, 5, _sanitize_for_pdf(f"   CVSS: {cvss}/10  |  Source: {source}"), ln=True)
 
             if vuln.get("cve_id") and vuln.get("cve_id") != "N/A":
                 pdf.cell(0, 5, f"   CVE: {_sanitize_for_pdf(vuln.get('cve_id'))}", ln=True)
 
             if vuln.get("evidence"):
                 evidence = _sanitize_for_pdf(vuln.get("evidence")[:120])
-                pdf.cell(0, 5, f"   Evidence: {evidence}", ln=True)
+                pdf.cell(0, 5, _sanitize_for_pdf(f"   Evidence: {evidence}"), ln=True)
 
             # Recommendation based on severity
             pdf.set_font("Helvetica", "I", 8)
@@ -545,11 +545,11 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
             pdf.cell(10, 6, str(i), border=1, align="C")
             pdf.set_fill_color(*status_color)
             pdf.set_text_color(*COLOR_WHITE)
-            pdf.cell(18, 6, status, border=1, align="C", fill=True)
+            pdf.cell(18, 6, _sanitize_for_pdf(status), border=1, align="C", fill=True)
             pdf.set_text_color(*COLOR_PRIMARY)
             pdf.set_fill_color(*COLOR_BG_LIGHT)
-            pdf.cell(70, 6, check_name, border=1)
-            pdf.cell(0, 6, check_detail, border=1)
+            pdf.cell(70, 6, _sanitize_for_pdf(check_name), border=1)
+            pdf.cell(0, 6, _sanitize_for_pdf(check_detail), border=1)
             pdf.ln()
 
     # ════════════════════════════════════════════
@@ -582,11 +582,11 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
             pdf.set_xy(27, pdf.get_y() - 1)
             pdf.set_font("Helvetica", "B", 9)
             pdf.set_text_color(*COLOR_PRIMARY)
-            pdf.cell(0, 5, f"{i}. {event_type}", ln=True)
+            pdf.cell(0, 5, _sanitize_for_pdf(f"{i}. {event_type}"), ln=True)
 
             pdf.set_font("Helvetica", "", 8)
             pdf.set_text_color(*COLOR_INFO)
-            pdf.cell(0, 4, f"  {event_desc}", ln=True)
+            pdf.cell(0, 4, _sanitize_for_pdf(f"  {event_desc}"), ln=True)
             pdf.ln(2)
 
     # ════════════════════════════════════════════
@@ -672,14 +672,14 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_text_color(*COLOR_WHITE)
         pdf.set_x(12)
-        pdf.cell(0, 7, title)
+        pdf.cell(0, 7, _sanitize_for_pdf(title))
         pdf.ln()
         pdf.set_text_color(*COLOR_PRIMARY)
         pdf.set_font("Helvetica", "", 9)
         for item in items:
             if item is None:
                 continue
-            pdf.cell(0, 5, f"  - {item}", ln=True)
+            pdf.cell(0, 5, _sanitize_for_pdf(f"  - {item}"), ln=True)
         pdf.ln(4)
 
     # ════════════════════════════════════════════
@@ -707,15 +707,15 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
         pdf.set_xy(10, pdf.get_y())
         pdf.set_font("Helvetica", "B", 8)
         pdf.set_text_color(*COLOR_WHITE)
-        pdf.cell(20, 6, label, align="C")
+        pdf.cell(20, 6, _sanitize_for_pdf(label), align="C")
         pdf.set_text_color(*COLOR_PRIMARY)
         pdf.set_font("Helvetica", "B", 9)
-        pdf.cell(30, 6, f"  {cvss}")
+        pdf.cell(30, 6, _sanitize_for_pdf(f"  {cvss}"))
         pdf.set_font("Helvetica", "", 8)
-        pdf.cell(0, 6, f"  {desc[:80]}", ln=True)
+        pdf.cell(0, 6, _sanitize_for_pdf(f"  {desc[:80]}"), ln=True)
         pdf.set_font("Helvetica", "", 7)
         if len(desc) > 80:
-            pdf.cell(0, 4, f"  {desc[80:]}", ln=True)
+            pdf.cell(0, 4, _sanitize_for_pdf(f"  {desc[80:]}"), ln=True)
         pdf.ln(2)
 
     pdf.ln(5)
@@ -733,9 +733,9 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
     ]
     for term, definition in glossary:
         pdf.set_font("Helvetica", "B", 8)
-        pdf.cell(18, 5, term)
+        pdf.cell(18, 5, _sanitize_for_pdf(term))
         pdf.set_font("Helvetica", "", 8)
-        pdf.cell(0, 5, f"- {definition}", ln=True)
+        pdf.cell(0, 5, _sanitize_for_pdf(f"- {definition}"), ln=True)
 
     # ════════════════════════════════════════════
     # FINAL PAGE: REPORT DETAILS & DISCLAIMER
@@ -767,9 +767,9 @@ def _create_pdf_report(org_name: str, target: str, author: str, summary: dict[st
         if fill:
             pdf.set_fill_color(*COLOR_BG_LIGHT)
         pdf.set_font("Helvetica", "B", 9)
-        pdf.cell(50, 7, f"  {label}", border=0, fill=fill)
+        pdf.cell(50, 7, _sanitize_for_pdf(f"  {label}"), border=0, fill=fill)
         pdf.set_font("Helvetica", "", 9)
-        pdf.cell(0, 7, value, border=0, fill=fill, ln=True)
+        pdf.cell(0, 7, _sanitize_for_pdf(value), border=0, fill=fill, ln=True)
 
     pdf.ln(10)
     pdf.set_font("Helvetica", "B", 11)
