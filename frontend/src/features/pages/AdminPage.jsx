@@ -185,84 +185,86 @@ export default function AdminPage() {
               {keyMessage}
             </p>
           )}
-          <div style={{ display: "grid", gap: 16 }}>
-            <div>
-              <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
-                VirusTotal API Key
-              </label>
-              <input
-                type="password"
-                placeholder="Enter VirusTotal API key..."
-                value={virusTotalKey}
-                onChange={(e) => setVirusTotalKey(e.target.value)}
+          <form onSubmit={(e) => e.preventDefault()} autoComplete="off">
+            <div style={{ display: "grid", gap: 16 }}>
+              <div>
+                <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                  VirusTotal API Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter VirusTotal API key..."
+                  value={virusTotalKey}
+                  onChange={(e) => setVirusTotalKey(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "var(--surface)",
+                    color: "var(--text)",
+                    border: "1px solid var(--ghost)",
+                    padding: 12,
+                    borderRadius: 6,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                  WPScan API Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter WPScan API key..."
+                  value={wpscanKey}
+                  onChange={(e) => setWpscanKey(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "var(--surface)",
+                    color: "var(--text)",
+                    border: "1px solid var(--ghost)",
+                    padding: 12,
+                    borderRadius: 6,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                  NVD API Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter NVD API key..."
+                  value={nvdKey}
+                  onChange={(e) => setNvdKey(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "var(--surface)",
+                    color: "var(--text)",
+                    border: "1px solid var(--ghost)",
+                    padding: 12,
+                    borderRadius: 6,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <button
+                onClick={saveApiKeys}
+                disabled={updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey)}
                 style={{
-                  width: "100%",
-                  background: "var(--surface)",
-                  color: "var(--text)",
-                  border: "1px solid var(--ghost)",
+                  background: "var(--primary)",
+                  color: "white",
+                  border: "none",
                   padding: 12,
                   borderRadius: 6,
-                  boxSizing: "border-box",
+                  fontWeight: 700,
+                  cursor: updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey) ? "not-allowed" : "pointer",
+                  opacity: updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey) ? 0.5 : 1,
                 }}
-              />
+              >
+                {updatingKeys ? "Saving..." : "Save API Keys"}
+              </button>
             </div>
-            <div>
-              <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
-                WPScan API Key
-              </label>
-              <input
-                type="password"
-                placeholder="Enter WPScan API key..."
-                value={wpscanKey}
-                onChange={(e) => setWpscanKey(e.target.value)}
-                style={{
-                  width: "100%",
-                  background: "var(--surface)",
-                  color: "var(--text)",
-                  border: "1px solid var(--ghost)",
-                  padding: 12,
-                  borderRadius: 6,
-                  boxSizing: "border-box",
-                }}
-              />
-            </div>
-            <div>
-              <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
-                NVD API Key
-              </label>
-              <input
-                type="password"
-                placeholder="Enter NVD API key..."
-                value={nvdKey}
-                onChange={(e) => setNvdKey(e.target.value)}
-                style={{
-                  width: "100%",
-                  background: "var(--surface)",
-                  color: "var(--text)",
-                  border: "1px solid var(--ghost)",
-                  padding: 12,
-                  borderRadius: 6,
-                  boxSizing: "border-box",
-                }}
-              />
-            </div>
-            <button
-              onClick={saveApiKeys}
-              disabled={updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey)}
-              style={{
-                background: "var(--primary)",
-                color: "white",
-                border: "none",
-                padding: 12,
-                borderRadius: 6,
-                fontWeight: 700,
-                cursor: updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey) ? "not-allowed" : "pointer",
-                opacity: updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey) ? 0.5 : 1,
-              }}
-            >
-              {updatingKeys ? "Saving..." : "Save API Keys"}
-            </button>
-          </div>
+          </form>
         </Card>
       </div>
     </>
