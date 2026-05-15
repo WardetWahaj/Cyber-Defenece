@@ -9,6 +9,7 @@ const nav = [
   ["/results/defence", "Defence"],
   ["/results/virustotal", "VirusTotal"],
   ["/results/shodan", "Shodan Intel"],
+  ["/results/abuseipdb", "AbuseIPDB"],
   ["/results/siem", "SIEM"],
   ["/reports/pdf", "PDF Generator"],
   ["/reports/history", "Reports History"],

@@ -11,6 +11,7 @@ import VulnerabilityPage from "./features/pages/VulnerabilityPage";
 import DefencePage from "./features/pages/DefencePage";
 import VirusTotalPage from "./features/pages/VirusTotalPage";
 import ShodanPage from "./features/pages/ShodanPage";
+import AbuseIPDBPage from "./features/pages/AbuseIPDBPage";
 import SiemPage from "./features/pages/SiemPage";
 import PdfReportPage from "./features/pages/PdfReportPage";
 import ReportsHistoryPage from "./features/pages/ReportsHistoryPage";
@@ -88,6 +89,7 @@ export default function App() {
                       <Route path="/results/defence" element={<DefencePage />} />
                       <Route path="/results/virustotal" element={<VirusTotalPage />} />
                       <Route path="/results/shodan" element={<ShodanPage />} />
+                      <Route path="/results/abuseipdb" element={<AbuseIPDBPage />} />
                       <Route path="/results/siem" element={<SiemPage />} />
                       <Route path="/reports/pdf" element={<PdfReportPage />} />
                       <Route path="/reports/history" element={<ReportsHistoryPage />} />
