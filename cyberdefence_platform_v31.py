@@ -398,10 +398,10 @@ def module_recon(target=None, silent=False):
                     s = socket.socket(); s.settimeout(1)
                     if s.connect_ex((domain,port)) == 0:
                         try: svc = socket.getservbyport(port,"tcp")
-                        except: svc = "unknown"
+                        except Exception: svc = "unknown"
                         open_ports.append({"port":port,"service":svc,"state":"open"})
                     s.close()
-                except: pass
+                except Exception: pass
         results["open_ports"] = open_ports
         prog.update(task, advance=25); rate_sleep()
 
@@ -409,7 +409,7 @@ def module_recon(target=None, silent=False):
         prog.update(task, description="[cyan]Resolving DNS...")
         try:
             results["ip_address"] = socket.gethostbyname(domain)
-        except:
+        except Exception:
             results["ip_address"] = "Could not resolve"
         prog.update(task, advance=15)
 
@@ -419,7 +419,7 @@ def module_recon(target=None, silent=False):
             rb = requests.get(url+"/robots.txt", timeout=5, verify=False)
             results["robots_txt"] = rb.status_code == 200
             results["robots_content"] = rb.text[:300] if rb.status_code == 200 else ""
-        except:
+        except Exception:
             results["robots_txt"] = False
         prog.update(task, advance=15)
 
@@ -516,7 +516,7 @@ def live_check(url, vuln_type):
                     tr = requests.get(url.rstrip("/")+path, timeout=5, verify=False)
                     if "index of" in tr.text.lower():
                         result["exists"]=True; result["evidence"]=f"Directory listing at {path}"; result["confirmed"]=True; break
-                except: pass
+                except Exception: pass
 
         elif vuln_type == "missing_headers":
             missing = [hdr for hdr in ["X-Frame-Options","Content-Security-Policy",
@@ -537,7 +537,7 @@ def live_check(url, vuln_type):
                     br = requests.get(url.rstrip("/")+path, timeout=5, verify=False)
                     if br.status_code==200 and len(br.content)>50:
                         result["exists"]=True; result["evidence"]=f"Backup at {path}"; result["confirmed"]=True; break
-                except: pass
+                except Exception: pass
 
         elif vuln_type == "ssl_weak":
             domain = get_domain(url)
@@ -562,7 +562,7 @@ def live_check(url, vuln_type):
                         timeout=5,verify=False,allow_redirects=False)
                     codes.append(lr.status_code)
                     time.sleep(0.3)
-                except: pass
+                except Exception: pass
             blocked = any(c in [429,403] for c in codes)
             result["exists"] = not blocked and bool(codes)
             result["evidence"] = f"Login responses: {codes}"
@@ -574,7 +574,7 @@ def live_check(url, vuln_type):
                 result["exists"] = ue.status_code==200 and "[" in ue.text
                 result["evidence"] = f"REST API users endpoint → {ue.status_code}"
                 result["confirmed"] = result["exists"]
-            except: pass
+            except Exception: pass
 
     except Exception as e:
         result["error"] = str(e)
@@ -615,7 +615,7 @@ def run_nuclei(domain, silent=False):
                     "cve": finding.get("info",{}).get("classification",{}).get("cve-id",""),
                     "source": "nuclei"
                 })
-            except: pass
+            except Exception: pass
         console.print(f"[green][ ✓ ][/green] Nuclei found [bold]{len(findings)}[/bold] issues")
     except subprocess.TimeoutExpired:
         console.print("[yellow][ ! ][/yellow] Nuclei timed out after 120s")
@@ -857,7 +857,7 @@ def module_defence(target=None, silent=False):
             add("HTTPS/SSL Certificate","Prevention #2","PASS",f"Valid cert, status {r.status_code}")
         except requests.exceptions.SSLError:
             add("HTTPS/SSL Certificate","Prevention #2","FAIL","Invalid or self-signed certificate")
-        except:
+        except Exception:
             add("HTTPS/SSL Certificate","Prevention #2","FAIL","HTTPS not available")
         prog.advance(task); time.sleep(0.3)
 
@@ -899,7 +899,7 @@ def module_defence(target=None, silent=False):
             add("WAF / Firewall","Prevention #1",
                 "PASS" if waf else "WARN",
                 "WAF detected" if waf else "Could not verify WAF presence")
-        except:
+        except Exception:
             add("WAF / Firewall","Prevention #1","WARN","Could not verify")
         prog.advance(task); time.sleep(0.3)
 
@@ -911,7 +911,7 @@ def module_defence(target=None, silent=False):
             add("Cloudflare DDoS Protection","Prevention #5",
                 "PASS" if cf else "WARN",
                 f"CF-RAY: {r.headers.get('CF-RAY','None')}" if cf else "Cloudflare not detected")
-        except:
+        except Exception:
             add("Cloudflare DDoS Protection","Prevention #5","WARN","Could not verify")
         prog.advance(task); time.sleep(0.3)
 
@@ -924,7 +924,7 @@ def module_defence(target=None, silent=False):
             add("WordPress Admin URL","Prevention #1",
                 "FAIL" if acc else "PASS",
                 f"wp-admin → {ar.status_code}" + (" ACCESSIBLE!" if acc else " not accessible"))
-        except:
+        except Exception:
             add("WordPress Admin URL","Prevention #1","WARN","Could not check")
         prog.advance(task); time.sleep(0.3)
 
@@ -936,7 +936,7 @@ def module_defence(target=None, silent=False):
             add("XML-RPC Endpoint","Security Hardening",
                 "FAIL" if acc else "PASS",
                 f"xmlrpc.php → {xr.status_code}" + (" ACCESSIBLE!" if acc else " not accessible"))
-        except:
+        except Exception:
             add("XML-RPC Endpoint","Security Hardening","PASS","Not accessible")
         prog.advance(task); time.sleep(0.3)
 
