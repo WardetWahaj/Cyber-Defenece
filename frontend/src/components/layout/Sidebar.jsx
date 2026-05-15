@@ -24,7 +24,7 @@ export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = ()
   const navItems = user?.role === "admin" ? [...nav, ["/admin", "Admin Panel"]] : nav;
 
   return (
-    <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+    <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`} role="navigation" aria-label="Main navigation">
       <div style={{ marginBottom: 24 }}>
         <div className="sidebar-brand">CYBER DEFENCE</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18 }}>
@@ -37,16 +37,23 @@ export default function Sidebar({ mobileMenuOpen = false, onCloseMobileMenu = ()
       </div>
 
       <nav style={{ display: "grid", gap: 4 }}>
-        {navItems.map(([to, label]) => (
-          <NavLink
-            key={to}
-            to={to}
-            onClick={onCloseMobileMenu}
-            className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}
-          >
-            {label}
-          </NavLink>
-        ))}
+        {navItems.map(([to, label]) => {
+          // We'll use a render function to access isActive state
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={onCloseMobileMenu}
+              className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}
+            >
+              {({ isActive }) => (
+                <span {...(isActive ? { "aria-current": "page" } : {})}>
+                  {label}
+                </span>
+              )}
+            </NavLink>
+          );
+        })}
       </nav>
 
       <div style={{ marginTop: 24, display: "grid", gap: 4 }}>

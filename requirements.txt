@@ -18,3 +18,5 @@ psycopg2-binary
 slowapi
 alembic
 sqlalchemy
+pytest
+httpx

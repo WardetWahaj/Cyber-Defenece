@@ -43,8 +43,8 @@ export default function Topbar({ onOpenMobileMenu = () => {} }) {
   }
 
   return (
-    <header className="topbar">
-      <button className="mobile-menu-btn material-symbols-outlined" onClick={onOpenMobileMenu}>menu</button>
+    <header className="topbar" role="banner">
+      <button className="mobile-menu-btn material-symbols-outlined" onClick={onOpenMobileMenu} aria-label="Open menu">menu</button>
       <div style={{ display: "flex", alignItems: "center", gap: 18, minWidth: 0 }}>
         <div className="shell-title">CYBER DEFENCE</div>
         <div className="topbar-search">
@@ -54,14 +54,15 @@ export default function Topbar({ onOpenMobileMenu = () => {} }) {
       </div>
 
       <div className="topbar-actions">
-        <button className="topbar-icon material-symbols-outlined" onClick={() => setShowNotifications((v) => !v)}>notifications</button>
-        <button className="topbar-icon material-symbols-outlined" onClick={toggleTheme} title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>{darkMode ? "dark_mode" : "light_mode"}</button>
-        <button className="topbar-icon material-symbols-outlined" onClick={() => navigate("/settings")}>settings</button>
+        <button className="topbar-icon material-symbols-outlined" onClick={() => setShowNotifications((v) => !v)} aria-label="Notifications">notifications</button>
+        <button className="topbar-icon material-symbols-outlined" onClick={toggleTheme} aria-label={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>{darkMode ? "dark_mode" : "light_mode"}</button>
+        <button className="topbar-icon material-symbols-outlined" onClick={() => navigate("/settings")} aria-label="Settings">settings</button>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 6, position: "relative" }}>
           <button 
             className="topbar-profile-btn"
             onClick={() => setShowProfile((v) => !v)}
-            title={user?.full_name}
+            aria-label={`User profile menu for ${user?.full_name}`}
+            aria-expanded={showProfile}
           >
             <img
               alt="Analyst Profile Avatar"

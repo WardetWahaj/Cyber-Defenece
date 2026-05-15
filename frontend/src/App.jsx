@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import ErrorBoundary from "./components/ui/ErrorBoundary";
 import Sidebar from "./components/layout/Sidebar";
 import Topbar from "./components/layout/Topbar";
 import DashboardPage from "./features/pages/DashboardPage";
@@ -68,31 +69,33 @@ export default function App() {
         path="/*"
         element={
           <ProtectedRoute>
-            <div className="app-shell">
-              <Sidebar mobileMenuOpen={mobileMenuOpen} onCloseMobileMenu={() => setMobileMenuOpen(false)} />
-              <div 
-                className={`sidebar-overlay ${mobileMenuOpen ? 'mobile-open' : ''}`}
-                onClick={() => setMobileMenuOpen(false)}
-              />
-              <div>
-                <Topbar onOpenMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
-                <main className="main-content page-frame">
-                  <Routes>
-                    <Route path="/" element={<DashboardPage />} />
-                    <Route path="/scan/new" element={<NewScanPage />} />
-                    <Route path="/scan/live" element={<LiveTrackerPage />} />
-                    <Route path="/results/vulnerabilities" element={<VulnerabilityPage />} />
-                    <Route path="/results/defence" element={<DefencePage />} />
-                    <Route path="/results/virustotal" element={<VirusTotalPage />} />
-                    <Route path="/results/siem" element={<SiemPage />} />
-                    <Route path="/reports/pdf" element={<PdfReportPage />} />
-                    <Route path="/reports/history" element={<ReportsHistoryPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/admin" element={<AdminPage />} />
-                  </Routes>
-                </main>
+            <ErrorBoundary>
+              <div className="app-shell">
+                <Sidebar mobileMenuOpen={mobileMenuOpen} onCloseMobileMenu={() => setMobileMenuOpen(false)} />
+                <div 
+                  className={`sidebar-overlay ${mobileMenuOpen ? 'mobile-open' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                />
+                <div>
+                  <Topbar onOpenMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)} />
+                  <main className="main-content page-frame">
+                    <Routes>
+                      <Route path="/" element={<DashboardPage />} />
+                      <Route path="/scan/new" element={<NewScanPage />} />
+                      <Route path="/scan/live" element={<LiveTrackerPage />} />
+                      <Route path="/results/vulnerabilities" element={<VulnerabilityPage />} />
+                      <Route path="/results/defence" element={<DefencePage />} />
+                      <Route path="/results/virustotal" element={<VirusTotalPage />} />
+                      <Route path="/results/siem" element={<SiemPage />} />
+                      <Route path="/reports/pdf" element={<PdfReportPage />} />
+                      <Route path="/reports/history" element={<ReportsHistoryPage />} />
+                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/admin" element={<AdminPage />} />
+                    </Routes>
+                  </main>
+                </div>
               </div>
-            </div>
+            </ErrorBoundary>
           </ProtectedRoute>
         }
       />

@@ -18,6 +18,20 @@ jobs:
       - run: ruff check frontend/backend/
       - run: ruff check cyberdefence_platform_v31.py --select=F --ignore=E401,E402,E701,E702
 
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt
+      - run: pip install pytest httpx
+      - run: pytest tests/ -v
+    env:
+      ENVIRONMENT: development
+      SECRET_KEY: test-secret-key-ci-only
+
   frontend-build:
     runs-on: ubuntu-latest
     steps:
