@@ -1356,9 +1356,12 @@ def module_shodan(target=None, silent=False):
         import shodan
         api = shodan.Shodan(api_key)
         
-        # DNS resolve
-        dns_resolve = api.dns.resolve(domain)
-        ip = dns_resolve.get(domain, None)
+        # DNS resolve - use socket instead of Shodan DNS API
+        import socket as sock
+        try:
+            ip = sock.gethostbyname(domain)
+        except sock.gaierror:
+            ip = None
         results["resolved_ip"] = ip
         
         if ip:
