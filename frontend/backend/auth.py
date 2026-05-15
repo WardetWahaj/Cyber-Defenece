@@ -476,6 +476,24 @@ def init_auth_db():
     except Exception:
         pass  # Column already exists
     
+    # Login attempts table for brute-force protection
+    if USE_POSTGRES:
+        c.execute("""CREATE TABLE IF NOT EXISTS login_attempts (
+            id SERIAL PRIMARY KEY,
+            email TEXT NOT NULL,
+            ip_address TEXT,
+            attempted_at TEXT NOT NULL,
+            success BOOLEAN DEFAULT FALSE
+        )""")
+    else:
+        c.execute("""CREATE TABLE IF NOT EXISTS login_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL,
+            ip_address TEXT,
+            attempted_at TEXT NOT NULL,
+            success BOOLEAN DEFAULT 0
+        )""")
+    
     conn.commit()
     conn.close()
 
@@ -633,6 +651,26 @@ def get_user_by_id(user_id: int) -> dict | None:
             "role": row[10] if len(row) > 10 else "analyst"
         }
     return None
+
+def record_login_attempt(email: str, ip_address: str = None, success: bool = False):
+    """Record a login attempt for brute-force tracking."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    execute_query(c, "INSERT INTO login_attempts (email, ip_address, attempted_at, success) VALUES (%s, %s, %s, %s)",
+                  (email, ip_address, datetime.now().isoformat(), success))
+    conn.commit()
+    conn.close()
+
+def is_account_locked(email: str, max_attempts: int = 5, lockout_minutes: int = 15) -> bool:
+    """Check if an account is locked due to too many failed login attempts."""
+    conn = get_db_connection()
+    c = conn.cursor()
+    cutoff = (datetime.now() - timedelta(minutes=lockout_minutes)).isoformat()
+    execute_query(c, "SELECT COUNT(*) FROM login_attempts WHERE email = %s AND attempted_at > %s AND success = %s",
+                  (email, cutoff, False if not USE_POSTGRES else False))
+    count = c.fetchone()[0]
+    conn.close()
+    return count >= max_attempts
 
 def create_user(email: str, full_name: str, password: str, organization: str = "") -> dict | None:
     """Create a new user."""

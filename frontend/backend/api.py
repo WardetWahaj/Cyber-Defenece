@@ -1135,10 +1135,22 @@ def signup(request_data: auth.SignupRequest, request: Request = None) -> dict:
 @app.post("/api/auth/login")
 def login(request_data: auth.LoginRequest, request: Request = None) -> dict:
     """Authenticate user and return access token."""
+    # Check if account is locked due to brute-force attempts
+    if auth.is_account_locked(request_data.email):
+        raise HTTPException(status_code=429, detail="Account temporarily locked. Try again in 15 minutes.")
+    
+    # Get client IP address for logging
+    client_ip = request.client.host if request else None
+    
     user = auth.get_user_by_email(request_data.email)
     
     if not user or not auth.verify_password(request_data.password, user["password_hash"]):
+        # Record failed login attempt
+        auth.record_login_attempt(request_data.email, ip_address=client_ip, success=False)
         raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Record successful login attempt
+    auth.record_login_attempt(request_data.email, ip_address=client_ip, success=True)
     
     # Update last login
     auth.update_last_login(user["id"])
