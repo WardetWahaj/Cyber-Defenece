@@ -119,7 +119,9 @@ export default function SignupPage() {
               placeholder="••••••••"
               required
             />
-            <small>8-72 characters</small>
+            <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+              Min 8 chars with uppercase, lowercase, number, and special character.
+            </p>
           </div>
 
           <div className="form-group">

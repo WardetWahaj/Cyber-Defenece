@@ -1011,12 +1011,19 @@ class SignupRequest(BaseModel):
         return v
     
     @validator('password')
-    def password_length(cls, v):
+    def password_strength(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters')
-        # bcrypt has a maximum of 72 bytes
         if len(v.encode('utf-8')) > 72:
             raise ValueError('Password must be no more than 72 bytes (usually ~70 characters)')
+        if not any(c.isupper() for c in v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        if not any(c.islower() for c in v):
+            raise ValueError('Password must contain at least one lowercase letter')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Password must contain at least one number')
+        if not any(c in '!@#$%^&*()_+-=[]{}|;:,.<>?' for c in v):
+            raise ValueError('Password must contain at least one special character (!@#$%^&*...)')
         return v
 
 class LoginRequest(BaseModel):
@@ -1046,9 +1053,17 @@ class PasswordResetConfirm(BaseModel):
     new_password: str
     
     @validator('new_password')
-    def password_length(cls, v):
+    def password_strength(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters')
         if len(v.encode('utf-8')) > 72:
             raise ValueError('Password must be no more than 72 bytes (usually ~70 characters)')
+        if not any(c.isupper() for c in v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        if not any(c.islower() for c in v):
+            raise ValueError('Password must contain at least one lowercase letter')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Password must contain at least one number')
+        if not any(c in '!@#$%^&*()_+-=[]{}|;:,.<>?' for c in v):
+            raise ValueError('Password must contain at least one special character (!@#$%^&*...)')
         return v

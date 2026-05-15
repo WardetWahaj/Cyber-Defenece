@@ -923,27 +923,12 @@ def list_user_reports(authorization: str = Header(None), limit: int = 100) -> di
     user = get_current_user(authorization)
     
     # Get user's actual reports from reports table (not scan history)
-    rows = auth.get_user_reports(user["id"], limit=limit)
+    reports = auth.get_user_reports(user["id"], limit=limit)
     
-    if not rows:
+    if not reports:
         return {"reports": [], "total": 0}
     
-    reports = []
-    for row in rows:
-        # Row structure: (id, user_id, target, org_name, author, pdf_path, created_at)
-        report_dict = {
-            "id": row[0],
-            "user_id": row[1],
-            "target": row[2] if row[2] else "N/A",
-            "org_name": row[3] if row[3] else "N/A",
-            "author": row[4] if row[4] else "Security Analyst",
-            "pdf_path": row[5],
-            "generated_at": row[6],
-            "status": "COMPLETED",
-            "score": "--"
-        }
-        reports.append(report_dict)
-    
+    # auth.get_user_reports() already returns list of dicts, no transformation needed
     return {"reports": reports, "total": len(reports)}
 
 
