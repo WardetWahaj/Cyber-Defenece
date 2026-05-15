@@ -83,4 +83,9 @@ export const api = {
     }),
   report: (payload) => request("/api/report/generate", { method: "POST", body: JSON.stringify(payload) }),
   scanHistory: (limit = 20) => request(`/api/scan/history?limit=${limit}`),
+  getApiKeysStatus: () => request("/api/admin/api-keys"),
+  updateApiKey: (key_name, key_value) => request("/api/admin/api-keys", { 
+    method: "PUT", 
+    body: JSON.stringify({ key_name, key_value }) 
+  }),
 };

@@ -18,7 +18,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Header
+import requests as http_requests
+from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -200,3 +201,71 @@ def dashboard(authorization: str = Header(None)) -> dict[str, Any]:
         "recent_scan_history": recent_scan_history,
         "total_scans": len(recent_rows),
     }
+
+
+@app.get("/api/admin/api-keys")
+@limiter.limit("10/minute")
+def get_api_keys_status(request: Request, authorization: str = Header(None)) -> dict[str, Any]:
+    """Return which API keys are configured (not the actual values)"""
+    user = auth_routes.get_current_user(authorization)
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    keys_status = {
+        "SHODAN_API_KEY": bool(os.environ.get("SHODAN_API_KEY")),
+        "ABUSEIPDB_API_KEY": bool(os.environ.get("ABUSEIPDB_API_KEY")),
+        "VIRUSTOTAL_API_KEY": bool(os.environ.get("VIRUSTOTAL_API_KEY")),
+        "WPSCAN_API_KEY": bool(os.environ.get("WPSCAN_API_KEY")),
+        "NVD_API_KEY": bool(os.environ.get("NVD_API_KEY")),
+    }
+    return {"keys": keys_status}
+
+
+@app.put("/api/admin/api-keys")
+@limiter.limit("5/minute")
+def update_api_key(payload: dict = None, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
+    """Update an API key in Heroku Config Vars"""
+    user = auth_routes.get_current_user(authorization)
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if not payload:
+        raise HTTPException(status_code=400, detail="Payload required")
+    
+    key_name = payload.get("key_name", "")
+    key_value = payload.get("key_value", "")
+    
+    # Only allow specific key names
+    allowed_keys = ["SHODAN_API_KEY", "ABUSEIPDB_API_KEY", "VIRUSTOTAL_API_KEY", "WPSCAN_API_KEY", "NVD_API_KEY"]
+    if key_name not in allowed_keys:
+        raise HTTPException(status_code=400, detail=f"Invalid key name. Allowed: {', '.join(allowed_keys)}")
+    
+    if not key_value.strip():
+        raise HTTPException(status_code=400, detail="API key value cannot be empty")
+    
+    heroku_api_key = os.environ.get("HEROKU_API_KEY")
+    heroku_app_name = os.environ.get("HEROKU_APP_NAME")
+    
+    if not heroku_api_key or not heroku_app_name:
+        raise HTTPException(status_code=500, detail="Heroku API key or app name not configured on server")
+    
+    # Update Heroku Config Var via Heroku Platform API
+    try:
+        resp = http_requests.patch(
+            f"https://api.heroku.com/apps/{heroku_app_name}/config-vars",
+            headers={
+                "Authorization": f"Bearer {heroku_api_key}",
+                "Content-Type": "application/json",
+                "Accept": "application/vnd.heroku+json; version=3",
+            },
+            json={key_name: key_value.strip()},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            # Also update the local environment so it takes effect immediately
+            os.environ[key_name] = key_value.strip()
+            return {"success": True, "message": f"{key_name} updated successfully"}
+        else:
+            raise HTTPException(status_code=500, detail=f"Heroku API error: {resp.status_code}")
+    except http_requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update Heroku: {str(e)}")
