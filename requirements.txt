@@ -20,3 +20,4 @@ alembic
 sqlalchemy
 pytest
 httpx
+shodan

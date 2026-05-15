@@ -298,6 +298,22 @@ def scan_virustotal(payload: TargetRequest, authorization: str = Header(None), r
 
 
 @limiter.limit("10/minute")
+@router.post("/shodan")
+def scan_shodan(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
+    """Run Shodan internet intelligence scan."""
+    user = get_current_user(authorization)
+    return _safe_call("shodan", lambda: core.module_shodan(payload.target, silent=True), user_id=user["id"])
+
+
+@limiter.limit("10/minute")
+@router.post("/abuseipdb")
+def scan_abuseipdb(payload: TargetRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
+    """Run AbuseIPDB IP reputation scan."""
+    user = get_current_user(authorization)
+    return _safe_call("abuseipdb", lambda: core.module_abuseipdb(payload.target, silent=True), user_id=user["id"])
+
+
+@limiter.limit("10/minute")
 @router.post("/custom")
 def scan_custom(payload: CustomScanRequest, authorization: str = Header(None), request: Request = None) -> dict[str, Any]:
     """Run custom scan with selected modules."""

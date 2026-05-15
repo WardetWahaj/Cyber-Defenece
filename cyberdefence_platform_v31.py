@@ -115,6 +115,8 @@ def load_config():
     defaults = {
         "wpscan_api_key": "",
         "virustotal_api_key": "",
+        "shodan_api_key": "",
+        "abuseipdb_api_key": "",
         "nvd_api_key": "",
         "rate_limit_delay": 1.5,
         "nuclei_binary_path": "",
@@ -134,6 +136,8 @@ CONFIG = load_config()
 # Override config with environment variables if present
 CONFIG["virustotal_api_key"] = os.environ.get("VIRUSTOTAL_API_KEY", CONFIG.get("virustotal_api_key", ""))
 CONFIG["wpscan_api_key"] = os.environ.get("WPSCAN_API_KEY", CONFIG.get("wpscan_api_key", ""))
+CONFIG["shodan_api_key"] = os.environ.get("SHODAN_API_KEY", CONFIG.get("shodan_api_key", ""))
+CONFIG["abuseipdb_api_key"] = os.environ.get("ABUSEIPDB_API_KEY", CONFIG.get("abuseipdb_api_key", ""))
 CONFIG["nvd_api_key"] = os.environ.get("NVD_API_KEY", CONFIG.get("nvd_api_key", ""))
 CONFIG["secret_key"] = os.environ.get("SECRET_KEY", CONFIG.get("secret_key", ""))
 
@@ -170,7 +174,7 @@ def refresh_nuclei_status():
         NUCLEI_AVAILABLE = NUCLEI_BINARY is not None
     return NUCLEI_AVAILABLE
 
-for d in ["recon","vuln","defence","siem","policies","reports","virustotal","nuclei","sucuri"]:
+for d in ["recon","vuln","defence","siem","policies","reports","virustotal","nuclei","sucuri","shodan","abuseipdb"]:
     (DATA_DIR / d).mkdir(parents=True, exist_ok=True)
 
 logging.basicConfig(
@@ -1325,6 +1329,140 @@ def module_virustotal(target=None, silent=False):
     if not silent:
         console.print(f"\n[green][ ✓ ][/green] Saved to {fname}")
         console.input("\n[dim]Press Enter to return to main menu...[/dim]")
+    return results
+
+# ════════════════════════════════════════════════════════════════
+# MODULE 6B — SHODAN INTERNET INTELLIGENCE
+# ════════════════════════════════════════════════════════════════
+def module_shodan(target=None, silent=False):
+    """Module: Shodan — Internet device/service discovery"""
+    if not silent:
+        console.print(Rule("[bold cyan]SHODAN — Internet Intelligence[/bold cyan]"))
+    if not target:
+        target = console.input("\n[dim]Enter target domain/IP: [/dim]").strip()
+
+    domain = get_domain(clean_url(target))
+    api_key = CONFIG.get("shodan_api_key", "") or os.environ.get("SHODAN_API_KEY", "")
+    
+    results = {"target": domain, "timestamp": datetime.datetime.now().isoformat()}
+
+    if not api_key:
+        results["error"] = "Shodan API key not configured"
+        if not silent:
+            console.print("[red][ ! ][/red] Shodan API key not set. Add SHODAN_API_KEY to environment or config.json")
+        return results
+
+    try:
+        import shodan
+        api = shodan.Shodan(api_key)
+        
+        # DNS resolve
+        dns_resolve = api.dns.resolve(domain)
+        ip = dns_resolve.get(domain, None)
+        results["resolved_ip"] = ip
+        
+        if ip:
+            # Get host info
+            host = api.host(ip)
+            results["ip"] = host.get("ip_str", ip)
+            results["organization"] = host.get("org", "Unknown")
+            results["os"] = host.get("os", "Unknown")
+            results["ports"] = host.get("ports", [])
+            results["vulns"] = host.get("vulns", [])
+            results["last_update"] = host.get("last_update", "")
+            results["country"] = host.get("country_name", "Unknown")
+            results["city"] = host.get("city", "Unknown")
+            results["isp"] = host.get("isp", "Unknown")
+            
+            # Service details
+            services = []
+            for item in host.get("data", []):
+                services.append({
+                    "port": item.get("port"),
+                    "transport": item.get("transport", "tcp"),
+                    "product": item.get("product", "Unknown"),
+                    "version": item.get("version", ""),
+                    "banner": (item.get("data", ""))[:200]
+                })
+            results["services"] = services
+            results["total_services"] = len(services)
+            results["total_vulns"] = len(results["vulns"])
+        
+    except Exception as e:
+        results["error"] = str(e)
+        if not silent:
+            console.print(f"[red][ ! ][/red] Shodan error: {e}")
+
+    fname = DATA_DIR / "shodan" / f"shodan_{domain}_{ts()}.json"
+    fname.parent.mkdir(parents=True, exist_ok=True)
+    with open(fname, "w") as f:
+        json.dump(results, f, indent=2, default=str)
+    save_db(domain, "shodan", results)
+    
+    if not silent:
+        console.print(f"\n[green][ done ][/green] Saved to {fname}")
+    return results
+
+# ════════════════════════════════════════════════════════════════
+# MODULE 6C — ABUSEIPDB IP REPUTATION CHECK
+# ════════════════════════════════════════════════════════════════
+def module_abuseipdb(target=None, silent=False):
+    """Module: AbuseIPDB — IP abuse/reputation check"""
+    if not silent:
+        console.print(Rule("[bold cyan]ABUSEIPDB — IP Reputation Check[/bold cyan]"))
+    if not target:
+        target = console.input("\n[dim]Enter target domain/IP: [/dim]").strip()
+
+    domain = get_domain(clean_url(target))
+    api_key = CONFIG.get("abuseipdb_api_key", "") or os.environ.get("ABUSEIPDB_API_KEY", "")
+    
+    results = {"target": domain, "timestamp": datetime.datetime.now().isoformat()}
+
+    if not api_key:
+        results["error"] = "AbuseIPDB API key not configured"
+        if not silent:
+            console.print("[red][ ! ][/red] AbuseIPDB API key not set. Add ABUSEIPDB_API_KEY to environment or config.json")
+        return results
+
+    try:
+        import socket as sock
+        # Resolve domain to IP
+        ip = sock.gethostbyname(domain)
+        results["resolved_ip"] = ip
+        
+        # Check IP reputation
+        headers = {"Key": api_key, "Accept": "application/json"}
+        params = {"ipAddress": ip, "maxAgeInDays": 90, "verbose": True}
+        r = requests.get("https://api.abuseipdb.com/api/v2/check", headers=headers, params=params, timeout=15)
+        
+        if r.status_code == 200:
+            data = r.json().get("data", {})
+            results["abuse_confidence_score"] = data.get("abuseConfidenceScore", 0)
+            results["total_reports"] = data.get("totalReports", 0)
+            results["country_code"] = data.get("countryCode", "")
+            results["isp"] = data.get("isp", "")
+            results["domain"] = data.get("domain", "")
+            results["is_public"] = data.get("isPublic", True)
+            results["is_whitelisted"] = data.get("isWhitelisted", False)
+            results["last_reported_at"] = data.get("lastReportedAt", "")
+            results["usage_type"] = data.get("usageType", "")
+            results["num_distinct_users"] = data.get("numDistinctUsers", 0)
+        else:
+            results["error"] = f"API returned status {r.status_code}"
+            
+    except Exception as e:
+        results["error"] = str(e)
+        if not silent:
+            console.print(f"[red][ ! ][/red] AbuseIPDB error: {e}")
+
+    fname = DATA_DIR / "abuseipdb" / f"abuseipdb_{domain}_{ts()}.json"
+    fname.parent.mkdir(parents=True, exist_ok=True)
+    with open(fname, "w") as f:
+        json.dump(results, f, indent=2, default=str)
+    save_db(domain, "abuseipdb", results)
+    
+    if not silent:
+        console.print(f"\n[green][ done ][/green] Saved to {fname}")
     return results
 
 # ════════════════════════════════════════════════════════════════

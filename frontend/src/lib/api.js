@@ -66,6 +66,8 @@ export const api = {
   defence: (target) => request("/api/scan/defence", { method: "POST", body: JSON.stringify({ target }) }),
   siem: (target) => request("/api/scan/siem", { method: "POST", body: JSON.stringify({ target }) }),
   virustotal: (target) => request("/api/scan/virustotal", { method: "POST", body: JSON.stringify({ target }) }),
+  shodan: (target) => request("/api/scan/shodan", { method: "POST", body: JSON.stringify({ target }) }),
+  abuseipdb: (target) => request("/api/scan/abuseipdb", { method: "POST", body: JSON.stringify({ target }) }),
   autoScan: (target) => request("/api/scan/auto", { method: "POST", body: JSON.stringify({ target }), timeoutMs: 300000 }),
   customScan: (target, modules) =>
     request("/api/scan/custom", {
