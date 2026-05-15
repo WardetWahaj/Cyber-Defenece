@@ -221,7 +221,7 @@ def generate_report(payload: ReportRequest, authorization: str = Header(None)) -
     else:
         report_filename = None
     
-    report = auth.create_report(
+    report = auth.save_report(
         user_id=user["id"],
         target=payload.target,
         org_name=payload.org_name,
