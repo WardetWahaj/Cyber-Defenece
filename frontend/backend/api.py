@@ -1158,8 +1158,12 @@ def login(request_data: auth.LoginRequest, request: Request = None) -> dict:
     # Create access token (convert user ID to string for JWT spec)
     access_token = auth.create_access_token(data={"sub": str(user["id"])})
     
+    # Create refresh token
+    refresh_token = auth.create_refresh_token(data={"sub": str(user["id"])})
+    
     return {
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
         "user": {
             "id": user["id"],
@@ -1168,6 +1172,36 @@ def login(request_data: auth.LoginRequest, request: Request = None) -> dict:
             "organization": user["organization"],
             "role": user.get("role", "analyst")
         }
+    }
+
+
+@limiter.limit("10/minute")
+@app.post("/api/auth/refresh")
+def refresh_access_token(request_data: auth.RefreshTokenRequest) -> dict:
+    """Refresh access token using a valid refresh token."""
+    refresh_token = request_data.refresh_token
+    
+    payload = auth.verify_refresh_token(refresh_token)
+    
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+    
+    # Extract user ID from the refresh token payload
+    user_id = payload.get("sub")
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    
+    # Create new access token
+    new_access_token = auth.create_access_token(data={"sub": user_id})
+    
+    # Create new refresh token
+    new_refresh_token = auth.create_refresh_token(data={"sub": user_id})
+    
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "bearer"
     }
 
 

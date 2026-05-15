@@ -32,17 +32,69 @@ export function AuthProvider({ children }) {
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
+      } else if (response.status === 401) {
+        // Access token expired, try to refresh
+        const refreshToken = localStorage.getItem("refresh_token");
+        if (refreshToken) {
+          await refreshAccessToken(refreshToken);
+        } else {
+          // No refresh token, clear everything
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("refresh_token");
+          setToken(null);
+        }
       } else {
-        // Token invalid, clear it
+        // Other error, clear tokens
         localStorage.removeItem("auth_token");
+        localStorage.removeItem("refresh_token");
         setToken(null);
       }
     } catch (err) {
       console.error("Token verification failed:", err);
       localStorage.removeItem("auth_token");
+      localStorage.removeItem("refresh_token");
       setToken(null);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function refreshAccessToken(refreshToken) {
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setToken(data.access_token);
+        localStorage.setItem("auth_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+        
+        // Now verify the user with the new token
+        const meResponse = await fetch(`${API_BASE}/api/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${data.access_token}`
+          }
+        });
+        
+        if (meResponse.ok) {
+          const userData = await meResponse.json();
+          setUser(userData);
+        }
+      } else {
+        // Refresh failed, clear tokens
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("refresh_token");
+        setToken(null);
+      }
+    } catch (err) {
+      console.error("Token refresh failed:", err);
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("refresh_token");
+      setToken(null);
     }
   }
 
@@ -64,6 +116,7 @@ export function AuthProvider({ children }) {
       setToken(data.access_token);
       setUser(data.user);
       localStorage.setItem("auth_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
       return data;
     } catch (err) {
       setError(err.message);
@@ -89,6 +142,7 @@ export function AuthProvider({ children }) {
       setToken(data.access_token);
       setUser(data.user);
       localStorage.setItem("auth_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
       return data;
     } catch (err) {
       setError(err.message);
@@ -100,6 +154,7 @@ export function AuthProvider({ children }) {
     setUser(null);
     setToken(null);
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("refresh_token");
   }
 
   const value = {

@@ -96,6 +96,7 @@ if not SECRET_KEY:
     print("[WARNING] No SECRET_KEY set — using insecure default. Set SECRET_KEY env var for production.")
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_HOURS = 24
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 PASSWORD_RESET_TOKEN_EXPIRE_HOURS = 1
 
 # ── Password hashing using Argon2id ────────────────────────────────
@@ -168,6 +169,27 @@ def verify_token(token: str) -> dict | None:
     """Verify and decode a JWT token."""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+def create_refresh_token(data: dict) -> str:
+    """Create a JWT refresh token with 7-day expiry."""
+    to_encode = data.copy()
+    to_encode.update({"type": "refresh"})
+    expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def verify_refresh_token(token: str) -> dict | None:
+    """Verify and decode a refresh JWT token."""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "refresh":
+            return None
         return payload
     except jwt.ExpiredSignatureError:
         return None
@@ -1013,6 +1035,9 @@ class SignupRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
 
 class TokenResponse(BaseModel):
     access_token: str
