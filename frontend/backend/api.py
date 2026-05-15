@@ -41,10 +41,21 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# Configure CORS with restricted origins
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+ALLOWED_ORIGINS = [
+    FRONTEND_URL,
+    "https://cyber-defence.live",
+    "https://www.cyber-defence.live",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
