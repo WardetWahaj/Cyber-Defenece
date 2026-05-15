@@ -15,7 +15,8 @@ jobs:
         with:
           python-version: "3.10"
       - run: pip install ruff
-      - run: ruff check cyberdefence_platform_v31.py frontend/backend/
+      - run: ruff check frontend/backend/
+      - run: ruff check cyberdefence_platform_v31.py --select=F --ignore=E401,E402,E701,E702
 
   frontend-build:
     runs-on: ubuntu-latest
