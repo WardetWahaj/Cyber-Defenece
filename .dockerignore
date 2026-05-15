@@ -1,0 +1,17 @@
+.venv310/
+.git/
+node_modules/
+data/
+__pycache__/
+*.pyc
+.env
+.env.local
+.env.*.local
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.coverage/
+htmlcov/
+.DS_Store
+Thumbs.db
