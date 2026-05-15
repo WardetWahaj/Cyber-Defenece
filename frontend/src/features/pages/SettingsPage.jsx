@@ -9,8 +9,6 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const [health, setHealth] = useState(null);
   const [message, setMessage] = useState("");
-  const [shodanKey, setShodanKey] = useState("");
-  const [abuseipdbKey, setAbuseipdbKey] = useState("");
   const [virustotalKey, setVirustotalKey] = useState("");
   const [wpscanKey, setWpscanKey] = useState("");
   const [nvdKey, setNvdKey] = useState("");
@@ -90,60 +88,6 @@ export default function SettingsPage() {
           {isAdmin && (
             <Card title="🔑 API KEY MANAGEMENT" subtitle="Configure API keys for threat intelligence modules">
               <div style={{ display: "grid", gap: 16 }}>
-                {/* Shodan */}
-                <div style={{ marginBottom: 8 }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: keysStatus.SHODAN_API_KEY ? "var(--success)" : "var(--critical)", display: "inline-block" }} />
-                    Shodan API Key
-                    <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 400 }}>
-                      {keysStatus.SHODAN_API_KEY ? "(Configured)" : "(Not configured)"}
-                    </span>
-                  </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input
-                      type="password"
-                      placeholder="Enter Shodan API Key..."
-                      value={shodanKey}
-                      onChange={(e) => setShodanKey(e.target.value)}
-                      style={{ flex: 1, padding: "8px 12px", background: "var(--surface-high)", color: "var(--text)", border: "1px solid var(--ghost)", borderRadius: 6, fontSize: 13 }}
-                    />
-                    <button
-                      onClick={() => saveApiKey("SHODAN_API_KEY", shodanKey, setShodanKey)}
-                      disabled={savingKey === "SHODAN_API_KEY" || !shodanKey.trim()}
-                      style={{ padding: "8px 16px", background: "var(--primary)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", opacity: savingKey === "SHODAN_API_KEY" || !shodanKey.trim() ? 0.5 : 1, fontWeight: 600 }}
-                    >
-                      {savingKey === "SHODAN_API_KEY" ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* AbuseIPDB */}
-                <div style={{ marginBottom: 8 }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 600, fontSize: 13 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: keysStatus.ABUSEIPDB_API_KEY ? "var(--success)" : "var(--critical)", display: "inline-block" }} />
-                    AbuseIPDB API Key
-                    <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 400 }}>
-                      {keysStatus.ABUSEIPDB_API_KEY ? "(Configured)" : "(Not configured)"}
-                    </span>
-                  </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input
-                      type="password"
-                      placeholder="Enter AbuseIPDB API Key..."
-                      value={abuseipdbKey}
-                      onChange={(e) => setAbuseipdbKey(e.target.value)}
-                      style={{ flex: 1, padding: "8px 12px", background: "var(--surface-high)", color: "var(--text)", border: "1px solid var(--ghost)", borderRadius: 6, fontSize: 13 }}
-                    />
-                    <button
-                      onClick={() => saveApiKey("ABUSEIPDB_API_KEY", abuseipdbKey, setAbuseipdbKey)}
-                      disabled={savingKey === "ABUSEIPDB_API_KEY" || !abuseipdbKey.trim()}
-                      style={{ padding: "8px 16px", background: "var(--primary)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", opacity: savingKey === "ABUSEIPDB_API_KEY" || !abuseipdbKey.trim() ? 0.5 : 1, fontWeight: 600 }}
-                    >
-                      {savingKey === "ABUSEIPDB_API_KEY" ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-
                 {/* VirusTotal */}
                 <div style={{ marginBottom: 8 }}>
                   <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, fontWeight: 600, fontSize: 13 }}>

@@ -12,6 +12,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [keyMessage, setKeyMessage] = useState("");
+  const [shodanKey, setShodanKey] = useState("");
+  const [abuseipdbKey, setAbuseipdbKey] = useState("");
   const [virusTotalKey, setVirusTotalKey] = useState("");
   const [wpscanKey, setWpscanKey] = useState("");
   const [nvdKey, setNvdKey] = useState("");
@@ -66,6 +68,8 @@ export default function AdminPage() {
     try {
       setUpdatingKeys(true);
       const payload = {};
+      if (shodanKey) payload.shodan_api_key = shodanKey;
+      if (abuseipdbKey) payload.abuseipdb_api_key = abuseipdbKey;
       if (virusTotalKey) payload.virustotal_api_key = virusTotalKey;
       if (wpscanKey) payload.wpscan_api_key = wpscanKey;
       if (nvdKey) payload.nvd_api_key = nvdKey;
@@ -75,6 +79,8 @@ export default function AdminPage() {
         body: JSON.stringify(payload),
       });
       setKeyMessage(`✅ Successfully updated keys: ${result.updated.join(", ")}`);
+      setShodanKey("");
+      setAbuseipdbKey("");
       setVirusTotalKey("");
       setWpscanKey("");
       setNvdKey("");
@@ -189,6 +195,46 @@ export default function AdminPage() {
             <div style={{ display: "grid", gap: 16 }}>
               <div>
                 <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                  Shodan API Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter Shodan API key..."
+                  value={shodanKey}
+                  onChange={(e) => setShodanKey(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "var(--surface)",
+                    color: "var(--text)",
+                    border: "1px solid var(--ghost)",
+                    padding: 12,
+                    borderRadius: 6,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                  AbuseIPDB API Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter AbuseIPDB API key..."
+                  value={abuseipdbKey}
+                  onChange={(e) => setAbuseipdbKey(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "var(--surface)",
+                    color: "var(--text)",
+                    border: "1px solid var(--ghost)",
+                    padding: 12,
+                    borderRadius: 6,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: 8, fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
                   VirusTotal API Key
                 </label>
                 <input
@@ -249,7 +295,7 @@ export default function AdminPage() {
               </div>
               <button
                 onClick={saveApiKeys}
-                disabled={updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey)}
+                disabled={updatingKeys || (!shodanKey && !abuseipdbKey && !virusTotalKey && !wpscanKey && !nvdKey)}
                 style={{
                   background: "var(--primary)",
                   color: "white",
@@ -257,8 +303,8 @@ export default function AdminPage() {
                   padding: 12,
                   borderRadius: 6,
                   fontWeight: 700,
-                  cursor: updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey) ? "not-allowed" : "pointer",
-                  opacity: updatingKeys || (!virusTotalKey && !wpscanKey && !nvdKey) ? 0.5 : 1,
+                  cursor: updatingKeys || (!shodanKey && !abuseipdbKey && !virusTotalKey && !wpscanKey && !nvdKey) ? "not-allowed" : "pointer",
+                  opacity: updatingKeys || (!shodanKey && !abuseipdbKey && !virusTotalKey && !wpscanKey && !nvdKey) ? 0.5 : 1,
                 }}
               >
                 {updatingKeys ? "Saving..." : "Save API Keys"}
