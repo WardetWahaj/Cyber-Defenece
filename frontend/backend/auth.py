@@ -8,7 +8,7 @@ import sys
 import json
 import time
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import hashlib
 import secrets
 import hmac
@@ -157,9 +157,9 @@ def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     """Create a JWT access token."""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRE_HOURS)
+        expire = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRE_HOURS)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -679,7 +679,7 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
         return None
     
     password_hash = hash_password(password)
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     
     conn = get_db_connection()
     c = conn.cursor()
@@ -708,7 +708,7 @@ def update_last_login(user_id: int):
     conn = get_db_connection()
     c = conn.cursor()
     execute_query(c, "UPDATE users SET last_login = %s WHERE id = %s", 
-              (datetime.utcnow().isoformat(), user_id))
+              (datetime.now(timezone.utc).isoformat(), user_id))
     conn.commit()
     conn.close()
 
@@ -871,7 +871,7 @@ def save_report(user_id: int, target: str, org_name: str, author: str, pdf_path:
         Report dict with id and metadata, or None if failed
     """
     try:
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         conn = get_db_connection()
         c = conn.cursor()
         execute_query(c,
