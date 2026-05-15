@@ -87,11 +87,16 @@ import jwt
 
 # ── Configuration ──────────────────────────────────────────────────
 DB_FILE = ROOT_DIR / "data" / "cyberdefence.db"
-SECRET_KEY = os.getenv("SECRET_KEY", "your-super-secret-key-change-in-production")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")  # development or production
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+if ENVIRONMENT == "production" and (not SECRET_KEY or SECRET_KEY == "your-super-secret-key-change-in-production"):
+    raise RuntimeError("FATAL: SECRET_KEY environment variable must be set in production. Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(32))\"")
+if not SECRET_KEY:
+    SECRET_KEY = "dev-only-insecure-key-not-for-production"
+    print("[WARNING] No SECRET_KEY set — using insecure default. Set SECRET_KEY env var for production.")
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_HOURS = 24
 PASSWORD_RESET_TOKEN_EXPIRE_HOURS = 1
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")  # development or production
 
 # ── Password hashing using Argon2id ────────────────────────────────
 try:
