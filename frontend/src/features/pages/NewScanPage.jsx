@@ -48,6 +48,23 @@ export default function NewScanPage() {
   async function runScan() {
     setLoading(true);
     setError("");
+    
+    const trimmed = target.trim();
+    if (!trimmed) {
+      setError("Please enter a target domain or IP address.");
+      setLoading(false);
+      return;
+    }
+    
+    // Basic domain/IP validation
+    const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+    const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    if (!domainRegex.test(trimmed) && !ipRegex.test(trimmed)) {
+      setError("Please enter a valid domain (e.g., example.com) or IP address (e.g., 192.168.1.1).");
+      setLoading(false);
+      return;
+    }
+    
     setProgress(0);
     setCurrentModule("");
     
@@ -62,9 +79,9 @@ export default function NewScanPage() {
       // Start the scan and get job_id
       let jobResponse;
       if (scanMode === "Comprehensive") {
-        jobResponse = await api.autoScan(target);
+        jobResponse = await api.autoScan(trimmed);
       } else {
-        jobResponse = await api.customScan(target, modules);
+        jobResponse = await api.customScan(trimmed, modules);
       }
 
       const jobId = jobResponse.job_id;
@@ -93,7 +110,7 @@ export default function NewScanPage() {
       }
 
       setTimeout(() => {
-        navigate(`/reports/pdf?target=${encodeURIComponent(target)}&autogen=1`);
+        navigate(`/reports/pdf?target=${encodeURIComponent(trimmed)}&autogen=1`);
       }, 800);
     } catch (e) {
       setError(String(e.message || e));
@@ -192,7 +209,17 @@ export default function NewScanPage() {
               </div>
             </div>
 
-            {error && <p style={{ color: "#ffb4ab" }}>{error}</p>}
+            {error && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <p style={{ color: "#ffb4ab", fontSize: 13, margin: 0 }}>{error}</p>
+                <button 
+                  onClick={() => { setError(""); window.location.reload(); }}
+                  style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--primary)", cursor: "pointer", fontSize: 12, whiteSpace: "nowrap" }}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
             
             {loading && (
               <div style={{ marginTop: 20, padding: 16, background: "var(--surface)", border: "1px solid var(--ghost)", borderRadius: 8, display: "grid", gap: 14 }}>

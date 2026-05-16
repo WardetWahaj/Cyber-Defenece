@@ -65,7 +65,17 @@ export default function DefencePage() {
           <Button onClick={run} disabled={!target || loading}>{loading ? "Assessing..." : "Assess"}</Button>
         </div>
       </Card>
-      {error && <p style={{ color: "#ffb4ab" }}>{error}</p>}
+      {error && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+          <p style={{ color: "#ffb4ab", fontSize: 13, margin: 0 }}>{error}</p>
+          <button 
+            onClick={() => { setError(""); window.location.reload(); }}
+            style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--primary)", cursor: "pointer", fontSize: 12, whiteSpace: "nowrap" }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
       
       {loading && (
         <Card title="ASSESSMENT PROGRESS">

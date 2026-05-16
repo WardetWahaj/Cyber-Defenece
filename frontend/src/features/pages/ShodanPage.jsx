@@ -2,6 +2,7 @@ import { useState } from "react";
 import Card from "../../components/ui/Card";
 import PageTitle from "../../components/ui/PageTitle";
 import Badge from "../../components/ui/Badge";
+import Skeleton from "../../components/ui/Skeleton";
 import { api } from "../../lib/api";
 
 export default function ShodanPage() {
@@ -49,7 +50,28 @@ export default function ShodanPage() {
         </form>
       </Card>
 
-      {error && <Card><p style={{ color: "var(--critical)" }}>{error}</p></Card>}
+      {error && (
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <p style={{ color: "var(--critical)", fontSize: 13, margin: 0 }}>{error}</p>
+            <button 
+              onClick={() => { setError(""); window.location.reload(); }}
+              style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--primary)", cursor: "pointer", fontSize: 12, whiteSpace: "nowrap" }}
+            >
+              Retry
+            </button>
+          </div>
+        </Card>
+      )}
+
+      {loading && (
+        <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
+          <Skeleton height={32} width="40%" />
+          <Skeleton height={200} />
+          <Skeleton height={200} />
+          <Skeleton height={120} />
+        </div>
+      )}
 
       {result && !result.error && (
         <>
@@ -131,7 +153,19 @@ export default function ShodanPage() {
         </>
       )}
 
-      {result?.error && <Card><p style={{ color: "var(--critical)" }}>{result.error}</p></Card>}
+      {result?.error && (
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <p style={{ color: "var(--critical)", fontSize: 13, margin: 0 }}>{result.error}</p>
+            <button 
+              onClick={() => { window.location.reload(); }}
+              style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--primary)", cursor: "pointer", fontSize: 12, whiteSpace: "nowrap" }}
+            >
+              Retry
+            </button>
+          </div>
+        </Card>
+      )}
     </>
   );
 }

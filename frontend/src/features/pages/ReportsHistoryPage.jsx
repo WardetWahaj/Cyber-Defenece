@@ -15,6 +15,8 @@ export default function ReportsHistoryPage() {
   const [targetFilter, setTargetFilter] = useState("");
   const [minGrade, setMinGrade] = useState("ALL");
   const [downloading, setDownloading] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const reportsPerPage = 10;
 
   // Calculate security score from report
   function calculateSecurityScore(report) {
@@ -97,7 +99,13 @@ export default function ReportsHistoryPage() {
       return targetOk && gradeOk;
     });
     setFilteredReports(next);
+    setCurrentPage(1);
   }
+
+  // Calculate paginated data
+  const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+  const startIndex = (currentPage - 1) * reportsPerPage;
+  const paginatedReports = filteredReports.slice(startIndex, startIndex + reportsPerPage);
 
   async function downloadReport(report) {
     if (!report.pdf_path) {
@@ -166,7 +174,17 @@ export default function ReportsHistoryPage() {
   return (
     <>
       <PageTitle title="Reports History" subtitle="Your generated security reports and historical analysis." />
-      {error && <p style={{ color: "#ffb4ab", marginBottom: "1rem" }}>⚠️ {error}</p>}
+      {error && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+          <p style={{ color: "#ffb4ab", fontSize: 13, margin: 0 }}>⚠️ {error}</p>
+          <button 
+            onClick={() => { setError(""); window.location.reload(); }}
+            style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--primary)", cursor: "pointer", fontSize: 12, whiteSpace: "nowrap" }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
       {loading && <p style={{ color: "var(--text-muted)" }}>Loading reports...</p>}
 
       <div className="grid grid-3 page-section">
@@ -239,7 +257,7 @@ export default function ReportsHistoryPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredReports.map((report) => (
+              {paginatedReports.map((report) => (
                 <tr key={report.id}>
                   <td>{`RPT-${String(report.id).padStart(6, "0")}`}</td>
                   <td>
@@ -295,6 +313,28 @@ export default function ReportsHistoryPage() {
       <p style={{ color: "var(--text-muted)", fontSize: 12, marginTop: 8 }}>
         Showing {filteredReports.length} of {reports.length} reports.
       </p>
+
+      {filteredReports.length > 0 && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 20 }}>
+          <button 
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+            disabled={currentPage === 1}
+            style={{ padding: "6px 14px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--text)", cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1 }}
+          >
+            Previous
+          </button>
+          <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button 
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+            disabled={currentPage === totalPages}
+            style={{ padding: "6px 14px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--text)", cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1 }}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </>
   );
 }

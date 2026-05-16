@@ -9,32 +9,24 @@ export default function Topbar({ onOpenMobileMenu = () => {} }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [compactMode, setCompactMode] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    // Load from localStorage on mount
-    const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : true; // Default to dark mode
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem("theme") !== "light";
   });
 
   useEffect(() => {
-    // Apply theme changes
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
-    if (darkMode) {
-      document.documentElement.classList.add("dark-mode");
+    if (isDark) {
       document.documentElement.classList.remove("light-mode");
+      localStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.add("light-mode");
-      document.documentElement.classList.remove("dark-mode");
+      localStorage.setItem("theme", "light");
     }
-  }, [darkMode]);
+  }, [isDark]);
 
   function toggleCompactMode() {
     const next = !compactMode;
     setCompactMode(next);
     document.body.style.fontSize = next ? "15px" : "";
-  }
-
-  function toggleTheme() {
-    setDarkMode((prev) => !prev);
   }
 
   function handleLogout() {
@@ -55,7 +47,21 @@ export default function Topbar({ onOpenMobileMenu = () => {} }) {
 
       <div className="topbar-actions">
         <button className="topbar-icon material-symbols-outlined" onClick={() => setShowNotifications((v) => !v)} aria-label="Notifications">notifications</button>
-        <button className="topbar-icon material-symbols-outlined" onClick={toggleTheme} aria-label={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>{darkMode ? "dark_mode" : "light_mode"}</button>
+        <button
+          onClick={() => setIsDark(prev => !prev)}
+          style={{
+            background: "var(--surface-high)",
+            border: "1px solid var(--ghost)",
+            borderRadius: 8,
+            padding: "6px 12px",
+            color: "var(--text)",
+            cursor: "pointer",
+            fontSize: 14,
+          }}
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDark ? "Light" : "Dark"}
+        </button>
         <button className="topbar-icon material-symbols-outlined" onClick={() => navigate("/settings")} aria-label="Settings">settings</button>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 6, position: "relative" }}>
           <button 

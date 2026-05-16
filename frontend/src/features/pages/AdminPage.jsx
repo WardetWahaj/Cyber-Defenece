@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PageTitle from "../../components/ui/PageTitle";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
+import Skeleton from "../../components/ui/Skeleton";
 import { api } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 
@@ -100,7 +101,12 @@ export default function AdminPage() {
         {/* Users Management */}
         <Card title="USERS MANAGEMENT" right={<span style={{ fontSize: 12, color: "var(--text-muted)" }}>{users.length} total</span>}>
           {loading ? (
-            <p style={{ color: "var(--text-secondary)" }}>Loading...</p>
+            <div style={{ display: "grid", gap: 16 }}>
+              <Skeleton height={32} width="40%" />
+              <Skeleton height={200} />
+              <Skeleton height={200} />
+              <Skeleton height={120} />
+            </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -155,7 +161,12 @@ export default function AdminPage() {
         {/* Scans Monitoring */}
         <Card title="RECENT SCANS" right={<span style={{ fontSize: 12, color: "var(--text-muted)" }}>{scans.length} total</span>}>
           {loading ? (
-            <p style={{ color: "var(--text-secondary)" }}>Loading...</p>
+            <div style={{ display: "grid", gap: 16 }}>
+              <Skeleton height={32} width="40%" />
+              <Skeleton height={200} />
+              <Skeleton height={200} />
+              <Skeleton height={120} />
+            </div>
           ) : (
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>

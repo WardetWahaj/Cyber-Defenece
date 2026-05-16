@@ -28,7 +28,17 @@ export default function VirusTotalPage() {
           <Button onClick={run} disabled={!target}>Check</Button>
         </div>
       </Card>
-      {error && <p style={{ color: "#ffb4ab" }}>{error}</p>}
+      {error && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+          <p style={{ color: "#ffb4ab", fontSize: 13, margin: 0 }}>{error}</p>
+          <button 
+            onClick={() => { setError(""); window.location.reload(); }}
+            style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--primary)", cursor: "pointer", fontSize: 12, whiteSpace: "nowrap" }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
       {data && (
         <div className="grid grid-3">
           <Card title="Verdict"><Badge variant={data.malicious > 0 ? "danger" : "success"}>{data.malicious > 0 ? "Suspicious" : "Clean"}</Badge></Card>

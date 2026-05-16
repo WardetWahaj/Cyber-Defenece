@@ -441,7 +441,17 @@ export default function PdfReportPage() {
               <input value={author} onChange={(e) => setAuthor(e.target.value)} style={{ width: "100%", background: "var(--surface)", border: "1px solid var(--ghost)", color: "var(--text)", padding: 12, borderRadius: 6 }} />
             </div>
             
-            {error && <p style={{ color: "#ffb4ab", fontSize: 12 }}>❌ {error}</p>}
+            {error && (
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <p style={{ color: "#ffb4ab", fontSize: 12, margin: 0 }}>❌ {error}</p>
+                <button 
+                  onClick={() => { setError(""); window.location.reload(); }}
+                  style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--surface-high)", background: "var(--surface)", color: "var(--primary)", cursor: "pointer", fontSize: 12, whiteSpace: "nowrap" }}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
             {generating && <p style={{ color: "#b4c5ff", fontSize: 12 }}>⏳ Generating report...</p>}
             
             <Button onClick={() => generate(false)} style={{ marginTop: 8 }}>
