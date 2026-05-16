@@ -4,6 +4,7 @@ import Card from "../../components/ui/Card";
 import PageTitle from "../../components/ui/PageTitle";
 import Badge from "../../components/ui/Badge";
 import Skeleton from "../../components/ui/Skeleton";
+import ScoreTrendCard from "../../components/cards/ScoreTrendCard";
 import { api } from "../../lib/api";
 
 export default function DashboardPage() {
@@ -153,6 +154,10 @@ export default function DashboardPage() {
         <button className="btn btn-primary" style={{ height: 100, fontSize: 13 }} onClick={() => navigate("/scan/live")}>AUTO SCAN</button>
         <button className="btn btn-secondary" style={{ height: 100, fontSize: 13 }} onClick={() => navigate("/scan/new")}>CUSTOM SCAN</button>
         <button className="btn btn-secondary" style={{ height: 100, fontSize: 13 }} onClick={() => navigate("/reports/history")}>VIEW HISTORY</button>
+      </div>
+
+      <div className="page-section">
+        <ScoreTrendCard />
       </div>
 
       <Card title="Recent Scan History" right={dashboard ? <button className="btn btn-secondary" onClick={exportReport} disabled={exporting}>{exporting ? "Exporting..." : "Export Report"}</button> : undefined} className="page-section">

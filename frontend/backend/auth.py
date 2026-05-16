@@ -526,6 +526,34 @@ def init_auth_db():
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             )""")
         
+        # Score history table for tracking security score trends
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS score_history (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                target VARCHAR(255) NOT NULL,
+                score INTEGER NOT NULL,
+                grade VARCHAR(2) NOT NULL,
+                critical_count INTEGER DEFAULT 0,
+                high_count INTEGER DEFAULT 0,
+                medium_count INTEGER DEFAULT 0,
+                low_count INTEGER DEFAULT 0,
+                scanned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS score_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                target VARCHAR(255) NOT NULL,
+                score INTEGER NOT NULL,
+                grade VARCHAR(2) NOT NULL,
+                critical_count INTEGER DEFAULT 0,
+                high_count INTEGER DEFAULT 0,
+                medium_count INTEGER DEFAULT 0,
+                low_count INTEGER DEFAULT 0,
+                scanned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        
         conn.commit()
     finally:
         conn.close()

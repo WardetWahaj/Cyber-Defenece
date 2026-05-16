@@ -92,4 +92,6 @@ export const api = {
   createSchedule: (data) => request("/api/schedules", { method: "POST", body: JSON.stringify(data) }),
   deleteSchedule: (id) => request(`/api/schedules/${id}`, { method: "DELETE" }),
   toggleSchedule: (id) => request(`/api/schedules/${id}/toggle`, { method: "PUT" }),
+  scoreHistory: (target, limit = 30) => request(`/api/scores/history?target=${encodeURIComponent(target)}&limit=${limit}`),
+  saveScore: (data) => request("/api/scores/save", { method: "POST", body: JSON.stringify(data) }),
 };
