@@ -39,12 +39,14 @@ def require_admin(authorization: str = Header(None)) -> dict:
 def admin_get_users(admin: dict = Depends(require_admin)) -> dict:
     """Get all registered users."""
     conn = auth.get_db_connection()
-    c = conn.cursor()
-    c.execute("SELECT id, email, full_name, organization, role, created_at, last_login FROM users ORDER BY created_at DESC")
-    rows = c.fetchall()
-    conn.close()
-    users = [{"id": r[0], "email": r[1], "full_name": r[2], "organization": r[3], "role": r[4], "created_at": r[5], "last_login": r[6]} for r in rows]
-    return {"users": users, "total": len(users)}
+    try:
+        c = conn.cursor()
+        c.execute("SELECT id, email, full_name, organization, role, created_at, last_login FROM users ORDER BY created_at DESC")
+        rows = c.fetchall()
+        users = [{"id": r[0], "email": r[1], "full_name": r[2], "organization": r[3], "role": r[4], "created_at": r[5], "last_login": r[6]} for r in rows]
+        return {"users": users, "total": len(users)}
+    finally:
+        conn.close()
 
 
 @router.get("/scans")

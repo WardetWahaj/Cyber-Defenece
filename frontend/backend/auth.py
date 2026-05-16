@@ -26,32 +26,17 @@ if str(ROOT_DIR) not in sys.path:
 from dotenv import load_dotenv
 load_dotenv(ROOT_DIR / ".env")
 
-# ── Database abstraction layer (supports PostgreSQL and SQLite) ────
-import sqlite3
+# ── Database abstraction layer (import from db module) ──────────────
+# Consolidates PostgreSQL/SQLite switching, connection management, and environment config
+from frontend.backend.db import DatabaseConnection, USE_POSTGRESQL
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-USE_POSTGRES = bool(DATABASE_URL)
-
-if USE_POSTGRES:
-    try:
-        import psycopg2
-        def get_db_connection():
-            return psycopg2.connect(DATABASE_URL)
-    except ImportError:
-        print("[!] psycopg2 not available. Install with: pip install psycopg2-binary")
-        USE_POSTGRES = False
-        DB_FILE = ROOT_DIR / "data" / "cyberdefence.db"
-        def get_db_connection():
-            return sqlite3.connect(DB_FILE)
-else:
-    DB_FILE = ROOT_DIR / "data" / "cyberdefence.db"
-    def get_db_connection():
-        return sqlite3.connect(DB_FILE)
+def get_db_connection():
+    """Get a new database connection (delegates to db.py)."""
+    db = DatabaseConnection()
+    return db.connect()
 
 # ── SQL Placeholder Conversion Helper ──────────────────────────────
+# TODO: Replace with db.py's built-in _convert_placeholders() method when all code is migrated
 def execute_query(cursor, query: str, params: tuple = ()) -> None:
     """
     Execute a query with automatic placeholder conversion.
@@ -62,7 +47,8 @@ def execute_query(cursor, query: str, params: tuple = ()) -> None:
         query: SQL query (can use %s for any database)
         params: Query parameters as tuple
     """
-    if not USE_POSTGRES:
+    # Retrieve database type from db module to determine placeholder conversion
+    if not USE_POSTGRESQL:
         # Convert %s placeholders to ? for SQLite
         query = query.replace("%s", "?")
     cursor.execute(query, params)
@@ -411,112 +397,114 @@ def get_table_columns(cursor, table_name: str) -> list:
 def init_auth_db():
     """Initialize authentication tables and add new columns for password reset."""
     conn = get_db_connection()
-    c = conn.cursor()
-    
-    # Users table with password reset support
-    # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
-    if USE_POSTGRES:
-        c.execute("""CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT NOT NULL,
-            organization TEXT,
-            password_hash TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            last_login TEXT,
-            is_active BOOLEAN DEFAULT TRUE,
-            reset_token TEXT,
-            reset_token_expiry REAL
-        )""")
-    else:
-        c.execute("""CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT NOT NULL,
-            organization TEXT,
-            password_hash TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            last_login TEXT,
-            is_active BOOLEAN DEFAULT 1,
-            reset_token TEXT,
-            reset_token_expiry REAL
-        )""")
-    
-    # ── Migration: Add reset_token and reset_token_expiry columns if they don't exist ──
-    columns = get_table_columns(c, "users")
-    
     try:
-        if 'reset_token' not in columns:
-            c.execute("""ALTER TABLE users ADD COLUMN reset_token TEXT""")
-            print("✅ Added 'reset_token' column to users table")
-    except Exception:
-        pass  # Column already exists
-    
-    try:
-        if 'reset_token_expiry' not in columns:
-            c.execute("""ALTER TABLE users ADD COLUMN reset_token_expiry REAL""")
-            print("✅ Added 'reset_token_expiry' column to users table")
-    except Exception:
-        pass  # Column already exists
-    
-    # Add user_id to scans table if it doesn't exist
-    scans_columns = get_table_columns(c, "scans")
-    if 'user_id' not in scans_columns:
-        c.execute("""ALTER TABLE scans ADD COLUMN user_id INTEGER""")
-    
-    # Reports table for tracking generated reports
-    # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
-    if USE_POSTGRES:
-        c.execute("""CREATE TABLE IF NOT EXISTS reports (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL,
-            target TEXT,
-            org_name TEXT,
-            author TEXT,
-            pdf_path TEXT,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )""")
-    else:
-        c.execute("""CREATE TABLE IF NOT EXISTS reports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            target TEXT,
-            org_name TEXT,
-            author TEXT,
-            pdf_path TEXT,
-            created_at TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )""")
-    
-    # ── Migration: Add role column if it doesn't exist ──
-    try:
-        if 'role' not in columns:
-            c.execute("""ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'analyst'""")
-            print("✅ Added 'role' column to users table")
-    except Exception:
-        pass  # Column already exists
-    
-    # Login attempts table for brute-force protection
-    if USE_POSTGRES:
-        c.execute("""CREATE TABLE IF NOT EXISTS login_attempts (
-            id SERIAL PRIMARY KEY,
-            email TEXT NOT NULL,
-            ip_address TEXT,
-            attempted_at TEXT NOT NULL,
-            success BOOLEAN DEFAULT FALSE
-        )""")
-    else:
-        c.execute("""CREATE TABLE IF NOT EXISTS login_attempts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT NOT NULL,
-            ip_address TEXT,
-            attempted_at TEXT NOT NULL,
-            success BOOLEAN DEFAULT 0
-        )""")
-    
-    conn.commit()
-    conn.close()
+        c = conn.cursor()
+        
+        # Users table with password reset support
+        # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                email TEXT UNIQUE NOT NULL,
+                full_name TEXT NOT NULL,
+                organization TEXT,
+                password_hash TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                last_login TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                reset_token TEXT,
+                reset_token_expiry REAL
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                full_name TEXT NOT NULL,
+                organization TEXT,
+                password_hash TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                last_login TEXT,
+                is_active BOOLEAN DEFAULT 1,
+                reset_token TEXT,
+                reset_token_expiry REAL
+            )""")
+        
+        # ── Migration: Add reset_token and reset_token_expiry columns if they don't exist ──
+        columns = get_table_columns(c, "users")
+        
+        try:
+            if 'reset_token' not in columns:
+                c.execute("""ALTER TABLE users ADD COLUMN reset_token TEXT""")
+                print("✅ Added 'reset_token' column to users table")
+        except Exception:
+            pass  # Column already exists
+        
+        try:
+            if 'reset_token_expiry' not in columns:
+                c.execute("""ALTER TABLE users ADD COLUMN reset_token_expiry REAL""")
+                print("✅ Added 'reset_token_expiry' column to users table")
+        except Exception:
+            pass  # Column already exists
+        
+        # Add user_id to scans table if it doesn't exist
+        scans_columns = get_table_columns(c, "scans")
+        if 'user_id' not in scans_columns:
+            c.execute("""ALTER TABLE scans ADD COLUMN user_id INTEGER""")
+        
+        # Reports table for tracking generated reports
+        # Use SERIAL for PostgreSQL, INTEGER PRIMARY KEY AUTOINCREMENT for SQLite
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS reports (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                target TEXT,
+                org_name TEXT,
+                author TEXT,
+                pdf_path TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                target TEXT,
+                org_name TEXT,
+                author TEXT,
+                pdf_path TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )""")
+        
+        # ── Migration: Add role column if it doesn't exist ──
+        try:
+            if 'role' not in columns:
+                c.execute("""ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'analyst'""")
+                print("✅ Added 'role' column to users table")
+        except Exception:
+            pass  # Column already exists
+        
+        # Login attempts table for brute-force protection
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS login_attempts (
+                id SERIAL PRIMARY KEY,
+                email TEXT NOT NULL,
+                ip_address TEXT,
+                attempted_at TEXT NOT NULL,
+                success BOOLEAN DEFAULT FALSE
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS login_attempts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL,
+                ip_address TEXT,
+                attempted_at TEXT NOT NULL,
+                success BOOLEAN DEFAULT 0
+            )""")
+        
+        conn.commit()
+    finally:
+        conn.close()
 
 def migrate_pdf_paths_for_reports():
     """
@@ -628,10 +616,12 @@ migrate_pdf_paths_for_reports()
 def get_user_by_email(email: str) -> dict | None:
     """Get a user by email."""
     conn = get_db_connection()
-    c = conn.cursor()
-    execute_query(c, "SELECT * FROM users WHERE email = %s", (email,))
-    row = c.fetchone()
-    conn.close()
+    try:
+        c = conn.cursor()
+        execute_query(c, "SELECT * FROM users WHERE email = %s", (email,))
+        row = c.fetchone()
+    finally:
+        conn.close()
     
     if row:
         return {
@@ -652,10 +642,12 @@ def get_user_by_email(email: str) -> dict | None:
 def get_user_by_id(user_id: int) -> dict | None:
     """Get a user by ID."""
     conn = get_db_connection()
-    c = conn.cursor()
-    execute_query(c, "SELECT * FROM users WHERE id = %s", (user_id,))
-    row = c.fetchone()
-    conn.close()
+    try:
+        c = conn.cursor()
+        execute_query(c, "SELECT * FROM users WHERE id = %s", (user_id,))
+        row = c.fetchone()
+    finally:
+        conn.close()
     
     if row:
         return {
@@ -676,20 +668,25 @@ def get_user_by_id(user_id: int) -> dict | None:
 def record_login_attempt(email: str, ip_address: str = None, success: bool = False):
     """Record a login attempt for brute-force tracking."""
     conn = get_db_connection()
-    c = conn.cursor()
-    execute_query(c, "INSERT INTO login_attempts (email, ip_address, attempted_at, success) VALUES (%s, %s, %s, %s)",
-                  (email, ip_address, datetime.now().isoformat(), success))
-    conn.commit()
-    conn.close()
+    try:
+        c = conn.cursor()
+        execute_query(c, "INSERT INTO login_attempts (email, ip_address, attempted_at, success) VALUES (%s, %s, %s, %s)",
+                      (email, ip_address, datetime.now().isoformat(), success))
+        conn.commit()
+    finally:
+        conn.close()
 
 def is_account_locked(email: str, max_attempts: int = 5, lockout_minutes: int = 15) -> bool:
     """Check if an account is locked due to too many failed login attempts."""
     conn = get_db_connection()
-    c = conn.cursor()
-    cutoff = (datetime.now() - timedelta(minutes=lockout_minutes)).isoformat()
-    execute_query(c, "SELECT COUNT(*) FROM login_attempts WHERE email = %s AND attempted_at > %s AND success = %s",
-                  (email, cutoff, False if not USE_POSTGRES else False))
-    count = c.fetchone()[0]
+    try:
+        c = conn.cursor()
+        cutoff = (datetime.now() - timedelta(minutes=lockout_minutes)).isoformat()
+        execute_query(c, "SELECT COUNT(*) FROM login_attempts WHERE email = %s AND attempted_at > %s AND success = %s",
+                      (email, cutoff, False if not USE_POSTGRESQL else False))
+        count = c.fetchone()[0]
+    finally:
+        conn.close()
     conn.close()
     return count >= max_attempts
 
@@ -727,21 +724,25 @@ def create_user(email: str, full_name: str, password: str, organization: str = "
 def update_last_login(user_id: int):
     """Update user's last login timestamp."""
     conn = get_db_connection()
-    c = conn.cursor()
-    execute_query(c, "UPDATE users SET last_login = %s WHERE id = %s", 
-              (datetime.now(timezone.utc).isoformat(), user_id))
-    conn.commit()
-    conn.close()
+    try:
+        c = conn.cursor()
+        execute_query(c, "UPDATE users SET last_login = %s WHERE id = %s", 
+                  (datetime.now(timezone.utc).isoformat(), user_id))
+        conn.commit()
+    finally:
+        conn.close()
 
 def update_password(user_id: int, new_password: str) -> bool:
     """Update user's password."""
     password_hash = hash_password(new_password)
     conn = get_db_connection()
-    c = conn.cursor()
-    execute_query(c, "UPDATE users SET password_hash = %s WHERE id = %s", 
-              (password_hash, user_id))
-    conn.commit()
-    conn.close()
+    try:
+        c = conn.cursor()
+        execute_query(c, "UPDATE users SET password_hash = %s WHERE id = %s", 
+                  (password_hash, user_id))
+        conn.commit()
+    finally:
+        conn.close()
     return True
 
 # ── Password Reset Token Management (SHA-256 Based) ────────────────
