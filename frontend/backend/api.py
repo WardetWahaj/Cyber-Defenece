@@ -106,7 +106,7 @@ def _history_rows(limit: int, user_id: str = None) -> list[dict[str, Any]]:
 # ──────────────────────────────────────────────────────────────────
 
 
-@app.get("/api/health")
+@app.api_route("/api/health", methods=["GET", "HEAD"])
 def health() -> dict[str, Any]:
     """Health check endpoint."""
     db_url = os.environ.get("DATABASE_URL", str(core.DB_FILE))
