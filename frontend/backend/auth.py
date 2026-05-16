@@ -501,136 +501,154 @@ def init_auth_db():
             )""")
         
         # Scheduled scans table for recurring security scans
-        if USE_POSTGRESQL:
-            c.execute("""CREATE TABLE IF NOT EXISTS scheduled_scans (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                target VARCHAR(255) NOT NULL,
-                scan_mode VARCHAR(50) NOT NULL DEFAULT 'Comprehensive',
-                frequency VARCHAR(20) NOT NULL DEFAULT 'weekly',
-                next_run TIMESTAMP NOT NULL,
-                last_run TIMESTAMP,
-                is_active BOOLEAN NOT NULL DEFAULT TRUE,
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
-        else:
-            c.execute("""CREATE TABLE IF NOT EXISTS scheduled_scans (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                target VARCHAR(255) NOT NULL,
-                scan_mode VARCHAR(50) NOT NULL DEFAULT 'Comprehensive',
-                frequency VARCHAR(20) NOT NULL DEFAULT 'weekly',
-                next_run TIMESTAMP NOT NULL,
-                last_run TIMESTAMP,
-                is_active BOOLEAN NOT NULL DEFAULT 1,
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
+        try:
+            if USE_POSTGRESQL:
+                c.execute("""CREATE TABLE IF NOT EXISTS scheduled_scans (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    target VARCHAR(255) NOT NULL,
+                    scan_mode VARCHAR(50) NOT NULL DEFAULT 'Comprehensive',
+                    frequency VARCHAR(20) NOT NULL DEFAULT 'weekly',
+                    next_run TIMESTAMP NOT NULL,
+                    last_run TIMESTAMP,
+                    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+            else:
+                c.execute("""CREATE TABLE IF NOT EXISTS scheduled_scans (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    target VARCHAR(255) NOT NULL,
+                    scan_mode VARCHAR(50) NOT NULL DEFAULT 'Comprehensive',
+                    frequency VARCHAR(20) NOT NULL DEFAULT 'weekly',
+                    next_run TIMESTAMP NOT NULL,
+                    last_run TIMESTAMP,
+                    is_active BOOLEAN NOT NULL DEFAULT 1,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+        except Exception:
+            conn.rollback()
         
         # Score history table for tracking security score trends
-        if USE_POSTGRESQL:
-            c.execute("""CREATE TABLE IF NOT EXISTS score_history (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                target VARCHAR(255) NOT NULL,
-                score INTEGER NOT NULL,
-                grade VARCHAR(2) NOT NULL,
-                critical_count INTEGER DEFAULT 0,
-                high_count INTEGER DEFAULT 0,
-                medium_count INTEGER DEFAULT 0,
-                low_count INTEGER DEFAULT 0,
-                scanned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
-        else:
-            c.execute("""CREATE TABLE IF NOT EXISTS score_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                target VARCHAR(255) NOT NULL,
-                score INTEGER NOT NULL,
-                grade VARCHAR(2) NOT NULL,
-                critical_count INTEGER DEFAULT 0,
-                high_count INTEGER DEFAULT 0,
-                medium_count INTEGER DEFAULT 0,
-                low_count INTEGER DEFAULT 0,
-                scanned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
+        try:
+            if USE_POSTGRESQL:
+                c.execute("""CREATE TABLE IF NOT EXISTS score_history (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    target VARCHAR(255) NOT NULL,
+                    score INTEGER NOT NULL,
+                    grade VARCHAR(2) NOT NULL,
+                    critical_count INTEGER DEFAULT 0,
+                    high_count INTEGER DEFAULT 0,
+                    medium_count INTEGER DEFAULT 0,
+                    low_count INTEGER DEFAULT 0,
+                    scanned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+            else:
+                c.execute("""CREATE TABLE IF NOT EXISTS score_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    target VARCHAR(255) NOT NULL,
+                    score INTEGER NOT NULL,
+                    grade VARCHAR(2) NOT NULL,
+                    critical_count INTEGER DEFAULT 0,
+                    high_count INTEGER DEFAULT 0,
+                    medium_count INTEGER DEFAULT 0,
+                    low_count INTEGER DEFAULT 0,
+                    scanned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+        except Exception:
+            conn.rollback()
         
         # Teams table for collaboration
-        if USE_POSTGRESQL:
-            c.execute("""CREATE TABLE IF NOT EXISTS teams (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                created_by INTEGER NOT NULL REFERENCES users(id),
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
-        else:
-            c.execute("""CREATE TABLE IF NOT EXISTS teams (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name VARCHAR(255) NOT NULL,
-                created_by INTEGER NOT NULL REFERENCES users(id),
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
+        try:
+            if USE_POSTGRESQL:
+                c.execute("""CREATE TABLE IF NOT EXISTS teams (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    created_by INTEGER NOT NULL REFERENCES users(id),
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+            else:
+                c.execute("""CREATE TABLE IF NOT EXISTS teams (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name VARCHAR(255) NOT NULL,
+                    created_by INTEGER NOT NULL REFERENCES users(id),
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+        except Exception:
+            conn.rollback()
         
         # Team members table for managing team membership and roles
-        if USE_POSTGRESQL:
-            c.execute("""CREATE TABLE IF NOT EXISTS team_members (
-                id SERIAL PRIMARY KEY,
-                team_id INTEGER NOT NULL REFERENCES teams(id),
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                role VARCHAR(20) NOT NULL DEFAULT 'viewer',
-                joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(team_id, user_id)
-            )""")
-        else:
-            c.execute("""CREATE TABLE IF NOT EXISTS team_members (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                team_id INTEGER NOT NULL REFERENCES teams(id),
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                role VARCHAR(20) NOT NULL DEFAULT 'viewer',
-                joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(team_id, user_id)
-            )""")
+        try:
+            if USE_POSTGRESQL:
+                c.execute("""CREATE TABLE IF NOT EXISTS team_members (
+                    id SERIAL PRIMARY KEY,
+                    team_id INTEGER NOT NULL REFERENCES teams(id),
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    role VARCHAR(20) NOT NULL DEFAULT 'viewer',
+                    joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(team_id, user_id)
+                )""")
+            else:
+                c.execute("""CREATE TABLE IF NOT EXISTS team_members (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    team_id INTEGER NOT NULL REFERENCES teams(id),
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    role VARCHAR(20) NOT NULL DEFAULT 'viewer',
+                    joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(team_id, user_id)
+                )""")
+        except Exception:
+            conn.rollback()
         
         # Team shared scans table for tracking which scans are shared with teams
-        if USE_POSTGRESQL:
-            c.execute("""CREATE TABLE IF NOT EXISTS team_shared_scans (
-                id SERIAL PRIMARY KEY,
-                team_id INTEGER NOT NULL REFERENCES teams(id),
-                scan_id INTEGER NOT NULL,
-                shared_by INTEGER NOT NULL REFERENCES users(id),
-                shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
-        else:
-            c.execute("""CREATE TABLE IF NOT EXISTS team_shared_scans (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                team_id INTEGER NOT NULL REFERENCES teams(id),
-                scan_id INTEGER NOT NULL,
-                shared_by INTEGER NOT NULL REFERENCES users(id),
-                shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
+        try:
+            if USE_POSTGRESQL:
+                c.execute("""CREATE TABLE IF NOT EXISTS team_shared_scans (
+                    id SERIAL PRIMARY KEY,
+                    team_id INTEGER NOT NULL REFERENCES teams(id),
+                    scan_id INTEGER NOT NULL,
+                    shared_by INTEGER NOT NULL REFERENCES users(id),
+                    shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+            else:
+                c.execute("""CREATE TABLE IF NOT EXISTS team_shared_scans (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    team_id INTEGER NOT NULL REFERENCES teams(id),
+                    scan_id INTEGER NOT NULL,
+                    shared_by INTEGER NOT NULL REFERENCES users(id),
+                    shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+        except Exception:
+            conn.rollback()
         
         # Webhook configurations for notifications
-        if USE_POSTGRESQL:
-            c.execute("""CREATE TABLE IF NOT EXISTS webhook_configs (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                webhook_url VARCHAR(500) NOT NULL,
-                webhook_type VARCHAR(20) NOT NULL DEFAULT 'slack',
-                notify_on_complete BOOLEAN DEFAULT TRUE,
-                notify_on_critical BOOLEAN DEFAULT TRUE,
-                is_active BOOLEAN DEFAULT TRUE,
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
-        else:
-            c.execute("""CREATE TABLE IF NOT EXISTS webhook_configs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                webhook_url VARCHAR(500) NOT NULL,
-                webhook_type VARCHAR(20) NOT NULL DEFAULT 'slack',
-                notify_on_complete BOOLEAN DEFAULT 1,
-                notify_on_critical BOOLEAN DEFAULT 1,
-                is_active BOOLEAN DEFAULT 1,
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )""")
+        try:
+            if USE_POSTGRESQL:
+                c.execute("""CREATE TABLE IF NOT EXISTS webhook_configs (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    webhook_url VARCHAR(500) NOT NULL,
+                    webhook_type VARCHAR(20) NOT NULL DEFAULT 'slack',
+                    notify_on_complete BOOLEAN DEFAULT TRUE,
+                    notify_on_critical BOOLEAN DEFAULT TRUE,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+            else:
+                c.execute("""CREATE TABLE IF NOT EXISTS webhook_configs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    webhook_url VARCHAR(500) NOT NULL,
+                    webhook_type VARCHAR(20) NOT NULL DEFAULT 'slack',
+                    notify_on_complete BOOLEAN DEFAULT 1,
+                    notify_on_critical BOOLEAN DEFAULT 1,
+                    is_active BOOLEAN DEFAULT 1,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )""")
+        except Exception:
+            conn.rollback()
         
         conn.commit()
     finally:
