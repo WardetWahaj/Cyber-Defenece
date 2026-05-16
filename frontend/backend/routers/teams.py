@@ -14,7 +14,7 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
 
 from frontend.backend.db import DatabaseConnection, USE_POSTGRESQL
-from frontend.backend.auth_routes import get_current_user
+from frontend.backend.routers.auth_routes import get_current_user
 
 router = APIRouter()
 

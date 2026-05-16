@@ -52,6 +52,44 @@ async function request(path, options = {}) {
   }
 }
 
+// Helper for file downloads (returns raw response as text/blob)
+async function downloadFile(path, options = {}) {
+  const controller = new AbortController();
+  const timeoutMs = options.timeoutMs ?? 90000;
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const headers = {
+      ...(options.headers || {}),
+    };
+
+    // Add Authorization header if token exists
+    const token = getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE}${path}`, {
+      headers,
+      signal: controller.signal,
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Download failed with status ${response.status}`);
+    }
+
+    return response.text();
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error("Download timed out. Try again.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export const api = {
   request,
   health: () => request("/api/health"),
@@ -110,5 +148,18 @@ export const api = {
     if (webhookId) params.append("webhook_id", webhookId);
     if (webhookUrl) params.append("webhook_url", webhookUrl);
     return request(`/api/webhooks/test?${params.toString()}`, { method: "POST" });
+  },
+  exportScan: (scanId, format = "csv") => downloadFile(`/api/export/scan/${scanId}?format=${format}`),
+  exportVulnerabilities: (target = null, format = "csv") => {
+    const params = new URLSearchParams();
+    if (target) params.append("target", target);
+    params.append("format", format);
+    return downloadFile(`/api/export/vulnerabilities?${params.toString()}`);
+  },
+  exportSummary: (target = null, format = "json") => {
+    const params = new URLSearchParams();
+    if (target) params.append("target", target);
+    params.append("format", format);
+    return downloadFile(`/api/export/summary?${params.toString()}`);
   },
 };

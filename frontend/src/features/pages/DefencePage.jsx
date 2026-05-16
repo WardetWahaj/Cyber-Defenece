@@ -10,6 +10,7 @@ export default function DefencePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [exporting, setExporting] = useState(null);
   const intervalRef = useRef(null);
 
   const modulesInfo = {
@@ -53,6 +54,24 @@ export default function DefencePage() {
       setError(String(e.message || e));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function downloadExport(format) {
+    try {
+      setExporting(format);
+      const content = await api.exportVulnerabilities(target, format);
+      const blob = new Blob([content], { type: format === "csv" ? "text/csv" : "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `defence_report_${target.replace(/[^a-z0-9]/gi, "_")}.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(`Export failed: ${err.message}`);
+    } finally {
+      setExporting(null);
     }
   }
 
@@ -163,7 +182,43 @@ export default function DefencePage() {
             </Card>
 
             <div style={{ display: "grid", gap: 16 }}>
-              <Card title="14-POINT DEFENCE CHECKLIST" right={<span style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase" }}>Real-time monitoring active</span>}>
+              <Card title="14-POINT DEFENCE CHECKLIST" right={
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <span style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase" }}>Real-time monitoring active</span>
+                  <button
+                    onClick={() => downloadExport("csv")}
+                    disabled={exporting === "csv"}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: 6,
+                      border: "1px solid var(--primary)",
+                      background: "transparent",
+                      color: "var(--primary)",
+                      cursor: "pointer",
+                      fontSize: 11,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {exporting === "csv" ? "Exporting..." : "CSV"}
+                  </button>
+                  <button
+                    onClick={() => downloadExport("json")}
+                    disabled={exporting === "json"}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: 6,
+                      border: "1px solid var(--primary)",
+                      background: "transparent",
+                      color: "var(--primary)",
+                      cursor: "pointer",
+                      fontSize: 11,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {exporting === "json" ? "Exporting..." : "JSON"}
+                  </button>
+                </div>
+              }>
                 <table className="table">
                   <thead>
                     <tr>
