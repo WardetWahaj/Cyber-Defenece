@@ -101,4 +101,14 @@ export const api = {
   inviteTeamMember: (teamId, data) => request(`/api/teams/${teamId}/invite`, { method: "POST", body: JSON.stringify(data) }),
   removeTeamMember: (teamId, userId) => request(`/api/teams/${teamId}/members/${userId}`, { method: "DELETE" }),
   shareTeamScan: (teamId, scanId) => request(`/api/teams/${teamId}/share-scan/${scanId}`, { method: "POST" }),
+  listWebhooks: () => request("/api/webhooks"),
+  createWebhook: (data) => request("/api/webhooks", { method: "POST", body: JSON.stringify(data) }),
+  deleteWebhook: (id) => request(`/api/webhooks/${id}`, { method: "DELETE" }),
+  updateWebhook: (id, data) => request(`/api/webhooks/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  testWebhook: (webhookId = null, webhookUrl = null) => {
+    const params = new URLSearchParams();
+    if (webhookId) params.append("webhook_id", webhookId);
+    if (webhookUrl) params.append("webhook_url", webhookUrl);
+    return request(`/api/webhooks/test?${params.toString()}`, { method: "POST" });
+  },
 };

@@ -608,6 +608,30 @@ def init_auth_db():
                 shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             )""")
         
+        # Webhook configurations for notifications
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS webhook_configs (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                webhook_url VARCHAR(500) NOT NULL,
+                webhook_type VARCHAR(20) NOT NULL DEFAULT 'slack',
+                notify_on_complete BOOLEAN DEFAULT TRUE,
+                notify_on_critical BOOLEAN DEFAULT TRUE,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS webhook_configs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                webhook_url VARCHAR(500) NOT NULL,
+                webhook_type VARCHAR(20) NOT NULL DEFAULT 'slack',
+                notify_on_complete BOOLEAN DEFAULT 1,
+                notify_on_critical BOOLEAN DEFAULT 1,
+                is_active BOOLEAN DEFAULT 1,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        
         conn.commit()
     finally:
         conn.close()
