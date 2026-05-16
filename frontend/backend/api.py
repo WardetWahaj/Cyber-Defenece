@@ -120,7 +120,7 @@ def health() -> dict[str, Any]:
         "status": "ok",
         "version": "3.1.0",
         "database": db_url,
-        "nuclei_available": core.NUCLEI_AVAILABLE,
+        "nuclei_available": core.NUCLEI_AVAILABLE or os.path.isfile("/app/bin/nuclei"),
         "nmap_available": core.NMAP_AVAILABLE,
         "timestamp": dt.datetime.now().isoformat(),
     }
