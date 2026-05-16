@@ -116,7 +116,7 @@ async def export_scan(
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Get scan details (may be limited by ownership, but for now allow if accessible)
         query = """

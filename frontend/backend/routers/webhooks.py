@@ -76,7 +76,7 @@ async def list_webhooks(current_user: dict = Depends(get_current_user)):
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         query = """
             SELECT id, webhook_url, webhook_type, notify_on_complete, notify_on_critical, is_active, created_at
@@ -130,7 +130,7 @@ async def create_webhook(webhook_data: WebhookCreate, current_user: dict = Depen
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         query = """
             INSERT INTO webhook_configs (user_id, webhook_url, webhook_type, notify_on_complete, notify_on_critical)
@@ -180,7 +180,7 @@ async def delete_webhook(webhook_id: int, current_user: dict = Depends(get_curre
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Check if webhook belongs to user
         webhook = fetch_one(c,
@@ -227,7 +227,7 @@ async def update_webhook(webhook_id: int, webhook_data: WebhookUpdate, current_u
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Check if webhook belongs to user
         webhook = fetch_one(c,
@@ -317,7 +317,7 @@ async def test_webhook(webhook_id: int = None, webhook_url: str = None, current_
         conn = db.connect()
         try:
             c = conn.cursor()
-            user_id = current_user.get("user_id")
+            user_id = current_user.get("id")
             
             webhook = fetch_one(c,
                 "SELECT webhook_url, webhook_type FROM webhook_configs WHERE id = %s AND user_id = %s",

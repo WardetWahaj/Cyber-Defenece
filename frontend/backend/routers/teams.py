@@ -78,7 +78,7 @@ async def create_team(team_data: TeamCreate, current_user: dict = Depends(get_cu
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Create team
         execute_query(c, 
@@ -125,7 +125,7 @@ async def list_teams(current_user: dict = Depends(get_current_user)):
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Get teams with member role and counts
         query = """
@@ -178,7 +178,7 @@ async def invite_user(team_id: int, invite_data: TeamMemberInvite, current_user:
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Check if requester is owner/analyst of team
         member = fetch_one(c,
@@ -256,7 +256,7 @@ async def remove_member(team_id: int, member_user_id: int, current_user: dict = 
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Check if requester is owner
         member = fetch_one(c,
@@ -314,7 +314,7 @@ async def get_team_members(team_id: int, current_user: dict = Depends(get_curren
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Check if requester is member of team
         member = fetch_one(c,
@@ -370,7 +370,7 @@ async def get_team_scans(team_id: int, current_user: dict = Depends(get_current_
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Check if requester is member of team
         member = fetch_one(c,
@@ -425,7 +425,7 @@ async def share_scan_with_team(team_id: int, scan_id: int, current_user: dict = 
     conn = db.connect()
     try:
         c = conn.cursor()
-        user_id = current_user.get("user_id")
+        user_id = current_user.get("id")
         
         # Check if requester is analyst+ in team
         member = fetch_one(c,
