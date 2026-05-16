@@ -31,6 +31,17 @@ export default function SiemPage() {
       {error && <p style={{ color: "#ffb4ab" }}>{error}</p>}
       {data && (
         <>
+          <div style={{ 
+            background: "rgba(251, 191, 36, 0.1)", 
+            border: "1px solid rgba(251, 191, 36, 0.3)", 
+            borderRadius: 8, 
+            padding: "12px 16px", 
+            marginBottom: 16, 
+            fontSize: 13, 
+            color: "#FBBF24" 
+          }}>
+            Note: SIEM events shown are simulated demo data. Connect a real SIEM/log source for production analysis.
+          </div>
           <div className="grid grid-4 page-section">
             <Card title="Critical"><div className="kpi-value">{data.critical || 0}</div></Card>
             <Card title="High"><div className="kpi-value">{data.high || 0}</div></Card>

@@ -92,6 +92,8 @@ def _module_siem_noninteractive(target: str) -> dict[str, Any]:
         "critical": critical,
         "high": high,
         "medium": medium,
+        "simulated": True,
+        "note": "SIEM events are simulated demo data. Connect a real SIEM source for production use.",
     }
     save_db(target or "siem", "siem", results)
     return results
