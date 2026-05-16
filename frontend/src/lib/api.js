@@ -94,4 +94,11 @@ export const api = {
   toggleSchedule: (id) => request(`/api/schedules/${id}/toggle`, { method: "PUT" }),
   scoreHistory: (target, limit = 30) => request(`/api/scores/history?target=${encodeURIComponent(target)}&limit=${limit}`),
   saveScore: (data) => request("/api/scores/save", { method: "POST", body: JSON.stringify(data) }),
+  listTeams: () => request("/api/teams"),
+  createTeam: (data) => request("/api/teams", { method: "POST", body: JSON.stringify(data) }),
+  getTeamMembers: (teamId) => request(`/api/teams/${teamId}/members`),
+  getTeamScans: (teamId) => request(`/api/teams/${teamId}/scans`),
+  inviteTeamMember: (teamId, data) => request(`/api/teams/${teamId}/invite`, { method: "POST", body: JSON.stringify(data) }),
+  removeTeamMember: (teamId, userId) => request(`/api/teams/${teamId}/members/${userId}`, { method: "DELETE" }),
+  shareTeamScan: (teamId, scanId) => request(`/api/teams/${teamId}/share-scan/${scanId}`, { method: "POST" }),
 };

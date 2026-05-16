@@ -554,6 +554,60 @@ def init_auth_db():
                 scanned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             )""")
         
+        # Teams table for collaboration
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS teams (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                created_by INTEGER NOT NULL REFERENCES users(id),
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS teams (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(255) NOT NULL,
+                created_by INTEGER NOT NULL REFERENCES users(id),
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        
+        # Team members table for managing team membership and roles
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS team_members (
+                id SERIAL PRIMARY KEY,
+                team_id INTEGER NOT NULL REFERENCES teams(id),
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                role VARCHAR(20) NOT NULL DEFAULT 'viewer',
+                joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(team_id, user_id)
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS team_members (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team_id INTEGER NOT NULL REFERENCES teams(id),
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                role VARCHAR(20) NOT NULL DEFAULT 'viewer',
+                joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(team_id, user_id)
+            )""")
+        
+        # Team shared scans table for tracking which scans are shared with teams
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS team_shared_scans (
+                id SERIAL PRIMARY KEY,
+                team_id INTEGER NOT NULL REFERENCES teams(id),
+                scan_id INTEGER NOT NULL,
+                shared_by INTEGER NOT NULL REFERENCES users(id),
+                shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS team_shared_scans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team_id INTEGER NOT NULL REFERENCES teams(id),
+                scan_id INTEGER NOT NULL,
+                shared_by INTEGER NOT NULL REFERENCES users(id),
+                shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        
         conn.commit()
     finally:
         conn.close()
