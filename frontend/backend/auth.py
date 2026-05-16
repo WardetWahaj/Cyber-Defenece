@@ -500,6 +500,32 @@ def init_auth_db():
                 success BOOLEAN DEFAULT 0
             )""")
         
+        # Scheduled scans table for recurring security scans
+        if USE_POSTGRESQL:
+            c.execute("""CREATE TABLE IF NOT EXISTS scheduled_scans (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                target VARCHAR(255) NOT NULL,
+                scan_mode VARCHAR(50) NOT NULL DEFAULT 'Comprehensive',
+                frequency VARCHAR(20) NOT NULL DEFAULT 'weekly',
+                next_run TIMESTAMP NOT NULL,
+                last_run TIMESTAMP,
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        else:
+            c.execute("""CREATE TABLE IF NOT EXISTS scheduled_scans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                target VARCHAR(255) NOT NULL,
+                scan_mode VARCHAR(50) NOT NULL DEFAULT 'Comprehensive',
+                frequency VARCHAR(20) NOT NULL DEFAULT 'weekly',
+                next_run TIMESTAMP NOT NULL,
+                last_run TIMESTAMP,
+                is_active BOOLEAN NOT NULL DEFAULT 1,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+        
         conn.commit()
     finally:
         conn.close()

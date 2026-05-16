@@ -34,7 +34,7 @@ load_dotenv(ROOT_DIR / ".env")
 
 import cyberdefence_platform_v31 as core
 from frontend.backend import auth
-from frontend.backend.routers import auth_routes, scan, report, admin
+from frontend.backend.routers import auth_routes, scan, report, admin, schedule
 
 core.init_db()
 auth.init_auth_db()
@@ -79,6 +79,7 @@ app.include_router(auth_routes.router)
 app.include_router(scan.router)
 app.include_router(report.router)
 app.include_router(admin.router)
+app.include_router(schedule.router)
 
 # ──────────────────────────────────────────────────────────────────
 # Helper Functions

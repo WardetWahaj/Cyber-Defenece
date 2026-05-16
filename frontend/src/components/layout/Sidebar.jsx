@@ -13,6 +13,7 @@ const nav = [
   ["/results/siem", "SIEM"],
   ["/reports/pdf", "PDF Generator"],
   ["/reports/history", "Reports History"],
+  ["/schedules", "Schedules"],
   ["/settings", "Settings"],
 ];
 

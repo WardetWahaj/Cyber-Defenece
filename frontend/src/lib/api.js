@@ -88,4 +88,8 @@ export const api = {
     method: "PUT", 
     body: JSON.stringify({ key_name, key_value }) 
   }),
+  getSchedules: () => request("/api/schedules"),
+  createSchedule: (data) => request("/api/schedules", { method: "POST", body: JSON.stringify(data) }),
+  deleteSchedule: (id) => request(`/api/schedules/${id}`, { method: "DELETE" }),
+  toggleSchedule: (id) => request(`/api/schedules/${id}/toggle`, { method: "PUT" }),
 };

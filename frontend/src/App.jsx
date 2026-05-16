@@ -17,6 +17,7 @@ import PdfReportPage from "./features/pages/PdfReportPage";
 import ReportsHistoryPage from "./features/pages/ReportsHistoryPage";
 import SettingsPage from "./features/pages/SettingsPage";
 import AdminPage from "./features/pages/AdminPage";
+import SchedulesPage from "./features/pages/SchedulesPage";
 import LoginPage from "./features/pages/LoginPage";
 import SignupPage from "./features/pages/SignupPage";
 import ForgotPasswordPage from "./features/pages/ForgotPasswordPage";
@@ -93,6 +94,7 @@ export default function App() {
                       <Route path="/results/siem" element={<SiemPage />} />
                       <Route path="/reports/pdf" element={<PdfReportPage />} />
                       <Route path="/reports/history" element={<ReportsHistoryPage />} />
+                      <Route path="/schedules" element={<SchedulesPage />} />
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/admin" element={<AdminPage />} />
                     </Routes>
