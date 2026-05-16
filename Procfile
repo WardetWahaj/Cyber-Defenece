@@ -1,1 +1,1 @@
-web: bash bin/install_nuclei.sh && /app/bin/nuclei -update-templates -silent && gunicorn -w 1 -k uvicorn.workers.UvicornWorker --timeout 120 frontend.backend.api:app
+web: bash bin/install_nuclei.sh && /app/bin/nuclei -update-templates -silent && python -m alembic upgrade head 2>/dev/null; gunicorn -w 2 -k uvicorn.workers.UvicornWorker --timeout 120 frontend.backend.api:app
